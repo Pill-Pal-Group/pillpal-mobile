@@ -4,25 +4,23 @@ import 'package:flutter/material.dart';
 import 'package:rive/rive.dart';
 
 import 'components/animated_btn.dart';
-import 'components/custom_sign_in_dialog.dart';
+import 'components/sign_in_dialog.dart';
 
-// Let's get started
-// first we need to check is text field is empty or not
-
-class OnboardingScreen extends StatefulWidget {
-  const OnboardingScreen({super.key});
+class OnbodingScreen extends StatefulWidget {
+  const OnbodingScreen({super.key});
 
   @override
-  State<OnboardingScreen> createState() => _OnboardingScreenState();
+  State<OnbodingScreen> createState() => _OnbodingScreenState();
 }
 
-class _OnboardingScreenState extends State<OnboardingScreen> {
-  bool isSignInDialogShown = false;
-  late RiveAnimationController _btnAnimationColtroller;
+class _OnbodingScreenState extends State<OnbodingScreen> {
+  late RiveAnimationController _btnAnimationController;
+
+  bool isShowSignInDialog = false;
 
   @override
   void initState() {
-    _btnAnimationColtroller = OneShotAnimation(
+    _btnAnimationController = OneShotAnimation(
       "active",
       autoplay: false,
     );
@@ -36,16 +34,21 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         children: [
           Positioned(
             width: MediaQuery.of(context).size.width * 1.7,
-            bottom: 200,
             left: 100,
-            child: Image.asset("assets/Backgrounds/Spline.png"),
+            bottom: 100,
+            child: Image.asset(
+              "assets/Backgrounds/Spline.png",
+            ),
           ),
           Positioned.fill(
             child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 20, sigmaY: 10),
+              filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+              child: const SizedBox(),
             ),
           ),
-          const RiveAnimation.asset("assets/RiveAssets/shapes.riv"),
+          const RiveAnimation.asset(
+            "assets/RiveAssets/shapes.riv",
+          ),
           Positioned.fill(
             child: BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
@@ -53,10 +56,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             ),
           ),
           AnimatedPositioned(
-            top: isSignInDialogShown ? -50 : 0,
-            duration: const Duration(milliseconds: 240),
+            top: isShowSignInDialog ? -50 : 0,
             height: MediaQuery.of(context).size.height,
             width: MediaQuery.of(context).size.width,
+            duration: const Duration(milliseconds: 260),
             child: SafeArea(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -64,14 +67,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Spacer(),
-                    SizedBox(
+                    const SizedBox(
                       width: 260,
                       child: Column(
-                        children: const [
+                        children: [
                           Text(
                             "Learn design & code",
                             style: TextStyle(
                               fontSize: 60,
+                              fontWeight: FontWeight.w700,
                               fontFamily: "Poppins",
                               height: 1.2,
                             ),
@@ -85,24 +89,28 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     ),
                     const Spacer(flex: 2),
                     AnimatedBtn(
-                      btnAnimationColtroller: _btnAnimationColtroller,
+                      btnAnimationController: _btnAnimationController,
                       press: () {
-                        _btnAnimationColtroller.isActive = true;
+                        _btnAnimationController.isActive = true;
+
                         Future.delayed(
                           const Duration(milliseconds: 800),
                           () {
                             setState(() {
-                              isSignInDialogShown = true;
+                              isShowSignInDialog = true;
                             });
-
-                            customSigninDialog(
+                            showCustomDialog(
                               context,
-                              onCLosed: (_) {
-                                setState(() {
-                                  isSignInDialogShown = false;
-                                });
-                              },
+                              onValue: (_) {},
                             );
+                            // showCustomDialog(
+                            //   context,
+                            //   onValue: (_) {
+                            //     setState(() {
+                            //       isShowSignInDialog = false;
+                            //     });
+                            //   },
+                            // );
                           },
                         );
                       },
@@ -110,14 +118,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 24),
                       child: Text(
-                        "Purchase includes access to 30+ courses, 240+ premium tutorials, 120+ hours of videos, source files and certificates.",
-                      ),
-                    ),
+                          "Purchase includes access to 30+ courses, 240+ premium tutorials, 120+ hours of videos, source files and certificates."),
+                    )
                   ],
                 ),
               ),
             ),
-          )
+          ),
         ],
       ),
     );

@@ -1,16 +1,16 @@
 import 'package:flutter/cupertino.dart';
-
+import 'package:flutter/material.dart';
 import 'package:rive/rive.dart';
 
 class AnimatedBtn extends StatelessWidget {
   const AnimatedBtn({
     Key? key,
-    required RiveAnimationController btnAnimationColtroller,
+    required RiveAnimationController btnAnimationController,
     required this.press,
-  })  : _btnAnimationColtroller = btnAnimationColtroller,
+  })  : _btnAnimationController = btnAnimationController,
         super(key: key);
 
-  final RiveAnimationController _btnAnimationColtroller;
+  final RiveAnimationController _btnAnimationController;
   final VoidCallback press;
 
   @override
@@ -19,28 +19,25 @@ class AnimatedBtn extends StatelessWidget {
       onTap: press,
       child: SizedBox(
         height: 64,
-        width: 260,
+        width: 236,
         child: Stack(
           children: [
-            // Just a button no animation
-            // Let's fix that
             RiveAnimation.asset(
               "assets/RiveAssets/button.riv",
-              // Once we restart the app it shows the animation
-              controllers: [_btnAnimationColtroller],
+              controllers: [_btnAnimationController],
             ),
             Positioned.fill(
-              // But it's not center
               top: 8,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
-                  Icon(CupertinoIcons.arrow_right),
-                  SizedBox(width: 8),
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const Icon(CupertinoIcons.arrow_right),
+                  const SizedBox(width: 8),
                   Text(
                     "Start the course",
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
+                    style: Theme.of(context).textTheme.labelLarge,
+                  )
                 ],
               ),
             )

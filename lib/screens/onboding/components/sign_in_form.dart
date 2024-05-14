@@ -1,9 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:pillpalmobile/screens/entryPoint/entry_point.dart';
 import 'package:rive/rive.dart';
-import 'package:pillpalmobile/entry_point.dart';
-import 'package:pillpalmobile/utils/rive_utils.dart';
 
 class SignInForm extends StatefulWidget {
   const SignInForm({
@@ -14,57 +13,65 @@ class SignInForm extends StatefulWidget {
   State<SignInForm> createState() => _SignInFormState();
 }
 
-// Thank you so much for watching
-// See you on next episode
-
 class _SignInFormState extends State<SignInForm> {
-  GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool isShowLoading = false;
   bool isShowConfetti = false;
-
-  late SMITrigger check;
   late SMITrigger error;
+  late SMITrigger success;
   late SMITrigger reset;
 
   late SMITrigger confetti;
 
-  void signIn(BuildContext context) {
+  void _onCheckRiveInit(Artboard artboard) {
+    StateMachineController? controller =
+        StateMachineController.fromArtboard(artboard, 'State Machine 1');
+
+    artboard.addController(controller!);
+    error = controller.findInput<bool>('Error') as SMITrigger;
+    success = controller.findInput<bool>('Check') as SMITrigger;
+    reset = controller.findInput<bool>('Reset') as SMITrigger;
+  }
+
+  void _onConfettiRiveInit(Artboard artboard) {
+    StateMachineController? controller =
+        StateMachineController.fromArtboard(artboard, "State Machine 1");
+    artboard.addController(controller!);
+
+    confetti = controller.findInput<bool>("Trigger explosion") as SMITrigger;
+  }
+
+  void singIn(BuildContext context) {
+    // confetti.fire();
     setState(() {
-      isShowLoading = true;
       isShowConfetti = true;
+      isShowLoading = true;
     });
     Future.delayed(
-      Duration(seconds: 1),
+      const Duration(seconds: 1),
       () {
         if (_formKey.currentState!.validate()) {
-          // If everything looks good it shows the success animation
-          check.fire();
+          success.fire();
           Future.delayed(
-            Duration(seconds: 2),
+            const Duration(seconds: 2),
             () {
               setState(() {
                 isShowLoading = false;
               });
-              // After closing it want to show the confetti animation
-              // First let's add the animation
-              // restart it
               confetti.fire();
-              // Once all success we will navigate to the Next screen
-              Future.delayed(
-                Duration(seconds: 1),
-                () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => EntryPoint(),
-                      ));
-                },
-              );
+              // Navigate & hide confetti
+              Future.delayed(const Duration(seconds: 1), () {
+                // Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const EntryPoint(),
+                  ),
+                );
+              });
             },
           );
         } else {
-          // or error animation
           error.fire();
           Future.delayed(
             const Duration(seconds: 2),
@@ -72,6 +79,7 @@ class _SignInFormState extends State<SignInForm> {
               setState(() {
                 isShowLoading = false;
               });
+              reset.fire();
             },
           );
         }
@@ -90,7 +98,9 @@ class _SignInFormState extends State<SignInForm> {
             children: [
               const Text(
                 "Email",
-                style: TextStyle(color: Colors.black54),
+                style: TextStyle(
+                  color: Colors.black54,
+                ),
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 8, bottom: 16),
@@ -101,7 +111,8 @@ class _SignInFormState extends State<SignInForm> {
                     }
                     return null;
                   },
-                  onSaved: (email) {},
+                  keyboardType: TextInputType.emailAddress,
+                  textInputAction: TextInputAction.next,
                   decoration: InputDecoration(
                     prefixIcon: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -112,19 +123,20 @@ class _SignInFormState extends State<SignInForm> {
               ),
               const Text(
                 "Password",
-                style: TextStyle(color: Colors.black54),
+                style: TextStyle(
+                  color: Colors.black54,
+                ),
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 8, bottom: 16),
                 child: TextFormField(
+                  obscureText: true,
                   validator: (value) {
                     if (value!.isEmpty) {
                       return "";
                     }
                     return null;
                   },
-                  onSaved: (password) {},
-                  obscureText: true,
                   decoration: InputDecoration(
                     prefixIcon: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -137,7 +149,7 @@ class _SignInFormState extends State<SignInForm> {
                 padding: const EdgeInsets.only(top: 8, bottom: 24),
                 child: ElevatedButton.icon(
                   onPressed: () {
-                    signIn(context);
+                    singIn(context);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFF77D8E),
@@ -161,67 +173,51 @@ class _SignInFormState extends State<SignInForm> {
             ],
           ),
         ),
-        // As you can see there is 3 trigger
-        // Want to show the loading once user tab on the Sign in button
-        // If all okey it should show success
-        // otherwise error
         isShowLoading
             ? CustomPositioned(
                 child: RiveAnimation.asset(
-                  "assets/RiveAssets/check.riv",
-                  onInit: (artboard) {
-                    StateMachineController controller =
-                        RiveUtils.getRiveController(artboard);
-                    check = controller.findSMI("Check") as SMITrigger;
-                    error = controller.findSMI("Error") as SMITrigger;
-                    reset = controller.findSMI("Reset") as SMITrigger;
-                  },
+                  'assets/RiveAssets/check.riv',
+                  fit: BoxFit.cover,
+                  onInit: _onCheckRiveInit,
                 ),
               )
             : const SizedBox(),
-
-        // Looks good
         isShowConfetti
             ? CustomPositioned(
-                child: Transform.scale(
-                  scale: 7,
-                  child: RiveAnimation.asset(
-                    "assets/RiveAssets/confetti.riv",
-                    onInit: (artboard) {
-                      StateMachineController controller =
-                          RiveUtils.getRiveController(artboard);
-
-                      confetti =
-                          controller.findSMI("Trigger explosion") as SMITrigger;
-                    },
-                  ),
+                scale: 6,
+                child: RiveAnimation.asset(
+                  "assets/RiveAssets/confetti.riv",
+                  onInit: _onConfettiRiveInit,
+                  fit: BoxFit.cover,
                 ),
               )
-            : SizedBox(),
+            : const SizedBox(),
       ],
     );
   }
 }
 
 class CustomPositioned extends StatelessWidget {
-  const CustomPositioned({super.key, required this.child, this.size = 100});
+  const CustomPositioned({super.key, this.scale = 1, required this.child});
 
+  final double scale;
   final Widget child;
-  final double size;
 
   @override
   Widget build(BuildContext context) {
     return Positioned.fill(
-      // Let's make it small
       child: Column(
         children: [
-          Spacer(),
+          const Spacer(),
           SizedBox(
-            height: size,
-            width: size,
-            child: child,
+            height: 100,
+            width: 100,
+            child: Transform.scale(
+              scale: scale,
+              child: child,
+            ),
           ),
-          Spacer(flex: 2),
+          const Spacer(flex: 2),
         ],
       ),
     );
