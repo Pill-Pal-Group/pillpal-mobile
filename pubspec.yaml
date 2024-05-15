@@ -45,6 +45,9 @@ dependencies:
   cupertino_icons: ^1.0.8
   rive: ^0.13.4
   flutter_svg: ^2.0.10+1
+  sign_in_button: ^3.2.0
+  google_sign_in: ^6.2.1
+  firebase_auth: ^4.19.5
 
 dev_dependencies:
   flutter_test:

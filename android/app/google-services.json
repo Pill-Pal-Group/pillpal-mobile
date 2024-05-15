@@ -12,7 +12,20 @@
           "package_name": "team.pillpal.pillpalmobile"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "445875223905-ub83f3e3hh3kg7gv4c912voqfkj5o4np.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "team.pillpal.pillpalmobile",
+            "certificate_hash": "f6586f643dfb3d536f3033aa74e98f14b6428214"
+          }
+        },
+        {
+          "client_id": "445875223905-frboaqs15apea23ndqkcelqqff7ivpu5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDXXgCeUjdNR5alav5L0LdQ9NIo-Jy09fI"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "445875223905-frboaqs15apea23ndqkcelqqff7ivpu5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

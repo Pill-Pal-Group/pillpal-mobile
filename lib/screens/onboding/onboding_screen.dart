@@ -1,10 +1,13 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:pillpalmobile/screens/entryPoint/entry_point.dart';
+import 'package:pillpalmobile/screens/home/home_screen.dart';
+import 'package:pillpalmobile/screens/onboding/components/sign_in_dialog.dart';
+import 'package:pillpalmobile/services/auth_service.dart';
 import 'package:rive/rive.dart';
 
 import 'components/animated_btn.dart';
-import 'components/sign_in_dialog.dart';
 
 class OnbodingScreen extends StatefulWidget {
   const OnbodingScreen({super.key});
@@ -55,6 +58,7 @@ class _OnbodingScreenState extends State<OnbodingScreen> {
               child: const SizedBox(),
             ),
           ),
+          //wellcome Text
           AnimatedPositioned(
             top: isShowSignInDialog ? -50 : 0,
             height: MediaQuery.of(context).size.height,
@@ -72,8 +76,9 @@ class _OnbodingScreenState extends State<OnbodingScreen> {
                       child: Column(
                         children: [
                           Text(
-                            "Learn design & code",
+                            "Pill Pal Xin Chào",
                             style: TextStyle(
+                              color: Color.fromARGB(255, 255, 204, 204),
                               fontSize: 60,
                               fontWeight: FontWeight.w700,
                               fontFamily: "Poppins",
@@ -81,15 +86,17 @@ class _OnbodingScreenState extends State<OnbodingScreen> {
                             ),
                           ),
                           SizedBox(height: 16),
-                          Text(
-                            "Don’t skip design. Learn design and code, by building real apps with Flutter and Swift. Complete courses about the best tools.",
-                          ),
+                          // Text(
+                          // "Chào mừng bạn mới",
+                          // ),
                         ],
                       ),
                     ),
                     const Spacer(flex: 2),
+                    //day la cai nut
                     AnimatedBtn(
                       btnAnimationController: _btnAnimationController,
+                      //bo cai login vo day ne
                       press: () {
                         _btnAnimationController.isActive = true;
 
@@ -97,12 +104,13 @@ class _OnbodingScreenState extends State<OnbodingScreen> {
                           const Duration(milliseconds: 800),
                           () {
                             setState(() {
-                              isShowSignInDialog = true;
+                              //isShowSignInDialog = true;
                             });
-                            showCustomDialog(
-                              context,
-                              onValue: (_) {},
-                            );
+                            //cho nay de hien cai popup
+                            // showCustomDialog(
+                            //   context,
+                            //   onValue: (_) {},
+                            // );
                             // showCustomDialog(
                             //   context,
                             //   onValue: (_) {
@@ -111,14 +119,33 @@ class _OnbodingScreenState extends State<OnbodingScreen> {
                             //     });
                             //   },
                             // );
+                            //gắn cái gg vào đây và chuyên hướng
+
+                            //signInWithGoogle();
+
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const EntryPoint(),
+                              ),
+                            );
                           },
                         );
                       },
                     ),
+
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 24),
                       child: Text(
-                          "Purchase includes access to 30+ courses, 240+ premium tutorials, 120+ hours of videos, source files and certificates."),
+                        "Chúc bạn một ngày tốt lành",
+                        style: TextStyle(
+                          color: Color.fromARGB(255, 255, 255, 255),
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                          fontFamily: "Poppins",
+                          height: 1.2,
+                        ),
+                      ),
                     )
                   ],
                 ),

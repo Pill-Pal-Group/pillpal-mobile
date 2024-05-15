@@ -5,8 +5,6 @@ import 'package:pillpalmobile/constants.dart';
 import 'package:pillpalmobile/screens/home/home_screen.dart';
 import 'package:pillpalmobile/utils/rive_utils.dart';
 import 'package:rive/rive.dart';
-
-
 import '../../model/menu.dart';
 import 'components/btm_nav_item.dart';
 import 'components/menu_btn.dart';
