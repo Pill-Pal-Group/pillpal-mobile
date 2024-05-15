@@ -78,7 +78,7 @@ class _OnbodingScreenState extends State<OnbodingScreen> {
                           Text(
                             "Pill Pal Xin Chào",
                             style: TextStyle(
-                              color: Color.fromARGB(255, 255, 204, 204),
+                              color: Color.fromARGB(255, 14, 196, 168),
                               fontSize: 60,
                               fontWeight: FontWeight.w700,
                               fontFamily: "Poppins",
@@ -122,7 +122,8 @@ class _OnbodingScreenState extends State<OnbodingScreen> {
                             //gắn cái gg vào đây và chuyên hướng
 
                             //signInWithGoogle();
-
+                            //dang nhap thanh cong thi chuyen toi cai nay
+                            
                             Navigator.push(
                               context,
                               MaterialPageRoute(

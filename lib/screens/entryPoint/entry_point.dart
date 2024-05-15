@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:pillpalmobile/constants.dart';
+import 'package:pillpalmobile/screens/freetrialscreens/trial_screen.dart';
 import 'package:pillpalmobile/screens/home/home_screen.dart';
 import 'package:pillpalmobile/utils/rive_utils.dart';
 import 'package:rive/rive.dart';
@@ -31,6 +32,26 @@ class _EntryPointState extends State<EntryPoint>
       setState(() {
         selectedBottonNav = menu;
       });
+      print(selectedBottonNav.title);
+    }
+    // điều hướng ở đây
+  }
+
+  Widget bottomnavigaScreen() {
+    // điều hướng ở đây
+    switch (selectedBottonNav.title) {
+      case "Chat":
+        return HomePage();
+      case "Search":
+        return FreeTrialScreen();
+      case "Timer":
+        return FreeTrialScreen();
+      case "Notification":
+        return FreeTrialScreen();
+      case "Profile":
+        return FreeTrialScreen();
+      default:
+        return HomePage();
     }
   }
 
@@ -87,15 +108,18 @@ class _EntryPointState extends State<EntryPoint>
               offset: Offset(animation.value * 265, 0),
               child: Transform.scale(
                 scale: scalAnimation.value,
-                child: const ClipRRect(
+                child: ClipRRect(
                   borderRadius: BorderRadius.all(
                     Radius.circular(24),
                   ),
-                  child: HomePage(),
+                  //cai home page o day
+                  child: bottomnavigaScreen(),
+                  //child: HomePage(),
                 ),
               ),
             ),
           ),
+          //cái nut dể mở option
           AnimatedPositioned(
             duration: const Duration(milliseconds: 200),
             curve: Curves.fastOutSlowIn,
@@ -114,6 +138,7 @@ class _EntryPointState extends State<EntryPoint>
                 setState(
                   () {
                     isSideBarOpen = !isSideBarOpen;
+                    print('dcmm cai nut nay de mowr thanh option');
                   },
                 );
               },
@@ -159,6 +184,7 @@ class _EntryPointState extends State<EntryPoint>
                     return BtmNavItem(
                       navBar: navBar,
                       press: () {
+                        print('dmm cai này là kích hoạt khi ấn vào bottombar');
                         RiveUtils.chnageSMIBoolState(navBar.rive.status!);
                         updateSelectedBtmNav(navBar);
                       },

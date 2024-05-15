@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pillpalmobile/screens/freetrialscreens/trial_screen.dart';
 import 'package:pillpalmobile/screens/onboding/onboding_screen.dart';
 
 void main() {
@@ -14,7 +15,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'The Flutter Way',
       theme: ThemeData(
-        scaffoldBackgroundColor: Color.fromARGB(255,20,150,127),
+        scaffoldBackgroundColor: Color.fromARGB(255, 255, 255, 255),
         primarySwatch: Colors.blue,
         fontFamily: "Intel",
         inputDecorationTheme: const InputDecorationTheme(
@@ -28,6 +29,7 @@ class MyApp extends StatelessWidget {
         ),
       ),
       home: const OnbodingScreen(),
+      //home: const FreeTrialScreen(),
     );
   }
 }
