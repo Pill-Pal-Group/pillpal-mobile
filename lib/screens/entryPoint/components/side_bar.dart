@@ -1,6 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:pillpalmobile/screens/entryPoint/entry_point.dart';
 import 'package:pillpalmobile/screens/freetrialscreens/trial_screen.dart';
+import 'package:pillpalmobile/screens/onboding/onboding_screen.dart';
 
 import '../../../model/menu.dart';
 import '../../../utils/rive_utils.dart';
@@ -17,7 +20,7 @@ class SideBar extends StatefulWidget {
 class _SideBarState extends State<SideBar> {
   Menu selectedSideMenu = sidebarMenus.first;
 
-  void sidebarNavigator() {
+  Future<void> sidebarNavigator() async {
     switch (selectedSideMenu.title) {
       case "Home":
         Navigator.push(
@@ -59,11 +62,19 @@ class _SideBarState extends State<SideBar> {
           ),
         );
         break;
-      case "Notifications":
+      case "Logouts":
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(
+        //     builder: (context) => const FreeTrialScreen(),
+        //   ),
+        // );
+        await GoogleSignIn().signOut();
+        FirebaseAuth.instance.signOut();
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => const FreeTrialScreen(),
+            builder: (context) => const OnbodingScreen(),
           ),
         );
         break;

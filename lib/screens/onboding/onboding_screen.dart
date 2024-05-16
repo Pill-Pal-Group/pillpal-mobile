@@ -1,9 +1,8 @@
 import 'dart:ui';
-
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:pillpalmobile/screens/entryPoint/entry_point.dart';
-import 'package:pillpalmobile/screens/home/home_screen.dart';
-import 'package:pillpalmobile/screens/onboding/components/sign_in_dialog.dart';
 import 'package:pillpalmobile/services/auth_service.dart';
 import 'package:rive/rive.dart';
 
@@ -18,7 +17,6 @@ class OnbodingScreen extends StatefulWidget {
 
 class _OnbodingScreenState extends State<OnbodingScreen> {
   late RiveAnimationController _btnAnimationController;
-
   bool isShowSignInDialog = false;
 
   @override
@@ -104,33 +102,24 @@ class _OnbodingScreenState extends State<OnbodingScreen> {
                           const Duration(milliseconds: 800),
                           () {
                             setState(() {
-                              //isShowSignInDialog = true;
+                              isShowSignInDialog = true;
                             });
-                            //cho nay de hien cai popup
-                            // showCustomDialog(
-                            //   context,
-                            //   onValue: (_) {},
-                            // );
-                            // showCustomDialog(
-                            //   context,
-                            //   onValue: (_) {
-                            //     setState(() {
-                            //       isShowSignInDialog = false;
-                            //     });
-                            //   },
-                            // );
-                            //gắn cái gg vào đây và chuyên hướng
+                            final user = signInWithGoogle();
 
-                            //signInWithGoogle();
-                            //dang nhap thanh cong thi chuyen toi cai nay
-                            
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const EntryPoint(),
-                              ),
+                            user.whenComplete(() => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const EntryPoint(),
+                                  ),
+                                )
                             );
+
+                            //them cai bat loi dang nhap sai vao day
+                            
                           },
+
+
                         );
                       },
                     ),

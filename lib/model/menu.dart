@@ -7,6 +7,8 @@ class Menu {
   Menu({required this.title, required this.rive});
 }
 
+
+
 List<Menu> sidebarMenus = [
   Menu(
     title: "Home",
@@ -46,13 +48,16 @@ List<Menu> sidebarMenus2 = [
         stateMachineName: "TIMER_Interactivity"),
   ),
   Menu(
-    title: "Notifications",
+    title: "Logouts",
     rive: RiveModel(
         src: "assets/RiveAssets/icons.riv",
         artboard: "BELL",
         stateMachineName: "BELL_Interactivity"),
   ),
 ];
+
+
+
 
 List<Menu> bottomNavItems = [
   Menu(
