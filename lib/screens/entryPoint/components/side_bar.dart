@@ -62,7 +62,7 @@ class _SideBarState extends State<SideBar> {
           ),
         );
         break;
-      case "Logout":
+      case "Đăng xuất":
         await GoogleSignIn().signOut();
         FirebaseAuth.instance.signOut();
         Navigator.push(
