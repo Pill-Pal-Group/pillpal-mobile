@@ -62,13 +62,7 @@ class _SideBarState extends State<SideBar> {
           ),
         );
         break;
-      case "Logouts":
-        // Navigator.push(
-        //   context,
-        //   MaterialPageRoute(
-        //     builder: (context) => const FreeTrialScreen(),
-        //   ),
-        // );
+      case "Logout":
         await GoogleSignIn().signOut();
         FirebaseAuth.instance.signOut();
         Navigator.push(
@@ -80,17 +74,12 @@ class _SideBarState extends State<SideBar> {
         break;
       default:
     }
-
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(
-    //     builder: (context) => const EntryPoint(),
-    //   ),
-    // );
   }
+
 
   @override
   Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser!;
     return SafeArea(
       child: Container(
         width: 288,
@@ -106,14 +95,14 @@ class _SideBarState extends State<SideBar> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const InfoCard(
-                name: "Abu Anwar",
-                bio: "YouTuber",
+              InfoCard(
+                name: user.displayName ?? 'no name',
+                bio: user.email ?? 'no email',
               ),
               Padding(
                 padding: const EdgeInsets.only(left: 24, top: 32, bottom: 16),
                 child: Text(
-                  "Browse".toUpperCase(),
+                  "DANH MỤC".toUpperCase(),
                   style: Theme.of(context)
                       .textTheme
                       .titleMedium!
@@ -125,7 +114,6 @@ class _SideBarState extends State<SideBar> {
                         menu: menu,
                         selectedMenu: selectedSideMenu,
                         press: () {
-                          print('dmm cai này là kích hoạt khi ấn vào side bar');
                           RiveUtils.chnageSMIBoolState(menu.rive.status!);
                           setState(() {
                             selectedSideMenu = menu;
@@ -142,7 +130,7 @@ class _SideBarState extends State<SideBar> {
               Padding(
                 padding: const EdgeInsets.only(left: 24, top: 40, bottom: 16),
                 child: Text(
-                  "History".toUpperCase(),
+                  "CÀI ĐẶT".toUpperCase(),
                   style: Theme.of(context)
                       .textTheme
                       .titleMedium!
@@ -154,8 +142,6 @@ class _SideBarState extends State<SideBar> {
                         menu: menu,
                         selectedMenu: selectedSideMenu,
                         press: () {
-                          print(
-                              'dmm cai này là kích hoạt khi ấn vào side bar 2');
                           RiveUtils.chnageSMIBoolState(menu.rive.status!);
                           setState(() {
                             selectedSideMenu = menu;

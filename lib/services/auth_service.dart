@@ -13,5 +13,10 @@ Future<UserCredential> signInWithGoogle() async {
 
   UserCredential userNow =
       await FirebaseAuth.instance.signInWithCredential(credential);
+  print("/////////////////////////////////////////////////////////");
+  print(userNow);
+  print(userNow.user);
+  print(userNow.credential);
+  print("/////////////////////////////////////////////////////////");
   return userNow;
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:rive/rive.dart';
-
+//này là cái class của nút mở thanh bên
 class MenuBtn extends StatelessWidget {
   const MenuBtn({super.key, required this.press, required this.riveOnInit});
 

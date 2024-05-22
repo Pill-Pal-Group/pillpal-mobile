@@ -1,5 +1,5 @@
 import 'rive_model.dart';
-
+//chỉnh icon thì vào đây
 class Menu {
   final String title;
   final RiveModel rive;
@@ -11,7 +11,7 @@ class Menu {
 
 List<Menu> sidebarMenus = [
   Menu(
-    title: "Home",
+    title: "Trang Chủ",
     rive: RiveModel(
         src: "assets/RiveAssets/icons.riv",
         artboard: "HOME",
@@ -39,6 +39,7 @@ List<Menu> sidebarMenus = [
         stateMachineName: "CHAT_Interactivity"),
   ),
 ];
+
 List<Menu> sidebarMenus2 = [
   Menu(
     title: "History",
@@ -48,7 +49,7 @@ List<Menu> sidebarMenus2 = [
         stateMachineName: "TIMER_Interactivity"),
   ),
   Menu(
-    title: "Logouts",
+    title: "Đăng xuất",
     rive: RiveModel(
         src: "assets/RiveAssets/icons.riv",
         artboard: "BELL",

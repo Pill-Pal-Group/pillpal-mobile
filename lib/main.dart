@@ -1,6 +1,8 @@
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:pillpalmobile/screens/home/home_screen.dart';
+import 'package:pillpalmobile/screens/entryPoint/entry_point.dart';
 import 'package:pillpalmobile/screens/onboding/onboding_screen.dart';
 
 Future<void> main() async {
@@ -16,9 +18,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'The Flutter Way',
       theme: ThemeData(
-        scaffoldBackgroundColor: Color.fromARGB(255, 255, 255, 255),
+        
+        scaffoldBackgroundColor: const Color.fromARGB(255, 255, 255, 255),
         primarySwatch: Colors.blue,
         fontFamily: "Intel",
         inputDecorationTheme: const InputDecorationTheme(
@@ -31,7 +35,9 @@ class MyApp extends StatelessWidget {
           errorBorder: defaultInputBorder,
         ),
       ),
-      home: const OnbodingScreen(),
+      //home: const OnbodingScreen(),
+      home: const HomePage(),
+      //home: const EntryPoint(),
       //home: const FreeTrialScreen(),
     );
   }

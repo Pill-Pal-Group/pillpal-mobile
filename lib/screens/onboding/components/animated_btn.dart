@@ -22,10 +22,12 @@ class AnimatedBtn extends StatelessWidget {
         width: 236,
         child: Stack(
           children: [
+            //nút bấm
             RiveAnimation.asset(
               "assets/RiveAssets/button.riv",
               controllers: [_btnAnimationController],
             ),
+            //chữ trên nút bấm
             Positioned.fill(
               top: 8,
               child: Row(

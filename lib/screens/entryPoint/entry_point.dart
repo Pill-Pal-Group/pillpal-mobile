@@ -21,10 +21,10 @@ class EntryPoint extends StatefulWidget {
 class _EntryPointState extends State<EntryPoint>
     with SingleTickerProviderStateMixin {
   bool isSideBarOpen = false;
-
+  //2 cái biến lưu trang đầu tiên được nạp
   Menu selectedBottonNav = bottomNavItems.first;
   Menu selectedSideMenu = sidebarMenus.first;
-
+  //biến check xem có đang mở thanh bên không
   late SMIBool isMenuOpenInput;
 
   void updateSelectedBtmNav(Menu menu) {
@@ -34,7 +34,6 @@ class _EntryPointState extends State<EntryPoint>
       });
       print(selectedBottonNav.title);
     }
-    // điều hướng ở đây
   }
 
   Widget bottomnavigaScreen() {
@@ -54,6 +53,7 @@ class _EntryPointState extends State<EntryPoint>
         return HomePage();
     }
   }
+
 
   late AnimationController _animationController;
   late Animation<double> scalAnimation;
@@ -89,6 +89,7 @@ class _EntryPointState extends State<EntryPoint>
       backgroundColor: backgroundColor2,
       body: Stack(
         children: [
+          //thanh bên
           AnimatedPositioned(
             width: 288,
             height: MediaQuery.of(context).size.height,
@@ -98,6 +99,7 @@ class _EntryPointState extends State<EntryPoint>
             top: 0,
             child: const SideBar(),
           ),
+          //thanh ngan
           Transform(
             alignment: Alignment.center,
             transform: Matrix4.identity()
@@ -109,7 +111,7 @@ class _EntryPointState extends State<EntryPoint>
               child: Transform.scale(
                 scale: scalAnimation.value,
                 child: ClipRRect(
-                  borderRadius: BorderRadius.all(
+                  borderRadius: const BorderRadius.all(
                     Radius.circular(24),
                   ),
                   //cai home page o day
@@ -138,7 +140,6 @@ class _EntryPointState extends State<EntryPoint>
                 setState(
                   () {
                     isSideBarOpen = !isSideBarOpen;
-                    print('dcmm cai nut nay de mowr thanh option');
                   },
                 );
               },
@@ -184,7 +185,6 @@ class _EntryPointState extends State<EntryPoint>
                     return BtmNavItem(
                       navBar: navBar,
                       press: () {
-                        print('dmm cai này là kích hoạt khi ấn vào bottombar');
                         RiveUtils.chnageSMIBoolState(navBar.rive.status!);
                         updateSelectedBtmNav(navBar);
                       },
