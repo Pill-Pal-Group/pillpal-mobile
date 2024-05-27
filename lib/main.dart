@@ -1,14 +1,14 @@
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:pillpalmobile/constants.dart';
+//import 'package:pillpalmobile/constants.dart';
 import 'package:pillpalmobile/global_bloc.dart';
-import 'package:pillpalmobile/screens/home/home_screen.dart';
-import 'package:pillpalmobile/screens/entryPoint/entry_point.dart';
+//import 'package:pillpalmobile/screens/home/home_screen.dart';
+//import 'package:pillpalmobile/screens/entryPoint/entry_point.dart';
 import 'package:pillpalmobile/screens/onboding/onboding_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import 'package:google_fonts/google_fonts.dart';
+//import 'package:google_fonts/google_fonts.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -44,7 +44,7 @@ class _MyAppState extends State<MyApp> {
 
       //Theme cua khung app
       theme: ThemeData(
-        scaffoldBackgroundColor: const Color.fromARGB(255, 255, 255, 255),
+        scaffoldBackgroundColor: Color.fromARGB(255, 255, 255, 255),
         primarySwatch: Colors.blue,
         fontFamily: "Intel",
         inputDecorationTheme: const InputDecorationTheme(
@@ -149,8 +149,8 @@ class _MyAppState extends State<MyApp> {
       //them mới
 
       //chổ test mang hình mới
-      //home: const OnbodingScreen(),
-      home: const HomePage(),
+      home: const OnbodingScreen(),
+      //home: const HomePage(),
       //home: const EntryPoint(),
       //home: const FreeTrialScreen(),
     );

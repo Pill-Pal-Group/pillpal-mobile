@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
 import 'package:pillpalmobile/screens/entryPoint/entry_point.dart';
+//import 'package:pillpalmobile/screens/entryPoint/entry_point.dart';
 
 class SuccessScreen extends StatefulWidget {
   const SuccessScreen({Key? key}) : super(key: key);
@@ -15,8 +16,16 @@ class _SuccessScreenState extends State<SuccessScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    Timer(const Duration(milliseconds: 2500), () {
-      Navigator.popUntil(context, ModalRoute.withName('/'));
+    // Timer(const Duration(milliseconds: 2500), () {
+    //   //Navigator.popUntil(context, ModalRoute.withName('/'));
+    // });
+    Future.delayed(const Duration(milliseconds: 800), () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const EntryPoint(),
+        ),
+      );
     });
   }
 

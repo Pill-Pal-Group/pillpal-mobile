@@ -3,11 +3,12 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pillpalmobile/constants.dart';
 import 'package:pillpalmobile/global_bloc.dart';
 import 'package:pillpalmobile/model/medicine.dart';
+import 'package:pillpalmobile/screens/entryPoint/entry_point.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 
 class MedicineDetails extends StatefulWidget {
-  const MedicineDetails(this.medicine, {Key? key}) : super(key: key);
+  const MedicineDetails(this.medicine, {super.key});
   final Medicine medicine;
 
   @override
@@ -19,8 +20,9 @@ class _MedicineDetailsState extends State<MedicineDetails> {
   Widget build(BuildContext context) {
     final GlobalBloc _globalBloc = Provider.of<GlobalBloc>(context);
     return Scaffold(
+      //thanh tên tap
       appBar: AppBar(
-        title: const Text('Details'),
+        title: const Text('Thông tin chi tiết'),
       ),
       body: Padding(
         padding: EdgeInsets.all(2.h),
@@ -28,7 +30,7 @@ class _MedicineDetailsState extends State<MedicineDetails> {
           children: [
             MainSection(medicine: widget.medicine),
             ExtendedSection(medicine: widget.medicine),
-            Spacer(),
+            const Spacer(),
             SizedBox(
               width: 100.w,
               height: 7.h,
@@ -38,12 +40,10 @@ class _MedicineDetailsState extends State<MedicineDetails> {
                   shape: const StadiumBorder(),
                 ),
                 onPressed: () {
-                  //open alert dialog box,+global bloc, later
-                  //cool its working
                   openAlertBox(context, _globalBloc);
                 },
                 child: Text(
-                  'Delete',
+                  'Xóa lịch thuốc',
                   style: Theme.of(context)
                       .textTheme
                       .titleMedium!
@@ -59,8 +59,8 @@ class _MedicineDetailsState extends State<MedicineDetails> {
       ),
     );
   }
-  //lets delete a medicine from memory
 
+  //Nút Xóa thuốc
   openAlertBox(BuildContext context, GlobalBloc _globalBloc) {
     return showDialog(
       context: context,
@@ -75,9 +75,9 @@ class _MedicineDetailsState extends State<MedicineDetails> {
           ),
           contentPadding: EdgeInsets.only(top: 1.h),
           title: Text(
-            'Delete This Reminder?',
+            'Bạn có thực muốn xóa không',
             textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.subtitle1,
+            style: Theme.of(context).textTheme.titleMedium,
           ),
           actions: [
             TextButton(
@@ -85,18 +85,25 @@ class _MedicineDetailsState extends State<MedicineDetails> {
                 Navigator.of(context).pop();
               },
               child: Text(
-                'Cancel',
-                style: Theme.of(context).textTheme.caption,
+                'Hủy',
+                style: Theme.of(context).textTheme.bodySmall,
               ),
             ),
             TextButton(
               onPressed: () {
                 //global block to delete medicine,later
                 _globalBloc.removeMedicine(widget.medicine);
-                Navigator.popUntil(context, ModalRoute.withName('/'));
+
+                //chuyen trang ơ day
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const EntryPoint(),
+                  ),
+                );
               },
               child: Text(
-                'OK',
+                'Đồng ý',
                 style: Theme.of(context)
                     .textTheme
                     .caption!
@@ -113,6 +120,7 @@ class _MedicineDetailsState extends State<MedicineDetails> {
 class MainSection extends StatelessWidget {
   const MainSection({Key? key, this.medicine}) : super(key: key);
   final Medicine? medicine;
+  //thuốc calatog
   Hero makeIcon(double size) {
     if (medicine!.medicineType == 'Bottle') {
       return Hero(
@@ -162,13 +170,12 @@ class MainSection extends StatelessWidget {
     );
   }
 
+  //thông tin thuốc cơ bản
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
-        //lets try another one
-        //okz same here, the same problem, later i will solve that
         makeIcon(7.h),
         SizedBox(
           width: 2.w,
@@ -180,14 +187,14 @@ class MainSection extends StatelessWidget {
               child: Material(
                 color: Colors.transparent,
                 child: MainInfoTab(
-                    fieldTitle: 'Medicine Name',
+                    fieldTitle: 'Tên thuốc:',
                     fieldInfo: medicine!.medicineName!),
               ),
             ),
             MainInfoTab(
-                fieldTitle: 'Dosage',
+                fieldTitle: 'Liều dùng',
                 fieldInfo: medicine!.dosage == 0
-                    ? 'Not Specified'
+                    ? 'chưa xác định'
                     : "${medicine!.dosage} mg"),
           ],
         )
@@ -196,10 +203,10 @@ class MainSection extends StatelessWidget {
   }
 }
 
+//custome thông tin thuốc cơ bản
 class MainInfoTab extends StatelessWidget {
   const MainInfoTab(
-      {Key? key, required this.fieldTitle, required this.fieldInfo})
-      : super(key: key);
+      {super.key, required this.fieldTitle, required this.fieldInfo});
   final String fieldTitle;
   final String fieldInfo;
   @override
@@ -213,14 +220,14 @@ class MainInfoTab extends StatelessWidget {
           children: [
             Text(
               fieldTitle,
-              style: Theme.of(context).textTheme.subtitle2,
+              style: Theme.of(context).textTheme.titleSmall,
             ),
             SizedBox(
               height: 0.3.h,
             ),
             Text(
               fieldInfo,
-              style: Theme.of(context).textTheme.headline5,
+              style: Theme.of(context).textTheme.headlineSmall,
             ),
           ],
         ),
@@ -229,8 +236,9 @@ class MainInfoTab extends StatelessWidget {
   }
 }
 
+// thông tin chi tiết về liều thuốc
 class ExtendedSection extends StatelessWidget {
-  const ExtendedSection({Key? key, this.medicine}) : super(key: key);
+  const ExtendedSection({super.key, this.medicine});
   final Medicine? medicine;
   @override
   Widget build(BuildContext context) {
@@ -238,18 +246,17 @@ class ExtendedSection extends StatelessWidget {
       shrinkWrap: true,
       children: [
         ExtendedInfoTab(
-          fieldTitle: 'Medicine Type ',
-          fieldInfo: medicine!.medicineType! == 'None'
-              ? 'Not Specified'
+          fieldTitle: 'Dạng bào chế',
+          fieldInfo: medicine!.medicineType! == 'Chưa có thông tin'
+              ? 'Chưa xác định'
               : medicine!.medicineType!,
         ),
         ExtendedInfoTab(
-          fieldTitle: 'Dose Interval',
-          fieldInfo:
-              'Every ${medicine!.interval} hours   | ${medicine!.interval == 24 ? "One time a day" : "${(24 / medicine!.interval!).floor()} times a day"}',
+          fieldTitle: 'Liều dùng:',
+          fieldInfo: 'Uống mỗi ${medicine!.interval} Tiếng',
         ),
         ExtendedInfoTab(
-          fieldTitle: 'Start Time',
+          fieldTitle: 'Thời gian bắt đầu',
           fieldInfo:
               '${medicine!.startTime![0]}${medicine!.startTime![1]}:${medicine!.startTime![2]}${medicine!.startTime![3]}',
         ),
@@ -258,6 +265,7 @@ class ExtendedSection extends StatelessWidget {
   }
 }
 
+//custom cho phần chi tiết liều dùng
 class ExtendedInfoTab extends StatelessWidget {
   const ExtendedInfoTab(
       {Key? key, required this.fieldTitle, required this.fieldInfo})
@@ -276,14 +284,14 @@ class ExtendedInfoTab extends StatelessWidget {
             padding: EdgeInsets.only(bottom: 1.h),
             child: Text(
               fieldTitle,
-              style: Theme.of(context).textTheme.subtitle2!.copyWith(
+              style: Theme.of(context).textTheme.titleSmall!.copyWith(
                     color: kTextColor,
                   ),
             ),
           ),
           Text(
             fieldInfo,
-            style: Theme.of(context).textTheme.caption!.copyWith(
+            style: Theme.of(context).textTheme.bodySmall!.copyWith(
                   color: kSecondaryColor,
                 ),
           ),

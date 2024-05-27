@@ -15,7 +15,7 @@ import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 
 class NewEntryPage extends StatefulWidget {
-  const NewEntryPage({Key? key}) : super(key: key);
+  const NewEntryPage({super.key});
 
   @override
   State<NewEntryPage> createState() => _NewEntryPageState();
@@ -55,17 +55,20 @@ class _NewEntryPageState extends State<NewEntryPage> {
       key: _scaffoldKey,
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        title: const Text('Add New'),
+        title: const Text('Thêm lịch mới'),
       ),
+
       body: Provider<NewEntryBloc>.value(
         value: _newEntryBloc,
         child: Padding(
           padding: EdgeInsets.all(2.h),
           child: Column(
+
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              //ô nhâp tên thuốc
               const PanelTitle(
-                title: 'Medicine Name',
+                title: 'Tên thuốc',
                 isRequired: true,
               ),
               TextFormField(
@@ -80,8 +83,10 @@ class _NewEntryPageState extends State<NewEntryPage> {
                     .titleSmall!
                     .copyWith(color: kOtherColor),
               ),
+
+              //ô nhâp liều thuốc
               const PanelTitle(
-                title: 'Dosage in mg',
+                title: 'Liều dùng (Viên/Mg)',
                 isRequired: false,
               ),
               TextFormField(
@@ -97,10 +102,13 @@ class _NewEntryPageState extends State<NewEntryPage> {
                     .titleSmall!
                     .copyWith(color: kOtherColor),
               ),
+              
               SizedBox(
                 height: 2.h,
               ),
-              const PanelTitle(title: 'Medicine Type', isRequired: false),
+             
+              const PanelTitle(title: 'Dạng bào chế:', isRequired: false),
+              //catalog dang bào chế
               Padding(
                 padding: EdgeInsets.only(top: 1.h),
                 child: StreamBuilder<MedicineType>(
@@ -113,28 +121,28 @@ class _NewEntryPageState extends State<NewEntryPage> {
                         //not yet clickable?
                         MedicineTypeColumn(
                             medicineType: MedicineType.Bottle,
-                            name: 'Bottle',
+                            name: 'Chai',
                             iconValue: 'assets/icons/bottle.svg',
                             isSelected: snapshot.data == MedicineType.Bottle
                                 ? true
                                 : false),
                         MedicineTypeColumn(
                             medicineType: MedicineType.Pill,
-                            name: 'Pill',
+                            name: 'Viên nhộng',
                             iconValue: 'assets/icons/pill.svg',
                             isSelected: snapshot.data == MedicineType.Pill
                                 ? true
                                 : false),
                         MedicineTypeColumn(
                             medicineType: MedicineType.Syringe,
-                            name: 'Syringe',
+                            name: 'Tiêm',
                             iconValue: 'assets/icons/syringe.svg',
                             isSelected: snapshot.data == MedicineType.Syringe
                                 ? true
                                 : false),
                         MedicineTypeColumn(
                             medicineType: MedicineType.Tablet,
-                            name: 'Tablet',
+                            name: 'Vĩ',
                             iconValue: 'assets/icons/tablet.svg',
                             isSelected: snapshot.data == MedicineType.Tablet
                                 ? true
@@ -144,9 +152,11 @@ class _NewEntryPageState extends State<NewEntryPage> {
                   },
                 ),
               ),
-              const PanelTitle(title: 'Interval Selection', isRequired: true),
+
+              //phần set time cho lịch thuốc
+              const PanelTitle(title: 'Thời gian nhắc nhở', isRequired: true),
               const IntervalSelection(),
-              const PanelTitle(title: 'Starting Time', isRequired: true),
+              const PanelTitle(title: 'Thời gian bắt đầu', isRequired: true),
               const SelectTime(),
               SizedBox(
                 height: 2.h,
@@ -166,19 +176,16 @@ class _NewEntryPageState extends State<NewEntryPage> {
                     ),
                     child: Center(
                       child: Text(
-                        'Confirm',
-                        style: Theme.of(context).textTheme.subtitle2!.copyWith(
+                        'Chốt kèo',
+                        style: Theme.of(context).textTheme.titleSmall!.copyWith(
                               color: kScaffoldColor,
                             ),
                       ),
                     ),
                     onPressed: () {
-                      //add medicine
-                      //some validations
-                      //go to success screen
                       String? medicineName;
                       int? dosage;
-
+                      //bắt lỗi cơ bản
                       //medicineName
                       if (nameController.text == "") {
                         _newEntryBloc.submitError(EntryError.nameNull);
@@ -236,11 +243,13 @@ class _NewEntryPageState extends State<NewEntryPage> {
 
                       //schedule notification
                       scheduleNotification(newEntryMedicine);
-
+                      
+                      //chuyển thành pushNotification
                       Navigator.push(
                           context,
                           MaterialPageRoute(
                               builder: (context) => SuccessScreen()));
+                      
                     },
                   ),
                 ),
@@ -399,7 +408,7 @@ class _SelectTimeState extends State<SelectTime> {
           child: Center(
             child: Text(
               _clicked == false
-                  ? "Select Time"
+                  ? "Chọn giờ"
                   : "${convertTime(_time.hour.toString())}:${convertTime(_time.minute.toString())}",
               style: Theme.of(context)
                   .textTheme

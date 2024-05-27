@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:pillpalmobile/screens/entryPoint/entry_point.dart';
 import 'package:pillpalmobile/services/auth_service.dart';
 import 'package:rive/rive.dart';
-
+import 'package:url_launcher/url_launcher.dart';
 import 'components/animated_btn.dart';
 
 class OnbodingScreen extends StatefulWidget {
@@ -14,7 +14,6 @@ class OnbodingScreen extends StatefulWidget {
 }
 
 class _OnbodingScreenState extends State<OnbodingScreen> {
-
   late RiveAnimationController _btnAnimationController;
   bool isShowSignInDialog = false;
 
@@ -96,7 +95,7 @@ class _OnbodingScreenState extends State<OnbodingScreen> {
                         children: [
                           //câu chào mừng
                           Text(
-                            "Pill Pal Xin Chào",
+                            "PillPal Xin Chào",
                             style: TextStyle(
                               color: Color.fromARGB(255, 14, 196, 168),
                               fontSize: 60,
@@ -108,7 +107,7 @@ class _OnbodingScreenState extends State<OnbodingScreen> {
                           //câu trích dẫn nên thay bằng 1 cái logo
                           SizedBox(height: 16),
                           Text(
-                          "Thêm logo vô đây đi chiến ơi!",
+                            "Join Now",
                           ),
                         ],
                       ),
@@ -120,16 +119,18 @@ class _OnbodingScreenState extends State<OnbodingScreen> {
                       //bo cai login vo day ne
                       press: () {
                         _btnAnimationController.isActive = true;
-
-                        Future.delayed(const Duration(milliseconds: 800), () {
-                          setState(() {
+                        Future.delayed(
+                          const Duration(milliseconds: 800), () {
+                          setState(
+                            () {
                             isShowSignInDialog = true;
-                          });
-
-                          signInWithGoogle().whenComplete(() => logintopage());
-
+                          }
+                          );
+                          signInWithGoogle().whenComplete(() => logintopage()
+                          );
                           //them cai bat loi dang nhap sai vao day
-                        });
+                        }
+                        );
                       },
                     ),
                     //câu chào cuối trang
