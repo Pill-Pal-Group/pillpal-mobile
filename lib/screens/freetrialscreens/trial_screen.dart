@@ -9,6 +9,7 @@ class FreeTrialScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('On Going funtion'),
+        automaticallyImplyLeading: false,
       ),
       body: Center(
         child: 

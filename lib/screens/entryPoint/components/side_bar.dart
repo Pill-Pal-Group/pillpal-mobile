@@ -4,6 +4,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:pillpalmobile/screens/entryPoint/entry_point.dart';
 import 'package:pillpalmobile/screens/freetrialscreens/trial_screen.dart';
 import 'package:pillpalmobile/screens/onboding/onboding_screen.dart';
+import 'package:pillpalmobile/screens/userinformation/profile_page.dart';
 
 import '../../../model/menu.dart';
 import '../../../utils/rive_utils.dart';
@@ -22,7 +23,7 @@ class _SideBarState extends State<SideBar> {
 
   Future<void> sidebarNavigator() async {
     switch (selectedSideMenu.title) {
-      case "Home":
+      case "Trang Chủ//tam tat":
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -30,11 +31,11 @@ class _SideBarState extends State<SideBar> {
           ),
         );
         break;
-      case "Search":
+      case "Hồ Sơ":
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => const FreeTrialScreen(),
+            builder: (context) => const ProfilePage(),
           ),
         );
         break;
@@ -96,6 +97,7 @@ class _SideBarState extends State<SideBar> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               InfoCard(
+                linkne: user.photoURL.toString(),
                 name: user.displayName ?? 'no name',
                 bio: user.email ?? 'no email',
               ),

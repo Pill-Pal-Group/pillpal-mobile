@@ -13,3 +13,21 @@ const Color kOtherColor = Color(0xFF59C1BD);
 const Color kErrorBorderColor = Color(0xFFE74C3C);
 const Color kTextLightColor = Color(0xFFC5BDCD);
 const Color kTextColor = Color(0xFF56485D);
+
+
+class LinkImages{
+  //login pich
+  static const String emailVerify = "assets/picture/emailverify.png";
+
+
+}
+//sample
+// AwesomeNotifications().createNotification(
+//                             content: NotificationContent(
+//                               id: 1, 
+//                               channelKey: "NotiKey",
+//                               title: "testnotification",
+//                               body: "The tear in the rain"
+
+//                               )
+//                             );

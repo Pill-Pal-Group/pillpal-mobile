@@ -1,10 +1,10 @@
 import 'dart:ui';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:pillpalmobile/screens/conformemail/verify_email.dart';
 import 'package:pillpalmobile/screens/entryPoint/entry_point.dart';
 import 'package:pillpalmobile/services/auth_service.dart';
 import 'package:rive/rive.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'components/animated_btn.dart';
 
 class OnbodingScreen extends StatefulWidget {
@@ -17,7 +17,7 @@ class _OnbodingScreenState extends State<OnbodingScreen> {
   late RiveAnimationController _btnAnimationController;
   bool isShowSignInDialog = false;
 
-  void logintopage() {
+  Future<void> logintopage() async {
     final user = FirebaseAuth.instance.currentUser!;
     if (user.emailVerified) {
       Navigator.push(
@@ -27,10 +27,11 @@ class _OnbodingScreenState extends State<OnbodingScreen> {
         ),
       );
     } else {
+      await user.sendEmailVerification();
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => const OnbodingScreen(),
+          builder: (context) => const VerifyEmailScreen(),
         ),
       );
     }
@@ -119,18 +120,14 @@ class _OnbodingScreenState extends State<OnbodingScreen> {
                       //bo cai login vo day ne
                       press: () {
                         _btnAnimationController.isActive = true;
-                        Future.delayed(
-                          const Duration(milliseconds: 800), () {
-                          setState(
-                            () {
+                        Future.delayed(const Duration(milliseconds: 800), () {
+                          setState(() {
                             isShowSignInDialog = true;
-                          }
-                          );
-                          signInWithGoogle().whenComplete(() => logintopage()
-                          );
+                          });
+                          signInWithGoogle().whenComplete(() => logintopage());
+
                           //them cai bat loi dang nhap sai vao day
-                        }
-                        );
+                        });
                       },
                     ),
                     //câu chào cuối trang

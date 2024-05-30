@@ -18,7 +18,7 @@ List<Menu> sidebarMenus = [
         stateMachineName: "HOME_interactivity"),
   ),
   Menu(
-    title: "Search",
+    title: "Hồ Sơ",
     rive: RiveModel(
         src: "assets/RiveAssets/icons.riv",
         artboard: "SEARCH",

@@ -1,16 +1,37 @@
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-//import 'package:pillpalmobile/constants.dart';
 import 'package:pillpalmobile/global_bloc.dart';
-//import 'package:pillpalmobile/screens/home/home_screen.dart';
-//import 'package:pillpalmobile/screens/entryPoint/entry_point.dart';
 import 'package:pillpalmobile/screens/onboding/onboding_screen.dart';
+import 'package:pillpalmobile/services/notifications_service.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-//import 'package:google_fonts/google_fonts.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
+
 
 Future<void> main() async {
+  await AwesomeNotifications().initialize(
+    null,
+     [
+      NotificationChannel(
+      channelGroupKey: "bassic_channel_group",
+      channelKey: "NotiKey", 
+      channelName: "testnoti", 
+      channelDescription: "oke r ne",
+      )
+     ],
+     channelGroups: [
+      NotificationChannelGroup(
+        channelGroupKey: "bassic_channel_group", 
+        channelGroupName: "bassic group"
+      )
+     ]
+  );
+  bool isAllowedToSendNotification = await AwesomeNotifications().isNotificationAllowed();
+  if(isAllowedToSendNotification){
+    AwesomeNotifications().requestPermissionToSendNotifications();
+  }
+
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   runApp(const MyApp());
@@ -29,6 +50,14 @@ class _MyAppState extends State<MyApp> {
 
   @override
   void initState() {
+    AwesomeNotifications().setListeners(
+      onActionReceivedMethod: NotificationController.onActionReciveMethod,
+      onNotificationCreatedMethod: NotificationController.onNotificationCreateMethod,
+      onDismissActionReceivedMethod: NotificationController.onDismissAtionReciveMethod,
+      onNotificationDisplayedMethod: NotificationController.onNotificationDisplayMethod,
+
+      
+      );
     globalBloc = GlobalBloc();
     super.initState();
   }
@@ -41,10 +70,9 @@ class _MyAppState extends State<MyApp> {
         return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'PILLPAL APP',
-
       //Theme cua khung app
       theme: ThemeData(
-        scaffoldBackgroundColor: Color.fromARGB(255, 255, 255, 255),
+        //scaffoldBackgroundColor: Color.fromARGB(255, 255, 255, 255),
         primarySwatch: Colors.blue,
         fontFamily: "Intel",
         inputDecorationTheme: const InputDecorationTheme(
@@ -150,6 +178,7 @@ class _MyAppState extends State<MyApp> {
 
       //chổ test mang hình mới
       home: const OnbodingScreen(),
+      //home: const VerifyEmailScreen(),
       //home: const HomePage(),
       //home: const EntryPoint(),
       //home: const FreeTrialScreen(),

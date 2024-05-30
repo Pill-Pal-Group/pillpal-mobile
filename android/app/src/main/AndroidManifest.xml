@@ -1,9 +1,10 @@
 <!--<manifest xmlns:android="http://schemas.android.com/apk/res/android">-->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.analog_clock">
-<uses-permission android:name="android.permission.CAMERA"/>
-<uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
-
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
+    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <application
         android:label="pillpalmobile"
         android:name="${applicationName}"

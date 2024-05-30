@@ -40,6 +40,7 @@ class _EntryPointState extends State<EntryPoint>
     // điều hướng ở đây
     switch (selectedBottonNav.title) {
       case "Chat":
+        //return HomePage();
         return HomePage();
       case "Search":
         return FreeTrialScreen();
@@ -50,6 +51,7 @@ class _EntryPointState extends State<EntryPoint>
       case "Profile":
         return FreeTrialScreen();
       default:
+        //return HomePage();
         return HomePage();
     }
   }

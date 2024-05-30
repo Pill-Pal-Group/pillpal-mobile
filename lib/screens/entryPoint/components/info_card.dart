@@ -6,20 +6,20 @@ class InfoCard extends StatelessWidget {
     Key? key,
     required this.name,
     required this.bio,
+    required this.linkne,
   }) : super(key: key);
 
-  final String name, bio;
+  final String name, bio,linkne;
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: const CircleAvatar(
+      leading: 
+      CircleAvatar(
+        backgroundImage: NetworkImage(linkne),
         backgroundColor: Colors.white24,
-        child: Icon(
-          CupertinoIcons.person,
-          color: Colors.white,
-        ),
       ),
+
       title: Text(
         name,
         style: const TextStyle(color: Colors.white,fontSize: 12),
