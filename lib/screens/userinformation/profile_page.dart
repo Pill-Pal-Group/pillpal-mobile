@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:pillpalmobile/screens/userinformation/components/appbar_widget.dart';
 import 'package:pillpalmobile/screens/userinformation/components/button_widget.dart';
-import 'package:pillpalmobile/screens/userinformation/components/numbers_widget.dart';
 import 'package:pillpalmobile/screens/userinformation/components/profile_widget.dart';
 import 'package:pillpalmobile/screens/userinformation/edit_profile_page.dart';
 
@@ -56,7 +55,7 @@ class _ProfilePageState extends State<ProfilePage> {
               //hiện trang thái đăng ký gói
               Center(
                   child: ButtonWidget(
-                text: 'Nâng cấp tài khoản',
+                text: 'Nâng cấp tài khoản?',
                 onClicked: () {},
               )),
               //
@@ -80,7 +79,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                     //NTMS
                     Text(
-                      'Giớ Tính:',
+                      'Giới Tính:',
                       style:
                           TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),

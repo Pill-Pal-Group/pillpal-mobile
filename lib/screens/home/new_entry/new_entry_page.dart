@@ -72,7 +72,7 @@ class _NewEntryPageState extends State<NewEntryPage> {
                 isRequired: true,
               ),
               TextFormField(
-                maxLength: 12,
+                maxLength: 32,
                 controller: nameController,
                 textCapitalization: TextCapitalization.words,
                 decoration: const InputDecoration(

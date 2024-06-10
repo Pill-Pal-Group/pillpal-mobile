@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:pillpalmobile/constants.dart';
 import 'package:pillpalmobile/screens/freetrialscreens/trial_screen.dart';
 import 'package:pillpalmobile/screens/home/home_screen.dart';
+import 'package:pillpalmobile/screens/paidhome/scanscreen.dart';
 import 'package:pillpalmobile/utils/rive_utils.dart';
 import 'package:rive/rive.dart';
 import '../../model/menu.dart';
@@ -41,18 +42,17 @@ class _EntryPointState extends State<EntryPoint>
     switch (selectedBottonNav.title) {
       case "Chat":
         //return HomePage();
-        return HomePage();
+        return const HomePage();
       case "Search":
-        return FreeTrialScreen();
+        return const ScanScreen();
       case "Timer":
-        return FreeTrialScreen();
+        return const FreeTrialScreen();
       case "Notification":
-        return FreeTrialScreen();
+        return const FreeTrialScreen();
       case "Profile":
-        return FreeTrialScreen();
+        return const FreeTrialScreen();
       default:
-        //return HomePage();
-        return HomePage();
+        return const HomePage();
     }
   }
 

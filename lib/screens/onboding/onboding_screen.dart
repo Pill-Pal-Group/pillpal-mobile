@@ -1,5 +1,7 @@
+
 import 'dart:ui';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pillpalmobile/screens/conformemail/verify_email.dart';
 import 'package:pillpalmobile/screens/entryPoint/entry_point.dart';
@@ -108,7 +110,7 @@ class _OnbodingScreenState extends State<OnbodingScreen> {
                           //câu trích dẫn nên thay bằng 1 cái logo
                           SizedBox(height: 16),
                           Text(
-                            "Join Now",
+                            "làm ơn thêm cái cái logo vô đeiii chiến ơi",
                           ),
                         ],
                       ),
@@ -126,6 +128,8 @@ class _OnbodingScreenState extends State<OnbodingScreen> {
                           });
                           signInWithGoogle().whenComplete(() => logintopage());
 
+                          //testzone
+                          
                           //them cai bat loi dang nhap sai vao day
                         });
                       },

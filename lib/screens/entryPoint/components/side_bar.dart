@@ -4,6 +4,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:pillpalmobile/screens/entryPoint/entry_point.dart';
 import 'package:pillpalmobile/screens/freetrialscreens/trial_screen.dart';
 import 'package:pillpalmobile/screens/onboding/onboding_screen.dart';
+import 'package:pillpalmobile/screens/tos/termofservice.dart';
 import 'package:pillpalmobile/screens/userinformation/profile_page.dart';
 
 import '../../../model/menu.dart';
@@ -39,7 +40,7 @@ class _SideBarState extends State<SideBar> {
           ),
         );
         break;
-      case "Favorites":
+      case "Đơn thuốc":
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -47,7 +48,7 @@ class _SideBarState extends State<SideBar> {
           ),
         );
         break;
-      case "Help":
+      case "Chưa nghĩ ra":
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -55,11 +56,11 @@ class _SideBarState extends State<SideBar> {
           ),
         );
         break;
-      case "History":
+      case "Điều khoảng":
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => const FreeTrialScreen(),
+            builder: (context) => const TermofService(),
           ),
         );
         break;

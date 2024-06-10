@@ -25,14 +25,14 @@ List<Menu> sidebarMenus = [
         stateMachineName: "SEARCH_Interactivity"),
   ),
   Menu(
-    title: "Favorites",
+    title: "Đơn thuốc",
     rive: RiveModel(
         src: "assets/RiveAssets/icons.riv",
         artboard: "LIKE/STAR",
         stateMachineName: "STAR_Interactivity"),
   ),
   Menu(
-    title: "Help",
+    title: "Chưa nghĩ ra",
     rive: RiveModel(
         src: "assets/RiveAssets/icons.riv",
         artboard: "CHAT",
@@ -42,7 +42,7 @@ List<Menu> sidebarMenus = [
 
 List<Menu> sidebarMenus2 = [
   Menu(
-    title: "History",
+    title: "Điều khoảng",
     rive: RiveModel(
         src: "assets/RiveAssets/icons.riv",
         artboard: "TIMER",
