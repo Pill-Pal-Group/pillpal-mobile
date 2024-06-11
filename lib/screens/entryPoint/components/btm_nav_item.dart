@@ -37,6 +37,13 @@ class BtmNavItem extends StatelessWidget {
               ),
             ),
           ),
+          Text(
+            navBar.title.toUpperCase(),
+            style: Theme.of(context)
+                .textTheme
+                .titleSmall!
+                .copyWith(color: Colors.white70),
+          ),
         ],
       ),
     );

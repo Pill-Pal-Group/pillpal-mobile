@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -6,6 +8,7 @@ import 'package:pillpalmobile/screens/freetrialscreens/trial_screen.dart';
 import 'package:pillpalmobile/screens/onboding/onboding_screen.dart';
 import 'package:pillpalmobile/screens/tos/termofservice.dart';
 import 'package:pillpalmobile/screens/userinformation/profile_page.dart';
+import 'package:rive/rive.dart';
 
 import '../../../model/menu.dart';
 import '../../../utils/rive_utils.dart';
@@ -24,15 +27,8 @@ class _SideBarState extends State<SideBar> {
 
   Future<void> sidebarNavigator() async {
     switch (selectedSideMenu.title) {
-      case "Trang Chủ//tam tat":
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const EntryPoint(),
-          ),
-        );
-        break;
       case "Hồ Sơ":
+      
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -40,7 +36,7 @@ class _SideBarState extends State<SideBar> {
           ),
         );
         break;
-      case "Đơn thuốc":
+      case "Đơn Thuốc":
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -48,7 +44,7 @@ class _SideBarState extends State<SideBar> {
           ),
         );
         break;
-      case "Chưa nghĩ ra":
+      case "Nâng Cấp":
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -102,6 +98,11 @@ class _SideBarState extends State<SideBar> {
                 name: user.displayName ?? 'no name',
                 bio: user.email ?? 'no email',
               ),
+              // const InfoCard(
+              //   linkne: "",
+              //   name: 'no name',
+              //   bio: 'no email',
+              // ),
               Padding(
                 padding: const EdgeInsets.only(left: 24, top: 32, bottom: 16),
                 child: Text(
@@ -120,7 +121,6 @@ class _SideBarState extends State<SideBar> {
                           RiveUtils.chnageSMIBoolState(menu.rive.status!);
                           setState(() {
                             selectedSideMenu = menu;
-                            print(selectedSideMenu.title);
                             sidebarNavigator();
                           });
                         },
@@ -129,7 +129,8 @@ class _SideBarState extends State<SideBar> {
                               stateMachineName: menu.rive.stateMachineName);
                         },
                       ))
-                  .toList(),
+                  // .toList()
+                  ,
               Padding(
                 padding: const EdgeInsets.only(left: 24, top: 40, bottom: 16),
                 child: Text(
@@ -156,7 +157,8 @@ class _SideBarState extends State<SideBar> {
                               stateMachineName: menu.rive.stateMachineName);
                         },
                       ))
-                  .toList(),
+                  // .toList()
+                  ,
             ],
           ),
         ),

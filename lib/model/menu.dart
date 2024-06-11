@@ -11,32 +11,25 @@ class Menu {
 
 List<Menu> sidebarMenus = [
   Menu(
-    title: "Trang Chủ",
+    title: "Hồ Sơ",
     rive: RiveModel(
         src: "assets/RiveAssets/icons.riv",
         artboard: "HOME",
         stateMachineName: "HOME_interactivity"),
   ),
   Menu(
-    title: "Hồ Sơ",
+    title: "Đơn Thuốc",
     rive: RiveModel(
         src: "assets/RiveAssets/icons.riv",
-        artboard: "SEARCH",
-        stateMachineName: "SEARCH_Interactivity"),
+        artboard: "USER",
+        stateMachineName: "USER_Interactivity"),
   ),
   Menu(
-    title: "Đơn thuốc",
+    title: "Nâng Cấp",
     rive: RiveModel(
         src: "assets/RiveAssets/icons.riv",
         artboard: "LIKE/STAR",
         stateMachineName: "STAR_Interactivity"),
-  ),
-  Menu(
-    title: "Chưa nghĩ ra",
-    rive: RiveModel(
-        src: "assets/RiveAssets/icons.riv",
-        artboard: "CHAT",
-        stateMachineName: "CHAT_Interactivity"),
   ),
 ];
 
@@ -45,8 +38,8 @@ List<Menu> sidebarMenus2 = [
     title: "Điều khoảng",
     rive: RiveModel(
         src: "assets/RiveAssets/icons.riv",
-        artboard: "TIMER",
-        stateMachineName: "TIMER_Interactivity"),
+        artboard: "SETTINGS",
+        stateMachineName: "SETTINGS_Interactivity"),
   ),
   Menu(
     title: "Đăng xuất",
@@ -57,43 +50,26 @@ List<Menu> sidebarMenus2 = [
   ),
 ];
 
-
-
-
 List<Menu> bottomNavItems = [
   Menu(
-    title: "Chat",
+    title: "Đơn Thuốc",
     rive: RiveModel(
         src: "assets/RiveAssets/icons.riv",
-        artboard: "CHAT",
-        stateMachineName: "CHAT_Interactivity"),
+        artboard: "HOME",
+        stateMachineName: "HOME_interactivity"),
   ),
   Menu(
-    title: "Search",
-    rive: RiveModel(
-        src: "assets/RiveAssets/icons.riv",
-        artboard: "SEARCH",
-        stateMachineName: "SEARCH_Interactivity"),
-  ),
-  Menu(
-    title: "Timer",
+    title: "Lịch Uống",
     rive: RiveModel(
         src: "assets/RiveAssets/icons.riv",
         artboard: "TIMER",
         stateMachineName: "TIMER_Interactivity"),
   ),
   Menu(
-    title: "Notification",
+    title: "Tìm Kiếm",
     rive: RiveModel(
         src: "assets/RiveAssets/icons.riv",
-        artboard: "BELL",
-        stateMachineName: "BELL_Interactivity"),
-  ),
-  Menu(
-    title: "Profile",
-    rive: RiveModel(
-        src: "assets/RiveAssets/icons.riv",
-        artboard: "USER",
-        stateMachineName: "USER_Interactivity"),
+        artboard: "SEARCH",
+        stateMachineName: "SEARCH_Interactivity"),
   ),
 ];

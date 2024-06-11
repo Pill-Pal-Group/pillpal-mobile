@@ -2,8 +2,8 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:pillpalmobile/global_bloc.dart';
+import 'package:pillpalmobile/screens/entryPoint/entry_point.dart';
 import 'package:pillpalmobile/screens/onboding/onboding_screen.dart';
-import 'package:pillpalmobile/screens/paidhome/scanscreen.dart';
 import 'package:pillpalmobile/services/notifications_service.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
@@ -88,97 +88,9 @@ class _MyAppState extends State<MyApp> {
       ),
       //Theme cua khung app
 
-      //theme mới
-      // theme: ThemeData.dark().copyWith(
-      //       primaryColor: kPrimaryColor,
-      //       scaffoldBackgroundColor: kScaffoldColor,
-      //       //appbar theme
-      //       appBarTheme: AppBarTheme(
-      //         toolbarHeight: 7.h,
-      //         backgroundColor: kScaffoldColor,
-      //         elevation: 0,
-      //         iconTheme: IconThemeData(
-      //           color: kSecondaryColor,
-      //           size: 20.sp,
-      //         ),
-      //         titleTextStyle: GoogleFonts.mulish(
-      //           color: kTextColor,
-      //           fontWeight: FontWeight.w800,
-      //           fontStyle: FontStyle.normal,
-      //           fontSize: 16.sp,
-      //         ),
-      //       ),
-            // textTheme: TextTheme(
-            //   displaySmall: TextStyle(
-            //     fontSize: 28.sp,
-            //     color: kSecondaryColor,
-            //     fontWeight: FontWeight.w500,
-            //   ),
-            //   headlineMedium: TextStyle(
-            //     fontSize: 24.sp,
-            //     fontWeight: FontWeight.w800,
-            //     color: kTextColor,
-            //   ),
-            //   headlineSmall: TextStyle(
-            //     fontSize: 16.sp,
-            //     fontWeight: FontWeight.w900,
-            //     color: kTextColor,
-            //   ),
-            //   titleLarge: GoogleFonts.poppins(
-            //     fontSize: 13.sp,
-            //     color: kTextColor,
-            //     fontWeight: FontWeight.w600,
-            //     letterSpacing: 1.0,
-            //   ),
-            //   titleMedium:
-            //       GoogleFonts.poppins(fontSize: 15.sp, color: kPrimaryColor),
-            //   titleSmall:
-            //       GoogleFonts.poppins(fontSize: 12.sp, color: kTextLightColor),
-            //   bodySmall: GoogleFonts.poppins(
-            //     fontSize: 9.sp,
-            //     fontWeight: FontWeight.w400,
-            //     color: kTextLightColor,
-            //   ),
-            //   labelMedium: TextStyle(
-            //     fontSize: 10.sp,
-            //     fontWeight: FontWeight.w500,
-            //     color: kTextColor,
-            //   ),
-            // ),
-          //   inputDecorationTheme: const InputDecorationTheme(
-          //     enabledBorder: UnderlineInputBorder(
-          //       borderSide: BorderSide(
-          //         color: kTextLightColor,
-          //         width: 0.7,
-          //       ),
-          //     ),
-          //     border: UnderlineInputBorder(
-          //       borderSide: BorderSide(color: kTextLightColor),
-          //     ),
-          //     focusedBorder: UnderlineInputBorder(
-          //       borderSide: BorderSide(color: kPrimaryColor),
-          //     ),
-          //   ),
-          //   //lets customize the timePicker theme
-          //   timePickerTheme: TimePickerThemeData(
-          //     backgroundColor: kScaffoldColor,
-          //     hourMinuteColor: kTextColor,
-          //     hourMinuteTextColor: kScaffoldColor,
-          //     dayPeriodColor: kTextColor,
-          //     dayPeriodTextColor: kScaffoldColor,
-          //     dialBackgroundColor: kTextColor,
-          //     dialHandColor: kPrimaryColor,
-          //     dialTextColor: kScaffoldColor,
-          //     entryModeIconColor: kOtherColor,
-          //     dayPeriodTextStyle: GoogleFonts.aBeeZee(
-          //       fontSize: 8.sp,
-          //     ),
-          //   ),
-          // ),
-      //them mới
-
       //chổ test mang hình mới
       home: const OnbodingScreen(),
+      //home: const EntryPoint(),
     );
       }),
     );

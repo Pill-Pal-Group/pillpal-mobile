@@ -1,10 +1,7 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:pillpalmobile/constants.dart';
 import 'package:pillpalmobile/screens/freetrialscreens/trial_screen.dart';
-import 'package:pillpalmobile/screens/home/home_screen.dart';
-import 'package:pillpalmobile/screens/paidhome/scanscreen.dart';
 import 'package:pillpalmobile/utils/rive_utils.dart';
 import 'package:rive/rive.dart';
 import '../../model/menu.dart';
@@ -33,26 +30,20 @@ class _EntryPointState extends State<EntryPoint>
       setState(() {
         selectedBottonNav = menu;
       });
-      print(selectedBottonNav.title);
     }
   }
 
   Widget bottomnavigaScreen() {
     // điều hướng ở đây
     switch (selectedBottonNav.title) {
-      case "Chat":
-        //return HomePage();
-        return const HomePage();
-      case "Search":
-        return const ScanScreen();
-      case "Timer":
+      case "Đơn Thuốc":
         return const FreeTrialScreen();
-      case "Notification":
+      case "Lịch Uống":
         return const FreeTrialScreen();
-      case "Profile":
+      case "Tìm Kiếm":
         return const FreeTrialScreen();
       default:
-        return const HomePage();
+        return const FreeTrialScreen();
     }
   }
 
@@ -159,6 +150,7 @@ class _EntryPointState extends State<EntryPoint>
           ),
         ],
       ),
+      //hang nut duoi
       bottomNavigationBar: Transform.translate(
         offset: Offset(0, 100 * animation.value),
         child: SafeArea(

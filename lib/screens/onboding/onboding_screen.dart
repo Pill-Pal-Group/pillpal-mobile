@@ -1,4 +1,3 @@
-
 import 'dart:ui';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -101,21 +100,26 @@ class _OnbodingScreenState extends State<OnbodingScreen> {
                             "PillPal Xin Chào",
                             style: TextStyle(
                               color: Color.fromARGB(255, 14, 196, 168),
-                              fontSize: 60,
+                              fontSize: 55,
                               fontWeight: FontWeight.w700,
                               fontFamily: "Poppins",
                               height: 1.2,
                             ),
                           ),
                           //câu trích dẫn nên thay bằng 1 cái logo
-                          SizedBox(height: 16),
-                          Text(
-                            "làm ơn thêm cái cái logo vô đeiii chiến ơi",
-                          ),
+                          //SizedBox(height: 50),
+                          // Text(
+                          //   "làm ơn thêm cái cái logo vô đeiii chiến ơi",
+                          // ),
                         ],
                       ),
                     ),
-                    const Spacer(flex: 2),
+                    const Spacer(flex: 1),
+                    const Image(
+                      image: AssetImage('assets/picture/loginpic.png'),
+                      opacity: AlwaysStoppedAnimation(0.7),
+                      ),
+                    const Spacer(flex: 1),
                     //đây là cái nút đăng nhập
                     AnimatedBtn(
                       btnAnimationController: _btnAnimationController,
@@ -129,7 +133,12 @@ class _OnbodingScreenState extends State<OnbodingScreen> {
                           signInWithGoogle().whenComplete(() => logintopage());
 
                           //testzone
-                          
+                          // Navigator.push(
+                          //   context,
+                          //   MaterialPageRoute(
+                          //     builder: (context) => const EntryPoint(),
+                          //   ),
+                          // );
                           //them cai bat loi dang nhap sai vao day
                         });
                       },
