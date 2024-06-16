@@ -2,6 +2,10 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:pillpalmobile/constants.dart';
 import 'package:pillpalmobile/screens/freetrialscreens/trial_screen.dart';
+import 'package:pillpalmobile/screens/home/home_screen.dart';
+import 'package:pillpalmobile/screens/medicationschedule/medicationschedule.dart';
+import 'package:pillpalmobile/screens/medicationschedule/mscomponents/add_task_bar.dart';
+import 'package:pillpalmobile/screens/paidhome/scanscreen.dart';
 import 'package:pillpalmobile/utils/rive_utils.dart';
 import 'package:rive/rive.dart';
 import '../../model/menu.dart';
@@ -37,13 +41,13 @@ class _EntryPointState extends State<EntryPoint>
     // điều hướng ở đây
     switch (selectedBottonNav.title) {
       case "Đơn Thuốc":
-        return const FreeTrialScreen();
+        return const HomePage();
       case "Lịch Uống":
-        return const FreeTrialScreen();
+        return const MedicationSchedule();
       case "Tìm Kiếm":
         return const FreeTrialScreen();
       default:
-        return const FreeTrialScreen();
+        return const HomePage();
     }
   }
 

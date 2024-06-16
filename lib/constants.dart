@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 //màu cho khung app
 const Color backgroundColor2 = Color(0xFF17203A);
 const Color backgroundColorLight = Color(0xFFF2F6FF);
@@ -19,8 +21,62 @@ class LinkImages{
   //login pich
   static const String emailVerify = "assets/picture/emailverify.png";
 
-
+  static const String tempAvatar = "assets/picture/wsa.jpg";
 }
+
+const Color bluishClr = Color(0xFF4e5ae8);
+const Color yellowClr = Color(0xFFFFB746);
+const Color pinkClr = Color(0x0fff4667);
+const Color white = Colors.white;
+const primaryClr = bluishClr;
+const Color darkGreyClr = Color(0xFF121212);
+Color darkHeaderClr = const Color(0xFF424242);
+
+class Themes {
+  static final light = ThemeData(
+    backgroundColor: Colors.white,
+    primarySwatch: Colors.blue,
+    primaryColor: primaryClr,
+    brightness: Brightness.light, 
+  );
+
+  static final dark = ThemeData(
+    backgroundColor: Colors.black,
+    primarySwatch: Colors.red,
+    primaryColor: darkGreyClr,
+    brightness: Brightness.dark,
+  );
+}
+
+TextStyle get subHeadingstyle{
+  return GoogleFonts.lato (
+    textStyle: TextStyle(
+      fontSize: 24,
+      fontWeight: FontWeight.bold,
+      color: Get.isDarkMode?Colors.grey[400]:Colors.grey
+    )
+  );
+}
+
+TextStyle get headingstyle{
+  return GoogleFonts.lato (
+    textStyle: TextStyle(
+      fontSize: 24,
+      fontWeight: FontWeight.bold
+    )
+  );
+}
+
+TextStyle get subtitlestyle{
+  return GoogleFonts.lato (
+    textStyle: TextStyle(
+      fontSize: 14,
+      fontWeight: FontWeight.w400,
+      color: Get.isDarkMode?Colors.grey[100]:Colors.grey[600]
+    )
+  );
+}
+
 //sample
 // AwesomeNotifications().createNotification(
 //                             content: NotificationContent(

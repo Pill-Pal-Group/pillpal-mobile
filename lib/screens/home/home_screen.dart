@@ -22,45 +22,47 @@ class HomePage extends StatelessWidget {
             SizedBox(
               height: 8.h,
             ),
+            //chứa phần đầu
             const TopContainer(),
             SizedBox(
               height: 1.h,
             ),
             //the widget take space as per need
             const Flexible(
+              //chứa phần dưới
               child: BottomContainer(),
             ),
           ],
         ),
       ),
       //cái nut add thuốc
-      floatingActionButton: InkResponse(
-        onTap: () {
-          // go to new entry page
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const NewEntryPage(),
-            ),
-          );
-        },
-        child: SizedBox(
-          width: 18.w,
-          height: 9.h,
-          child: Card(
-            color: kPrimaryColor,
-            shape: BeveledRectangleBorder(
-              borderRadius: BorderRadius.circular(3.h),
-            ),
-            child: Icon(
-              Icons.add_outlined,
-              color: kScaffoldColor,
-              size: 50.sp,
-            ),
-          ),
-        ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endTop,
+      // floatingActionButton: InkResponse(
+      //   onTap: () {
+      //     // go to new entry page
+      //     Navigator.push(
+      //       context,
+      //       MaterialPageRoute(
+      //         builder: (context) => const NewEntryPage(),
+      //       ),
+      //     );
+      //   },
+      //   child: SizedBox(
+      //     width: 18.w,
+      //     height: 9.h,
+      //     child: Card(
+      //       color: kPrimaryColor,
+      //       shape: BeveledRectangleBorder(
+      //         borderRadius: BorderRadius.circular(3.h),
+      //       ),
+      //       child: Icon(
+      //         Icons.add_outlined,
+      //         color: kScaffoldColor,
+      //         size: 50.sp,
+      //       ),
+      //     ),
+      //   ),
+      // ),
+      // floatingActionButtonLocation: FloatingActionButtonLocation.endTop,
     );
   }
 }
@@ -99,18 +101,18 @@ class TopContainer extends StatelessWidget {
         ),
 
         //Đây là chổ đếm số lời nhắc hôm nay
-        StreamBuilder<List<Medicine>>(
-            stream: globalBloc.medicineList$,
-            builder: (context, snapshot) {
-              return Container(
-                alignment: Alignment.center,
-                padding: EdgeInsets.only(bottom: 1.h),
-                child: Text(
-                  !snapshot.hasData ? '0' : snapshot.data!.length.toString(),
-                  style: Theme.of(context).textTheme.headlineMedium,
-                ),
-              );
-            }),
+        // StreamBuilder<List<Medicine>>(
+        //     stream: globalBloc.medicineList$,
+        //     builder: (context, snapshot) {
+        //       return Container(
+        //         alignment: Alignment.center,
+        //         padding: EdgeInsets.only(bottom: 1.h),
+        //         child: Text(
+        //           !snapshot.hasData ? '0' : snapshot.data!.length.toString(),
+        //           style: Theme.of(context).textTheme.headlineMedium,
+        //         ),
+        //       );
+        //     }),
       ],
     );
   }
@@ -136,7 +138,7 @@ class BottomContainer extends StatelessWidget {
         else if (snapshot.data!.isEmpty) {
           return Center(
             child: Text(
-              'Chưa có lịch mới được thêm vào',
+              'Chưa có đơn thuốc mới',
               style: Theme.of(context).textTheme.displaySmall,
               textAlign: TextAlign.center,
             ),

@@ -8,13 +8,16 @@ class FreeTrialScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('On Going funtion'),
-        automaticallyImplyLeading: false,
+        title: const Text('      Comming soon'),
+        //automaticallyImplyLeading: false,
       ),
-      body: Center(
-        child: 
-        Text('Tính năng chưa bổ sung')
-      ),
+      body: const Center(
+        child: Column(
+          children: [
+            Text("Tính Năng chưa được bổ xung"),
+          ],
+        ),
+      )
     );
   }
 }
