@@ -1,1 +1,21 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"pillpalserver","appId":"1:445875223905:android:7562ee5c98e8d4fe1d5920","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"pillpalserver","configurations":{"android":"1:445875223905:android:7562ee5c98e8d4fe1d5920"}}}}}}
+{
+    "flutter": {
+        "platforms": {
+            "android": {
+                "default": {
+                    "projectId": "pillpalserver",
+                    "appId": "1:445875223905:android:7562ee5c98e8d4fe1d5920",
+                    "fileOutput": "android/app/google-services.json"
+                }
+            },
+            "dart": {
+                "lib/firebase_options.dart": {
+                    "projectId": "pillpalserver",
+                    "configurations": {
+                        "android": "1:445875223905:android:7562ee5c98e8d4fe1d5920"
+                    }
+                }
+            }
+        }
+    }
+}

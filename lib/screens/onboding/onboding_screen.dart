@@ -1,7 +1,9 @@
+import 'dart:developer';
 import 'dart:ui';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:pillpalmobile/screens/conformemail/verify_email.dart';
 import 'package:pillpalmobile/screens/entryPoint/entry_point.dart';
 import 'package:pillpalmobile/services/auth_service.dart';
@@ -18,25 +20,26 @@ class _OnbodingScreenState extends State<OnbodingScreen> {
   late RiveAnimationController _btnAnimationController;
   bool isShowSignInDialog = false;
 
-  Future<void> logintopage() async {
-    final user = FirebaseAuth.instance.currentUser!;
-    if (user.emailVerified) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const EntryPoint(),
-        ),
-      );
-    } else {
-      await user.sendEmailVerification();
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const VerifyEmailScreen(),
-        ),
-      );
-    }
-  }
+  // Future<void> logintopage() async {
+  //   final user = FirebaseAuth.instance.currentUser!;
+  //   if (user.emailVerified) {
+  //     Navigator.push(
+  //       context,
+  //       MaterialPageRoute(
+  //         builder: (context) => const EntryPoint(),
+  //       ),
+  //     );
+  //   } else {
+  //     await user.sendEmailVerification();
+  //     Navigator.push(
+  //       context,
+  //       MaterialPageRoute(
+  //         builder: (context) => const VerifyEmailScreen(),
+  //       ),
+  //     );
+  //   }
+  // }
+
 
   @override
   void initState() {
@@ -118,7 +121,7 @@ class _OnbodingScreenState extends State<OnbodingScreen> {
                     const Image(
                       image: AssetImage('assets/picture/loginpic.png'),
                       opacity: AlwaysStoppedAnimation(0.7),
-                      ),
+                    ),
                     const Spacer(flex: 1),
                     //đây là cái nút đăng nhập
                     AnimatedBtn(
@@ -130,16 +133,14 @@ class _OnbodingScreenState extends State<OnbodingScreen> {
                           setState(() {
                             isShowSignInDialog = true;
                           });
-                          signInWithGoogle().whenComplete(() => logintopage());
-
-                          //testzone
+                          //signInWithGoogle().whenComplete(() => logintopage());
+                          signInWithGoogle();
                           // Navigator.push(
                           //   context,
                           //   MaterialPageRoute(
                           //     builder: (context) => const EntryPoint(),
                           //   ),
                           // );
-                          //them cai bat loi dang nhap sai vao day
                         });
                       },
                     ),

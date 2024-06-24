@@ -5,6 +5,7 @@ import 'package:pillpalmobile/screens/freetrialscreens/trial_screen.dart';
 import 'package:pillpalmobile/screens/home/home_screen.dart';
 import 'package:pillpalmobile/screens/medicationschedule/medicationschedule.dart';
 import 'package:pillpalmobile/screens/medicationschedule/mscomponents/add_task_bar.dart';
+import 'package:pillpalmobile/screens/paidhome/autoadd.dart';
 import 'package:pillpalmobile/screens/paidhome/scanscreen.dart';
 import 'package:pillpalmobile/utils/rive_utils.dart';
 import 'package:rive/rive.dart';

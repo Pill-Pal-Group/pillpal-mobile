@@ -3,8 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pillpalmobile/constants.dart';
-import 'package:pillpalmobile/screens/entryPoint/entry_point.dart';
 import 'package:pillpalmobile/screens/onboding/onboding_screen.dart';
+import 'package:pillpalmobile/services/auth_service.dart';
 
 class VerifyEmailScreen extends StatelessWidget {
   const VerifyEmailScreen({super.key});
@@ -52,12 +52,7 @@ class VerifyEmailScreen extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: () async {
                     if (user.emailVerified) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const EntryPoint(),
-                        ),
-                      );
+                      signInWithGoogle();
                     } else {
                       AwesomeNotifications().createNotification(
                           content: NotificationContent(
