@@ -24,6 +24,10 @@ class LinkImages{
   static const String tempAvatar = "assets/picture/wsa.jpg";
 }
 
+class APILINK{
+  static const String medicene = "https://pp-devtest2.azurewebsites.net/api/medicines?IncludeCategories=true&IncludeSpecifications=true&IncludePharmaceuticalCompanies=true&IncludeDosageForms=true&IncludeActiveIngredients=true&IncludeBrands=true";
+}
+
 const Color bluishClr = Color(0xFF4e5ae8);
 const Color yellowClr = Color(0xFFFFB746);
 const Color pinkClr = Color(0x0fff4667);

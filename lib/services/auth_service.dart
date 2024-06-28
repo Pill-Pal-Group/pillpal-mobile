@@ -12,6 +12,8 @@ Future<void> signInWithGoogle() async {
   final googleAuth2 = await googleUser?.authentication;
   log(googleAuth2!.idToken.toString());
   GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
+    
+  
 
   AuthCredential credential = GoogleAuthProvider.credential(
     accessToken: googleAuth?.accessToken,
@@ -20,6 +22,7 @@ Future<void> signInWithGoogle() async {
 
   UserCredential userNow =
       await FirebaseAuth.instance.signInWithCredential(credential);
+
   if (!userNow.additionalUserInfo!.isNewUser) {
       Get.to(() =>const EntryPoint());
     } else {

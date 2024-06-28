@@ -8,6 +8,7 @@ import 'package:pillpalmobile/screens/entryPoint/entry_point.dart';
 import 'package:pillpalmobile/screens/medicationschedule/medicationschedule.dart';
 import 'package:pillpalmobile/screens/medicationschedule/mscomponents/theme_services.dart';
 import 'package:pillpalmobile/screens/onboding/onboding_screen.dart';
+import 'package:pillpalmobile/screens/searchmedicine/searchscreen.dart';
 import 'package:pillpalmobile/services/notifications_service.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
@@ -73,28 +74,6 @@ class _MyAppState extends State<MyApp> {
       value: globalBloc!,
       child: Sizer(builder: (context, orientation, deviceType) {
         return 
-        
-      // MaterialApp(
-      // debugShowCheckedModeBanner: false,
-      // title: 'PILLPAL APP',
-      // //Theme cua khung app
-      // theme: ThemeData(
-      //   scaffoldBackgroundColor: Color.fromARGB(255, 255, 255, 255),
-      //   primarySwatch: Colors.blue,
-      //   fontFamily: "Intel",
-      //   inputDecorationTheme: const InputDecorationTheme(
-      //     filled: true,
-      //     fillColor: Colors.white,
-      //     errorStyle: TextStyle(height: 0),
-      //     border: defaultInputBorder,
-      //     enabledBorder: defaultInputBorder,
-      //     focusedBorder: defaultInputBorder,
-      //     errorBorder: defaultInputBorder,
-      //   ),
-      // ),
-      // home: const OnbodingScreen(),
-      // );
-      ///test
       GetMaterialApp(
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
@@ -102,6 +81,7 @@ class _MyAppState extends State<MyApp> {
       darkTheme: Themes.dark,
       themeMode: ThemeServices().theme,
       home: const OnbodingScreen(),
+      //home: const SearchScreen(),
     );
       //test
       }),

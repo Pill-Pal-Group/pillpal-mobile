@@ -1,0 +1,183 @@
+import 'dart:developer';
+
+import 'package:flutter/material.dart';
+
+class CompareMedicine extends StatefulWidget {
+  final List<dynamic> medInbrand2;
+  const CompareMedicine({super.key, required this.medInbrand2});
+
+  @override
+  State<CompareMedicine> createState() => _CompareMedicineState();
+}
+
+class _CompareMedicineState extends State<CompareMedicine> {
+  ScrollController controller = ScrollController();
+  bool closeTopContainer = false;
+  double topContainer = 0;
+  List<Widget> itemsData = [];
+  //funtion
+  void getPostsData() {
+    List<dynamic> responseList = widget.medInbrand2;
+    List<Widget> listItems = [];
+    responseList.forEach((post) {
+      listItems.add(
+        InkWell(
+          child: Container(
+              height: 150,
+              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                        color: Colors.black.withAlpha(100), blurRadius: 10.0),
+                  ]),
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Flexible(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            post['brand']['brandName'] ??
+                                "Chưa cập nhật thông tin",
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                            ),
+                            overflow: TextOverflow.fade,
+                            maxLines: 2,
+                            softWrap: true,
+                          ),
+                          SizedBox(
+                            height: 15,
+                          ),
+                          Text(
+                            "${post["price"]} VND",
+                            style: const TextStyle(
+                                fontSize: 20,
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold),
+                          )
+                        ],
+                      ),
+                    ),
+                    Image.network(
+                      "${post['brand']['brandLogo']}",
+                      fit: BoxFit.fitWidth, //url,
+                      errorBuilder: (BuildContext context, Object exception,
+                          StackTrace? stackTrace) {
+                        return Image.asset("assets/picture/wsa.jpg");
+                      },
+                      height: 80,
+                    ),
+                  ],
+                ),
+              )),
+          onTap: () {
+            log(post['brand']['brandName'] ?? "Chưa cập nhật thông tin");
+          },
+        ),
+      );
+    });
+    setState(() {
+      itemsData = listItems;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getPostsData();
+    controller.addListener(() {
+      double value = controller.offset / 119;
+
+      setState(() {
+        topContainer = value;
+        closeTopContainer = controller.offset > 50;
+      });
+    });
+  }
+  //fintion
+
+  @override
+  Widget build(BuildContext context) {
+    final Size size = MediaQuery.of(context).size;
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          elevation: 0,
+          backgroundColor: Colors.white,
+          // actions: <Widget>[
+          //   // IconButton(
+          //   //   icon: Icon(Icons.search, color: Colors.black),
+          //   //   onPressed: () {
+
+          //   //   },
+          //   // ),
+          //   // IconButton(
+          //   //   icon: Icon(Icons.person, color: Colors.black),
+          //   //   onPressed: () {
+
+          //   //   },
+          //   // )
+          // ],
+        ),
+        body: Container(
+          height: size.height,
+          child: Column(
+            children: <Widget>[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: <Widget>[
+                  Text(
+                    "Danh Sách Thương hiệu",
+                    style: TextStyle(
+                        color: Colors.grey,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20),
+                  ),
+                ],
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              Expanded(
+                  child: ListView.builder(
+                      controller: controller,
+                      itemCount: itemsData.length,
+                      physics: BouncingScrollPhysics(),
+                      itemBuilder: (context, index) {
+                        double scale = 1.0;
+                        if (topContainer > 0.5) {
+                          scale = index + 0.5 - topContainer;
+                          if (scale < 0) {
+                            scale = 0;
+                          } else if (scale > 1) {
+                            scale = 1;
+                          }
+                        }
+                        return Opacity(
+                          opacity: scale,
+                          child: Transform(
+                            transform: Matrix4.identity()..scale(scale, scale),
+                            alignment: Alignment.bottomCenter,
+                            child: Align(
+                                heightFactor: 0.7,
+                                alignment: Alignment.topCenter,
+                                child: itemsData[index]),
+                          ),
+                        );
+                      })),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

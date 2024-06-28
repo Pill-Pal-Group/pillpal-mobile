@@ -7,6 +7,7 @@ import 'package:pillpalmobile/screens/medicationschedule/medicationschedule.dart
 import 'package:pillpalmobile/screens/medicationschedule/mscomponents/add_task_bar.dart';
 import 'package:pillpalmobile/screens/paidhome/autoadd.dart';
 import 'package:pillpalmobile/screens/paidhome/scanscreen.dart';
+import 'package:pillpalmobile/screens/searchmedicine/searchscreen.dart';
 import 'package:pillpalmobile/utils/rive_utils.dart';
 import 'package:rive/rive.dart';
 import '../../model/menu.dart';
@@ -46,7 +47,7 @@ class _EntryPointState extends State<EntryPoint>
       case "Lịch Uống":
         return const MedicationSchedule();
       case "Tìm Kiếm":
-        return const FreeTrialScreen();
+        return const SearchScreen();
       default:
         return const HomePage();
     }
