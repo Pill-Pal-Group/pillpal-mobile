@@ -6,7 +6,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:pillpalmobile/constants.dart';
-import 'package:pillpalmobile/screens/medicationschedule/mscomponents/inputfeild.dart';
 import 'package:pillpalmobile/screens/searchmedicine/smcomponents/medicenedetail.dart';
 import 'package:pillpalmobile/screens/searchmedicine/smcomponents/product_widget.dart';
 import 'package:pillpalmobile/screens/searchmedicine/smcomponents/utils.dart';
@@ -31,17 +30,15 @@ class _SearchScreenState extends State<SearchScreen> {
     final respone = await http.get(uri);
     final body = respone.body;
     final json = jsonDecode(body);
-    
-      medicines = json;
-    
-    log("Loadroine");
+    medicines = json;
+    log("Tao chay roi ne");
   }
 
   @override
   void initState() {
-    log("okerne");
     super.initState();
-    fetchMedicine("");
+    log(_titleCtrl2.text);
+    fetchMedicine(_titleCtrl2.text);
   }
 
   //api call
@@ -86,7 +83,6 @@ class _SearchScreenState extends State<SearchScreen> {
                 ),
               ),
               const SizedBox(height: 30),
-
               // Thanh search
               Row(
                 children: [
@@ -101,10 +97,16 @@ class _SearchScreenState extends State<SearchScreen> {
                     ),
                     child: Row(
                       children: [
-                        const Icon(
-                          FontAwesomeIcons.magnifyingGlass,
-                          size: 25,
-                          color: kPrimaryColor,
+                        IconButton(
+                          onPressed: () => {
+                            log(_titleCtrl2.text),
+                            fetchMedicine(_titleCtrl2.text),
+                          },
+                          icon: const Icon(
+                            FontAwesomeIcons.magnifyingGlass,
+                            size: 25,
+                            color: kPrimaryColor,
+                          ),
                         ),
                         const SizedBox(width: 15),
                         Expanded(
@@ -115,7 +117,10 @@ class _SearchScreenState extends State<SearchScreen> {
                                 : Colors.grey[700],
                             controller: _titleCtrl2,
                             style: subtitlestyle,
-                            onEditingComplete: () => fetchMedicine(_titleCtrl2.text),
+                            onChanged: (value) => {
+                              log(value),
+                              fetchMedicine(value)
+                              },
                             decoration: InputDecoration(
                                 hintText: "Nhập tên thuốc?",
                                 hintStyle: subtitlestyle,
@@ -141,9 +146,12 @@ class _SearchScreenState extends State<SearchScreen> {
                       shape: BoxShape.circle,
                       color: kPrimaryColor,
                     ),
-                    child: const Icon(
-                      FontAwesomeIcons.filter,
-                      color: Colors.white,
+                    child: IconButton(
+                      onPressed: () => log("day la nut fillter"),
+                      icon: const Icon(
+                        FontAwesomeIcons.filter,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ],
@@ -158,42 +166,42 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
-  _makeList(){
-    return
-    GridView.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 40,
-                ),
-                shrinkWrap: true,
-                primary: false,
-                itemCount: medicines.length,
-                itemBuilder: (context, index) {
-                  return GestureDetector(
-                    onTap: () {
-                       Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    MedicineDetailScreen(
-                                      medicineName: medicines[index]['medicineName'], 
-                                      rqr: medicines[index]["requirePrescript"], 
-                                      image: medicines[index]['image'], 
-                                      specifName: medicines[index]['specification']['typeName'], 
-                                      specifDetail: medicines[index]['specification']['detail'], 
-                                      activeIngredients: medicines[index]['activeIngredients'], 
-                                      pharmaceuticalCompanies: medicines[index]['pharmaceuticalCompanies'], 
-                                      medInbrand: medicines[index]['medicineInBrands'],),
-                              ));
-                    },
-                    child: ProductWidget(
-                      image: medicines[index]['image'],
-                      medicineName: medicines[index]['medicineName'],
-                      rqr: medicines[index]["requirePrescript"],
-                    ),
-                  );
-                },
-              );
+  _makeList() {
+    return GridView.builder(
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 10,
+        mainAxisSpacing: 40,
+      ),
+      shrinkWrap: true,
+      primary: false,
+      itemCount: medicines.length,
+      itemBuilder: (context, index) {
+        return GestureDetector(
+          onTap: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MedicineDetailScreen(
+                    medicineName: medicines[index]['medicineName'],
+                    rqr: medicines[index]["requirePrescript"],
+                    image: medicines[index]['image'],
+                    specifName: medicines[index]['specification']['typeName'],
+                    specifDetail: medicines[index]['specification']['detail'],
+                    activeIngredients: medicines[index]['activeIngredients'],
+                    pharmaceuticalCompanies: medicines[index]
+                        ['pharmaceuticalCompanies'],
+                    medInbrand: medicines[index]['medicineInBrands'],
+                  ),
+                ));
+          },
+          child: ProductWidget(
+            image: medicines[index]['image'],
+            medicineName: medicines[index]['medicineName'],
+            rqr: medicines[index]["requirePrescript"],
+          ),
+        );
+      },
+    );
   }
 }

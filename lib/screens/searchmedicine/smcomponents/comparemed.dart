@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class CompareMedicine extends StatefulWidget {
   final List<dynamic> medInbrand2;
@@ -15,6 +16,15 @@ class _CompareMedicineState extends State<CompareMedicine> {
   bool closeTopContainer = false;
   double topContainer = 0;
   List<Widget> itemsData = [];
+  //search
+  Future<void> launchMap(String address) async {
+    String query = Uri.encodeComponent(address);
+    Uri googleUrl = Uri.parse('https://www.google.com/maps/search/?api=1&query=$query');
+    if (await canLaunchUrl(googleUrl)) {
+      log("oke123");
+      await launchUrl(googleUrl);
+    }
+  }
   //funtion
   void getPostsData() {
     List<dynamic> responseList = widget.medInbrand2;
@@ -53,7 +63,7 @@ class _CompareMedicineState extends State<CompareMedicine> {
                             maxLines: 2,
                             softWrap: true,
                           ),
-                          SizedBox(
+                          const SizedBox(
                             height: 15,
                           ),
                           Text(
@@ -79,6 +89,7 @@ class _CompareMedicineState extends State<CompareMedicine> {
                 ),
               )),
           onTap: () {
+            launchMap(post['brand']['brandName']);
             log(post['brand']['brandName'] ?? "Chưa cập nhật thông tin");
           },
         ),

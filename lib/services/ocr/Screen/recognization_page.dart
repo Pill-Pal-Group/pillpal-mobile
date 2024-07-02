@@ -2,7 +2,6 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
-import 'package:pillpalmobile/screens/paidhome/autoadd.dart';
 
 class RecognizePage extends StatefulWidget {
   final String? path;

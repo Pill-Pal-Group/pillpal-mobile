@@ -1,15 +1,12 @@
-import 'dart:math';
+
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:pillpalmobile/screens/entryPoint/entry_point.dart';
 import 'package:pillpalmobile/screens/freetrialscreens/trial_screen.dart';
 import 'package:pillpalmobile/screens/onboding/onboding_screen.dart';
 import 'package:pillpalmobile/screens/tos/termofservice.dart';
 import 'package:pillpalmobile/screens/userinformation/profile_page.dart';
-import 'package:rive/rive.dart';
-
 import '../../../model/menu.dart';
 import '../../../utils/rive_utils.dart';
 import 'info_card.dart';

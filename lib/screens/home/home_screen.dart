@@ -4,7 +4,6 @@ import 'package:pillpalmobile/constants.dart';
 import 'package:pillpalmobile/global_bloc.dart';
 import 'package:pillpalmobile/model/medicine.dart';
 import 'package:pillpalmobile/screens/home/medicine_details/medicine_details.dart';
-import 'package:pillpalmobile/screens/home/new_entry/new_entry_page.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 
@@ -72,7 +71,7 @@ class TopContainer extends StatelessWidget {
   const TopContainer({super.key});
   @override
   Widget build(BuildContext context) {
-    final GlobalBloc globalBloc = Provider.of<GlobalBloc>(context);
+    Provider.of<GlobalBloc>(context);
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [

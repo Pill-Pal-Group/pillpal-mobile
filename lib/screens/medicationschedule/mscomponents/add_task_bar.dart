@@ -5,7 +5,6 @@ import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:intl/intl.dart';
 import 'package:pillpalmobile/constants.dart';
 import 'package:pillpalmobile/model/medicine_type.dart';
@@ -28,9 +27,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   final TextEditingController _titleCtrl = TextEditingController();
   final TextEditingController _noteCtrl = TextEditingController();
   DateTime nowTime = DateTime.now();
-  String _endtime = DateFormat("hh:mm:a")
-      .format(DateTime.now().add(Duration(hours: 2)))
-      .toString();
   String _starTIme = DateFormat("hh:mm:a").format(DateTime.now()).toString();
   int _selectedRemider = 10;
   List<int> remindList = [10,15,20,30];
@@ -304,7 +300,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       });
     } else if (isStarTime == false) {
       setState(() {
-        _endtime = _formatedTime;
       });
     }
   }

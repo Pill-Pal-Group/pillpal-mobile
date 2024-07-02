@@ -31,14 +31,9 @@ class NotifyHelper {
 
     await flutterLocalNotificationsPlugin.initialize(initializationSettings,
         onDidReceiveNotificationResponse: (payload) {
-      if (payload != null) {
-        print('notification payload: $payload');
-        log('notification payload: $payload');
-      } else {
-        print('notification done');
-        log('notification done');
-      }
-      Get.to(() => Container(
+      print('notification payload: $payload');
+      log('notification payload: $payload');
+          Get.to(() => Container(
             color: Colors.white,
           ));
     });

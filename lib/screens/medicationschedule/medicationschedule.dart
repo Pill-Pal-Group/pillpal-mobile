@@ -8,7 +8,6 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:pillpalmobile/constants.dart';
-import 'package:pillpalmobile/screens/home/new_entry/new_entry_page.dart';
 import 'package:pillpalmobile/screens/medicationschedule/mscomponents/add_task_bar.dart';
 import 'package:pillpalmobile/screens/medicationschedule/mscomponents/msbutton.dart';
 import 'package:pillpalmobile/screens/medicationschedule/mscomponents/notification_services.dart';
@@ -23,7 +22,6 @@ class MedicationSchedule extends StatefulWidget {
 }
 
 class _MedicationScheduleState extends State<MedicationSchedule> {
-  DateTime _seletedDate = DateTime.now();
   var notifyHelper;
   @override
   void initState() {
@@ -70,7 +68,6 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
                 fontSize: 20, fontWeight: FontWeight.w600, color: Colors.grey)),
         //cai config chọn ngày
         onDateChange: (date) {
-          _seletedDate = date;
         },
       ),
       //

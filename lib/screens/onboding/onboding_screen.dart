@@ -3,9 +3,6 @@ import 'dart:ui';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:pillpalmobile/screens/conformemail/verify_email.dart';
-import 'package:pillpalmobile/screens/entryPoint/entry_point.dart';
 import 'package:pillpalmobile/services/auth_service.dart';
 import 'package:rive/rive.dart';
 import 'components/animated_btn.dart';
@@ -19,27 +16,7 @@ class OnbodingScreen extends StatefulWidget {
 class _OnbodingScreenState extends State<OnbodingScreen> {
   late RiveAnimationController _btnAnimationController;
   bool isShowSignInDialog = false;
-
-  // Future<void> logintopage() async {
-  //   final user = FirebaseAuth.instance.currentUser!;
-  //   if (user.emailVerified) {
-  //     Navigator.push(
-  //       context,
-  //       MaterialPageRoute(
-  //         builder: (context) => const EntryPoint(),
-  //       ),
-  //     );
-  //   } else {
-  //     await user.sendEmailVerification();
-  //     Navigator.push(
-  //       context,
-  //       MaterialPageRoute(
-  //         builder: (context) => const VerifyEmailScreen(),
-  //       ),
-  //     );
-  //   }
-  // }
-
+  bool _isSigningIn = false;
 
   @override
   void initState() {
@@ -129,18 +106,14 @@ class _OnbodingScreenState extends State<OnbodingScreen> {
                       //bo cai login vo day ne
                       press: () {
                         _btnAnimationController.isActive = true;
-                        Future.delayed(const Duration(milliseconds: 800), () {
+                        Future.delayed(const Duration(milliseconds: 800),
+                            () async {
                           setState(() {
                             isShowSignInDialog = true;
+                            //_isSigningIn = true;
                           });
-                          //signInWithGoogle().whenComplete(() => logintopage());
                           signInWithGoogle();
-                          // Navigator.push(
-                          //   context,
-                          //   MaterialPageRoute(
-                          //     builder: (context) => const EntryPoint(),
-                          //   ),
-                          // );
+
                         });
                       },
                     ),
