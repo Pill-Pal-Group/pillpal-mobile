@@ -1,11 +1,10 @@
 import 'dart:convert';
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:pillpalmobile/constants.dart';
+import 'package:pillpalmobile/screens/freetrialscreens/test.dart';
 import 'package:pillpalmobile/screens/searchmedicine/smcomponents/medicenedetail.dart';
 import 'package:pillpalmobile/screens/searchmedicine/smcomponents/product_widget.dart';
 import 'package:pillpalmobile/screens/searchmedicine/smcomponents/utils.dart';
@@ -21,7 +20,20 @@ class SearchScreen extends StatefulWidget {
 class _SearchScreenState extends State<SearchScreen> {
   String? searchText;
   List<dynamic> medicines = [];
+  List<dynamic> categoryList = [];
+  List<dynamic> medicineListFillted = [];
+  var categoryChoiseList;
+  bool pickCategory = false;
   final TextEditingController _titleCtrl2 = TextEditingController();
+  bool isSelected = false;
+  @override
+  void dispose() {
+    medicines = [];
+    categoryList = [];
+    medicineListFillted = [];
+    super.dispose();
+  }
+
   //api call
   void fetchMedicine(String okene) async {
     String url =
@@ -30,14 +42,42 @@ class _SearchScreenState extends State<SearchScreen> {
     final respone = await http.get(uri);
     final body = respone.body;
     final json = jsonDecode(body);
-    medicines = json;
-    log("Tao chay roi ne");
+    setState(() {
+      log(medicines.toString());
+      medicines = json;
+    });
+  }
+
+  void fetchCategory() async {
+    String url = "https://pp-devtest2.azurewebsites.net/api/categories";
+    final uri = Uri.parse(url);
+    final respone = await http.get(uri);
+    final body = respone.body;
+    final json = jsonDecode(body);
+    setState(() {
+      categoryList = json;
+    });
+  }
+
+  void filterByCategoryName(String categoryName) {
+    for (var e in medicines) {
+      for (var x in e['categories']) {
+        if (x['categoryName'] == categoryName) {
+          setState(() {
+            medicineListFillted.add(e);
+          });
+        }
+      }
+    }
+    setState(() {
+      medicines = medicineListFillted;
+    });
   }
 
   @override
   void initState() {
     super.initState();
-    log(_titleCtrl2.text);
+    fetchCategory();
     fetchMedicine(_titleCtrl2.text);
   }
 
@@ -117,10 +157,8 @@ class _SearchScreenState extends State<SearchScreen> {
                                 : Colors.grey[700],
                             controller: _titleCtrl2,
                             style: subtitlestyle,
-                            onChanged: (value) => {
-                              log(value),
-                              fetchMedicine(value)
-                              },
+                            onChanged: (value) =>
+                                {log(value), fetchMedicine(value)},
                             decoration: InputDecoration(
                                 hintText: "Nhập tên thuốc?",
                                 hintStyle: subtitlestyle,
@@ -147,7 +185,14 @@ class _SearchScreenState extends State<SearchScreen> {
                       color: kPrimaryColor,
                     ),
                     child: IconButton(
-                      onPressed: () => log("day la nut fillter"),
+                      onPressed: () => {
+                        // showModalBottomSheet<void>(
+                        //   context: context,
+                        //   builder: (BuildContext context) {
+                        //     return const FilterChipExample();
+                        //   },
+                        // )
+                      },
                       icon: const Icon(
                         FontAwesomeIcons.filter,
                         color: Colors.white,
@@ -157,6 +202,39 @@ class _SearchScreenState extends State<SearchScreen> {
                 ],
               ),
               const SizedBox(height: 10),
+              //list fillter
+              SizedBox(
+                height: 80,
+                width: MediaQuery.of(context).size.width,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: categoryList.length,
+                  padding: const EdgeInsets.only(top: 20.0),
+                  itemBuilder: (context, index) {
+                    return Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: FilterChip(
+                          label: Text(categoryList[index]['categoryName']),
+                          selected: categoryChoiseList == (categoryList[index]),
+                          onSelected: (bool selected) {
+                            if (selected) {
+                              setState(() {
+                                categoryChoiseList = categoryList[index];
+                                filterByCategoryName(
+                                    categoryList[index]['categoryName']);
+                              });
+                            } else {
+                              setState(() {
+                                categoryChoiseList = null;
+                                fetchMedicine("");
+                                medicineListFillted = [];
+                              });
+                            }
+                          },
+                        ));
+                  },
+                ),
+              ),
               // product grid view
               _makeList()
             ],

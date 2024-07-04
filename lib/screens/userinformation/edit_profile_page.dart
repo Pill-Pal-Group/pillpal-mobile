@@ -1,9 +1,8 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:pillpalmobile/screens/userinformation/components/appbar_widget.dart';
 import 'package:pillpalmobile/screens/userinformation/components/profile_widget.dart';
 import 'package:pillpalmobile/screens/userinformation/components/textfield_widget.dart';
-
+import 'package:pillpalmobile/constants.dart';
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
 
@@ -12,8 +11,6 @@ class EditProfilePage extends StatefulWidget {
 }
 
 class _EditProfilePageState extends State<EditProfilePage> {
-  final user = FirebaseAuth.instance.currentUser!;
-
   @override
   Widget build(BuildContext context) => Builder(
         builder: (context) => Scaffold(
@@ -23,7 +20,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
             physics: BouncingScrollPhysics(),
             children: [
               ProfileWidget(
-                imagePath: user.photoURL.toString(),
+                imagePath: userInfomation.loginuser!.photoURL.toString(),
                 isEdit: true,
                 onClicked: () async {},
               ),

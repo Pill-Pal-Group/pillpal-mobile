@@ -58,8 +58,6 @@ class _MyAppState extends State<MyApp> {
       onNotificationCreatedMethod: NotificationController.onNotificationCreateMethod,
       onDismissActionReceivedMethod: NotificationController.onDismissAtionReciveMethod,
       onNotificationDisplayedMethod: NotificationController.onNotificationDisplayMethod,
-
-      
       );
     globalBloc = GlobalBloc();
     super.initState();
@@ -78,7 +76,7 @@ class _MyAppState extends State<MyApp> {
       darkTheme: Themes.dark,
       themeMode: ThemeServices().theme,
       home: const OnbodingScreen(),
-      //home: const SearchScreen(),
+
     );
       //test
       }),

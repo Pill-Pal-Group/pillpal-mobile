@@ -1,5 +1,4 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pillpalmobile/constants.dart';
@@ -10,7 +9,6 @@ class VerifyEmailScreen extends StatelessWidget {
   const VerifyEmailScreen({super.key});
   @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser!;
     return Scaffold(
       appBar: AppBar(
         actions: [
@@ -51,7 +49,7 @@ class VerifyEmailScreen extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () async {
-                    if (user.emailVerified) {
+                    if (userInfomation.loginuser!.emailVerified) {
                       signInWithGoogle();
                     } else {
                       AwesomeNotifications().createNotification(
@@ -73,7 +71,7 @@ class VerifyEmailScreen extends StatelessWidget {
                 width: double.infinity,
                 child: TextButton(
                   onPressed: () async {
-                    await user.sendEmailVerification();
+                    await userInfomation.loginuser!.sendEmailVerification();
                   },
                   child:
                       const Text('nhấn vào đây nếu không nhận được email nào'),

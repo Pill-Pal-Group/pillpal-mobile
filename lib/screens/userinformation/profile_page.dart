@@ -1,5 +1,4 @@
-
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:pillpalmobile/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:pillpalmobile/screens/userinformation/components/appbar_widget.dart';
 import 'package:pillpalmobile/screens/userinformation/components/button_widget.dart';
@@ -16,8 +15,6 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
-    //final user = UserPreferences.myUser;
-    final user = FirebaseAuth.instance.currentUser!;
     return Builder(
         builder: (context) => Scaffold(
           //app bar
@@ -28,7 +25,7 @@ class _ProfilePageState extends State<ProfilePage> {
             //chuyển qua trang edit
             children: [
               ProfileWidget(
-                imagePath: user.photoURL.toString(),
+                imagePath: userInfomation.loginuser!.photoURL.toString(),
                 onClicked: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(builder: (context) => const EditProfilePage()),
@@ -40,13 +37,13 @@ class _ProfilePageState extends State<ProfilePage> {
               Column(
                 children: [
                   Text(
-                    user.displayName.toString(),
+                    userInfomation.loginuser!.displayName.toString(),
                     style: const TextStyle(
                         fontWeight: FontWeight.bold, fontSize: 24),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    user.email.toString(),
+                    userInfomation.loginuser!.email.toString(),
                     style: const TextStyle(color: Colors.grey),
                   )
                 ],
@@ -121,8 +118,6 @@ class _ProfilePageState extends State<ProfilePage> {
                       'TP.Hồ Chí Minh',
                       style: const TextStyle(fontSize: 16, height: 1.4),
                     ),
-                    
-
                   ],
                 ),
               ),

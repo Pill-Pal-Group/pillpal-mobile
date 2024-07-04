@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -15,19 +16,7 @@ const Color kOtherColor = Color(0xFF59C1BD);
 const Color kErrorBorderColor = Color(0xFFE74C3C);
 const Color kTextLightColor = Color(0xFFC5BDCD);
 const Color kTextColor = Color(0xFF56485D);
-
-
-class LinkImages{
-  //login pich
-  static const String emailVerify = "assets/picture/emailverify.png";
-
-  static const String tempAvatar = "assets/picture/wsa.jpg";
-}
-
-class APILINK{
-  static const String medicene = "https://pp-devtest2.azurewebsites.net/api/medicines?IncludeCategories=true&IncludeSpecifications=true&IncludePharmaceuticalCompanies=true&IncludeDosageForms=true&IncludeActiveIngredients=true&IncludeBrands=true";
-}
-
+//somthing
 const Color bluishClr = Color(0xFF4e5ae8);
 const Color yellowClr = Color(0xFFFFB746);
 const Color pinkClr = Color(0x0fff4667);
@@ -35,7 +24,7 @@ const Color white = Colors.white;
 const primaryClr = bluishClr;
 const Color darkGreyClr = Color(0xFF121212);
 Color darkHeaderClr = const Color(0xFF424242);
-
+//lignt and dark
 class Themes {
   static final light = ThemeData(
     backgroundColor: Colors.white,
@@ -81,6 +70,28 @@ TextStyle get subtitlestyle{
   );
 }
 
+//Link
+class LinkImages{
+  //login pich
+  static const String emailVerify = "assets/picture/emailverify.png";
+
+  static const String tempAvatar = "assets/picture/wsa.jpg";
+}
+
+class APILINK{
+  //static const String medicene = "https://pp-devtest2.azurewebsites.net/api/medicines?IncludeCategories=true&IncludeSpecifications=true&IncludePharmaceuticalCompanies=true&IncludeDosageForms=true&IncludeActiveIngredients=true&IncludeBrands=true";
+}
+
+class userInfomation{
+  static User? loginuser;
+  static String accessToken = "";
+  static String refreshToken = "";
+  static String tokenType = "";
+  static int countTIme = 0;
+}
+
+//emun
+enum ExerciseFilter { walking, running, cycling, hiking }
 //sample
 // AwesomeNotifications().createNotification(
 //                             content: NotificationContent(

@@ -3,6 +3,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:pillpalmobile/constants.dart';
 import 'package:pillpalmobile/screens/freetrialscreens/trial_screen.dart';
 import 'package:pillpalmobile/screens/onboding/onboding_screen.dart';
 import 'package:pillpalmobile/screens/tos/termofservice.dart';
@@ -71,10 +72,8 @@ class _SideBarState extends State<SideBar> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser!;
     return SafeArea(
       child: Container(
         width: 288,
@@ -90,16 +89,16 @@ class _SideBarState extends State<SideBar> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              InfoCard(
-                linkne: user.photoURL.toString(),
-                name: user.displayName ?? 'no name',
-                bio: user.email ?? 'no email',
-              ),
-              // const InfoCard(
-              //   linkne: "",
-              //   name: 'no name',
-              //   bio: 'no email',
+              // InfoCard(
+              //   linkne: user.photoURL.toString(),
+              //   name: user.displayName ?? 'no name',
+              //   bio: user.email ?? 'no email',
               // ),
+              InfoCard(
+                linkne: userInfomation.loginuser!.photoURL.toString(),
+                name: userInfomation.loginuser!.displayName.toString(),
+                bio: userInfomation.loginuser!.email.toString(),
+              ),
               Padding(
                 padding: const EdgeInsets.only(left: 24, top: 32, bottom: 16),
                 child: Text(

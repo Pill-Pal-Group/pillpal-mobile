@@ -1,12 +1,9 @@
-import 'dart:developer';
 import 'dart:ui';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pillpalmobile/services/auth_service.dart';
 import 'package:rive/rive.dart';
 import 'components/animated_btn.dart';
-
 class OnbodingScreen extends StatefulWidget {
   const OnbodingScreen({super.key});
   @override
@@ -16,7 +13,12 @@ class OnbodingScreen extends StatefulWidget {
 class _OnbodingScreenState extends State<OnbodingScreen> {
   late RiveAnimationController _btnAnimationController;
   bool isShowSignInDialog = false;
-  bool _isSigningIn = false;
+  
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
 
   @override
   void initState() {
@@ -86,11 +88,6 @@ class _OnbodingScreenState extends State<OnbodingScreen> {
                               height: 1.2,
                             ),
                           ),
-                          //câu trích dẫn nên thay bằng 1 cái logo
-                          //SizedBox(height: 50),
-                          // Text(
-                          //   "làm ơn thêm cái cái logo vô đeiii chiến ơi",
-                          // ),
                         ],
                       ),
                     ),
@@ -110,7 +107,6 @@ class _OnbodingScreenState extends State<OnbodingScreen> {
                             () async {
                           setState(() {
                             isShowSignInDialog = true;
-                            //_isSigningIn = true;
                           });
                           signInWithGoogle();
 

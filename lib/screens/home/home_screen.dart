@@ -7,8 +7,18 @@ import 'package:pillpalmobile/screens/home/medicine_details/medicine_details.dar
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,34 +44,6 @@ class HomePage extends StatelessWidget {
           ],
         ),
       ),
-      //cái nut add thuốc
-      // floatingActionButton: InkResponse(
-      //   onTap: () {
-      //     // go to new entry page
-      //     Navigator.push(
-      //       context,
-      //       MaterialPageRoute(
-      //         builder: (context) => const NewEntryPage(),
-      //       ),
-      //     );
-      //   },
-      //   child: SizedBox(
-      //     width: 18.w,
-      //     height: 9.h,
-      //     child: Card(
-      //       color: kPrimaryColor,
-      //       shape: BeveledRectangleBorder(
-      //         borderRadius: BorderRadius.circular(3.h),
-      //       ),
-      //       child: Icon(
-      //         Icons.add_outlined,
-      //         color: kScaffoldColor,
-      //         size: 50.sp,
-      //       ),
-      //     ),
-      //   ),
-      // ),
-      // floatingActionButtonLocation: FloatingActionButtonLocation.endTop,
     );
   }
 }
