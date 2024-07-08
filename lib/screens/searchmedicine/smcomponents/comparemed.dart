@@ -19,12 +19,14 @@ class _CompareMedicineState extends State<CompareMedicine> {
   //search
   Future<void> launchMap(String address) async {
     String query = Uri.encodeComponent(address);
-    Uri googleUrl = Uri.parse('https://www.google.com/maps/search/?api=1&query=$query');
+    Uri googleUrl =
+        Uri.parse('https://www.google.com/maps/search/?api=1&query=$query');
     if (await canLaunchUrl(googleUrl)) {
       log("oke123");
       await launchUrl(googleUrl);
     }
   }
+
   //funtion
   void getPostsData() {
     List<dynamic> responseList = widget.medInbrand2;
@@ -124,26 +126,12 @@ class _CompareMedicineState extends State<CompareMedicine> {
         appBar: AppBar(
           elevation: 0,
           backgroundColor: Colors.white,
-          // actions: <Widget>[
-          //   // IconButton(
-          //   //   icon: Icon(Icons.search, color: Colors.black),
-          //   //   onPressed: () {
-
-          //   //   },
-          //   // ),
-          //   // IconButton(
-          //   //   icon: Icon(Icons.person, color: Colors.black),
-          //   //   onPressed: () {
-
-          //   //   },
-          //   // )
-          // ],
         ),
         body: Container(
           height: size.height,
           child: Column(
             children: <Widget>[
-              Row(
+              const Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: <Widget>[
                   Text(
@@ -184,7 +172,8 @@ class _CompareMedicineState extends State<CompareMedicine> {
                                 child: itemsData[index]),
                           ),
                         );
-                      })),
+                      })
+                      ),
             ],
           ),
         ),

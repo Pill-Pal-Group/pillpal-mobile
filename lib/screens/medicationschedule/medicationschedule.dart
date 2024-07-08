@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:date_picker_timeline/date_picker_widget.dart';
@@ -12,7 +13,12 @@ import 'package:pillpalmobile/screens/medicationschedule/mscomponents/add_task_b
 import 'package:pillpalmobile/screens/medicationschedule/mscomponents/msbutton.dart';
 import 'package:pillpalmobile/screens/medicationschedule/mscomponents/notification_services.dart';
 import 'package:pillpalmobile/screens/medicationschedule/mscomponents/theme_services.dart';
-import 'package:pillpalmobile/screens/paidhome/scanscreen.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:pillpalmobile/services/ocr/Screen/recognization_page.dart';
+import 'package:pillpalmobile/services/ocr/Utils/image_cropper_page.dart';
+import 'package:pillpalmobile/services/ocr/Utils/image_picker_class.dart';
+import 'package:pillpalmobile/services/ocr/Widgets/modal_dialog.dart';
+import 'package:http/http.dart' as http;
 
 class MedicationSchedule extends StatefulWidget {
   const MedicationSchedule({super.key});
@@ -23,14 +29,181 @@ class MedicationSchedule extends StatefulWidget {
 
 class _MedicationScheduleState extends State<MedicationSchedule> {
   var notifyHelper;
+  List<dynamic> medicinesInTake = [];
+  List<dynamic> mInTake = [];
+  String pid = "";
+  List<dynamic> prescriptsList = [];
+  var ui;
+  DateTime today = DateTime.now();
+  ScrollController controller = ScrollController();
+  List<Widget> itemsData = [];
+  bool closeTopContainer = false;
+  double topContainer = 0;
+
+  void fecthUserInfor() async {
+    String url = "https://pp-devtest2.azurewebsites.net/api/customers/info";
+    final uri = Uri.parse(url);
+    final respone = await http.get(
+      uri,
+      headers: <String, String>{
+        'Authorization': 'Bearer ${userInfomation.accessToken}',
+      },
+    );
+    final body = respone.body;
+    final json = jsonDecode(body);
+      ui = json;
+      log(ui['customerCode']);
+      fetchPrescripts(ui['customerCode']);
+
+    //log(ui.toString());
+  }
+
+  void fetchPrescripts(String customerID) async {
+    String url =
+        "https://pp-devtest2.azurewebsites.net/api/prescripts?CustomerCode=$customerID&IncludePrescriptDetails=true";
+    final uri = Uri.parse(url);
+    final respone = await http.get(
+      uri,
+      headers: <String, String>{
+        'Authorization': 'Bearer ${userInfomation.accessToken}',
+      },
+    );
+    final body = respone.body;
+    final json = jsonDecode(body);
+    prescriptsList = json;
+
+    for (var e in prescriptsList) {
+      log(e['id']);
+        fetchMedicineIntake(e['id'], today);
+      }
+    //log(medicinesInTake.toString());
+  }
+
+  void fetchMedicineIntake(String idpr, DateTime todayy) async {
+    String url =
+        "https://pp-devtest2.azurewebsites.net/api/medication-intakes/$idpr?dateTake=${todayy.year}-${todayy.month}-${todayy.day}";
+    final uri = Uri.parse(url);
+    final respone = await http.get(
+      uri,
+      headers: <String, String>{
+        'Authorization': 'Bearer ${userInfomation.accessToken}',
+      },
+    );
+    final json = jsonDecode(respone.body);
+    medicinesInTake = json;
+    takeJTD();
+  }
+
+  void takeJTD() {
+    //mInTake = [];
+    List<dynamic> tmp = [];
+    for (var element in medicinesInTake) {
+      tmp = element['medicationTakes'];
+    }
+    setState(() {
+      for (var element in tmp) {
+      mInTake.add(element);
+    }
+    });
+    getPostsData();
+    log(mInTake.toString());
+  }
+
+  void getPostsData() {
+    List<dynamic> responseList = mInTake;
+    List<Widget> listItems = [];
+    responseList.forEach((post) {
+      listItems.add(
+        InkWell(
+          child: Container(
+              height: 150,
+              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                        color: Colors.black.withAlpha(100), blurRadius: 10.0),
+                  ]),
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Flexible(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            "Uống lúc ${post['timeTake']}",
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                            ),
+                            overflow: TextOverflow.fade,
+                            maxLines: 2,
+                            softWrap: true,
+                          ),
+                          const SizedBox(
+                            height: 15,
+                          ),
+                          Text(
+                            "${post['dose']} Viên",
+                            style: const TextStyle(
+                                fontSize: 20,
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold),
+                          )
+                        ],
+                      ),
+                    ),
+                    Image.network(
+                      "oke",
+                      fit: BoxFit.fitWidth, //url,
+                      errorBuilder: (BuildContext context, Object exception,
+                          StackTrace? stackTrace) {
+                        return Image.asset("assets/picture/wsa.jpg");
+                      },
+                      height: 80,
+                    ),
+                  ],
+                ),
+              )),
+          onTap: () {},
+        ),
+      );
+    });
+    setState(() {
+      itemsData = listItems;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
+     mInTake=[];
     notifyHelper = NotifyHelper();
     notifyHelper.initializeNotification();
     notifyHelper.requestIOSPermissions();
+    fecthUserInfor();
+    getPostsData();
+    controller.addListener(() {
+      double value = controller.offset / 119;
+
+      setState(() {
+        topContainer = value;
+        closeTopContainer = controller.offset > 50;
+      });
+    });
   }
 
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+    mInTake=[];
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,6 +215,37 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
           _addMediceneBar(),
           //hang ngay thang
           _addDatePickerBar(),
+          //lich
+          const SizedBox(
+            height: 10,
+          ),
+          Expanded(
+              child: ListView.builder(
+                  controller: controller,
+                  itemCount: itemsData.length,
+                  physics: const BouncingScrollPhysics(),
+                  itemBuilder: (context, index) {
+                    double scale = 1.0;
+                    if (topContainer > 0.5) {
+                      scale = index + 0.5 - topContainer;
+                      if (scale < 0) {
+                        scale = 0;
+                      } else if (scale > 1) {
+                        scale = 1;
+                      }
+                    }
+                    return Opacity(
+                      opacity: scale,
+                      child: Transform(
+                        transform: Matrix4.identity()..scale(scale, scale),
+                        alignment: Alignment.bottomCenter,
+                        child: Align(
+                            heightFactor: 0.7,
+                            alignment: Alignment.topCenter,
+                            child: itemsData[index]),
+                      ),
+                    );
+                  })),
         ],
       ),
     );
@@ -68,6 +272,13 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
                 fontSize: 20, fontWeight: FontWeight.w600, color: Colors.grey)),
         //cai config chọn ngày
         onDateChange: (date) {
+          setState(() {
+            mInTake = [];
+            today = date;
+            fecthUserInfor();
+            getPostsData();
+            log(today.toString());
+          });
         },
       ),
       //
@@ -101,27 +312,56 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
               onTap:
                   //() => Get.to(()=> const AddTaskScreen())
                   () => {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const ScanScreen(),
-                          ),
-                        )
-                      }
-          ),
+                        imagePickerModal(context, onCameraTap: () {
+                          //log("Camera" as num);
+                          pickImage(source: ImageSource.camera).then((value) {
+                            if (value != '') {
+                              imageCropperView(value, context).then((value) {
+                                if (value != '') {
+                                  Navigator.push(
+                                    context,
+                                    CupertinoPageRoute(
+                                      builder: (_) => RecognizePage(
+                                        path: value,
+                                      ),
+                                    ),
+                                  );
+                                }
+                              });
+                            }
+                          });
+                        }, onGalleryTap: () {
+                          //log("Gallery" as num);
+                          pickImage(source: ImageSource.gallery).then((value) {
+                            if (value != '') {
+                              imageCropperView(value, context).then((value) {
+                                if (value != '') {
+                                  Navigator.push(
+                                    context,
+                                    CupertinoPageRoute(
+                                      builder: (_) => RecognizePage(
+                                        path: value,
+                                      ),
+                                    ),
+                                  );
+                                }
+                              });
+                            }
+                          });
+                        })
+                      }),
           MsButton(
               lable: "Tạo Lịch",
-              onTap:
-                  () => Get.to(()=> const AddTaskScreen())
-                  // () => {
-                  //       Navigator.push(
-                  //         context,
-                  //         MaterialPageRoute(
-                  //           builder: (context) => const NewEntryPage(),
-                  //         ),
-                  //       )
-                  //     }
-          ),
+              onTap: () => Get.to(() => const AddTaskScreen())
+              // () => {
+              //       Navigator.push(
+              //         context,
+              //         MaterialPageRoute(
+              //           builder: (context) => const NewEntryPage(),
+              //         ),
+              //       )
+              //     }
+              ),
         ],
       ),
     );

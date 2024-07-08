@@ -1,11 +1,13 @@
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
 import 'package:pillpalmobile/constants.dart';
 import 'package:pillpalmobile/global_bloc.dart';
-import 'package:pillpalmobile/model/medicine.dart';
-import 'package:pillpalmobile/screens/home/medicine_details/medicine_details.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
+import 'package:http/http.dart' as http;
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -15,9 +17,177 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  List<dynamic> thePrescriptsList = [];
+  List<dynamic> medList = [];
+  ScrollController controller = ScrollController();
+  bool closeTopContainer = false;
+  double topContainer = 0;
+  List<Widget> itemsData = [];
+  var ui;
+
+  @override
+  void dispose() {
+    super.dispose();
+    controller.dispose();
+  }
+
+  void fetchPrescripts(String customerID) async {
+    String url =
+        "https://pp-devtest2.azurewebsites.net/api/prescripts?CustomerCode=$customerID&IncludePrescriptDetails=true";
+    final uri = Uri.parse(url);
+    final respone = await http.get(
+      uri,
+      headers: <String, String>{
+        'Authorization': 'Bearer ${userInfomation.accessToken}',
+      },
+    );
+    final body = respone.body;
+    final json = jsonDecode(body);
+    setState(() {
+      thePrescriptsList = json;
+      getPostsData();
+    });
+    for (var element in thePrescriptsList) {
+      medList.add(element['prescriptDetails']);
+    }
+    //log(medList.toString());
+    //log(thePrescriptsList.toString());
+  }
+
+  void fecthUserInfor() async {
+    String url = "https://pp-devtest2.azurewebsites.net/api/customers/info";
+    final uri = Uri.parse(url);
+    final respone = await http.get(
+      uri,
+      headers: <String, String>{
+        'Authorization': 'Bearer ${userInfomation.accessToken}',
+      },
+    );
+    final body = respone.body;
+    final json = jsonDecode(body);
+
+      ui = json;
+      //log(ui['customerCode']);
+      fetchPrescripts(ui['customerCode']);
+
+    //log(ui.toString());
+  }
+
+  void getPostsData() {
+    List<dynamic> responseList = thePrescriptsList;
+    log(responseList.toString());
+    List<Widget> listItems = [];
+    responseList.forEach((post) {
+      listItems.add(
+        InkWell(
+          child: Container(
+              height: 150,
+              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                  color: Color.fromARGB(255, 255, 255, 255),
+                  boxShadow: [
+                    BoxShadow(
+                        color: Colors.black.withAlpha(100), blurRadius: 10.0),
+                  ]),
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Flexible(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            "Đơn Thuốc ngày ${DateFormat("yyyy-MM-dd").parse(post["receptionDate"])}",
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                            ),
+                            overflow: TextOverflow.fade,
+                            maxLines: 2,
+                            softWrap: true,
+                          ),
+                          const SizedBox(
+                            height: 15,
+                          ),
+                          Text(
+                            "Bác sĩ: ${post["doctorName"]}",
+                            style: const TextStyle(
+                                fontSize: 15,
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            "BV: ${post["hospitalName"]}",
+                            style: const TextStyle(
+                                fontSize: 15,
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold),
+                          )
+                        ],
+                      ),
+                    ),
+                    Image.network(
+                      "${post['prescriptImage']}",
+                      fit: BoxFit.fitWidth, //url,
+                      errorBuilder: (BuildContext context, Object exception,
+                          StackTrace? stackTrace) {
+                        return Image.asset("assets/picture/wsa.jpg");
+                      },
+                      height: 80,
+                    ),
+                  ],
+                ),
+              )),
+          onTap: () {
+            // showDialog(
+            //   context: context,
+            //   builder: (BuildContext context) {
+            //     return Dialog(
+            //       shape: RoundedRectangleBorder(
+            //         borderRadius: BorderRadius.circular(20.0),
+            //       ),
+            //       elevation: 5.0,
+            //       backgroundColor: Colors.white,
+            //       child: Container(
+            //         padding: EdgeInsets.all(20.0),
+            //         child: ListView.builder(
+            //           itemCount: medList.length,
+            //           itemBuilder: (BuildContext context, int indext) {
+            //             return ListTile(
+            //               title: Text("Thuốc ${medList[0][indext]['medicineName']}"),
+            //               subtitle: Text("${medList[0][indext]['totalDose']} Viên | Sáng: ${medList[0][indext]['morningDose']} | Trưa: ${medList[0][indext]['noonDose']} | Chiều: ${medList[0][indext]['afternoonDose']} | Tối: ${medList[0][indext]['nightDose']}"),
+            //             );
+            //           },
+            //         ),
+            //       ),
+            //     );
+            //   },
+            // );
+          },
+        ),
+      );
+    });
+    setState(() {
+      itemsData = listItems;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
+    fecthUserInfor();
+    controller.addListener(() {
+      double value = controller.offset / 119;
+
+      setState(() {
+        topContainer = value;
+        closeTopContainer = controller.offset > 50;
+      });
+    });
   }
 
   @override
@@ -37,10 +207,33 @@ class _HomePageState extends State<HomePage> {
               height: 1.h,
             ),
             //the widget take space as per need
-            const Flexible(
-              //chứa phần dưới
-              child: BottomContainer(),
-            ),
+            Expanded(
+                child: ListView.builder(
+                    controller: controller,
+                    itemCount: itemsData.length,
+                    physics: const BouncingScrollPhysics(),
+                    itemBuilder: (context, index) {
+                      double scale = 1.0;
+                      if (topContainer > 0.5) {
+                        scale = index + 0.5 - topContainer;
+                        if (scale < 0) {
+                          scale = 0;
+                        } else if (scale > 1) {
+                          scale = 1;
+                        }
+                      }
+                      return Opacity(
+                        opacity: scale,
+                        child: Transform(
+                          transform: Matrix4.identity()..scale(scale, scale),
+                          alignment: Alignment.bottomCenter,
+                          child: Align(
+                              heightFactor: 0.7,
+                              alignment: Alignment.topCenter,
+                              child: itemsData[index]),
+                        ),
+                      );
+                    })),
           ],
         ),
       ),
@@ -80,203 +273,7 @@ class TopContainer extends StatelessWidget {
         SizedBox(
           height: 1.h,
         ),
-
-        //Đây là chổ đếm số lời nhắc hôm nay
-        // StreamBuilder<List<Medicine>>(
-        //     stream: globalBloc.medicineList$,
-        //     builder: (context, snapshot) {
-        //       return Container(
-        //         alignment: Alignment.center,
-        //         padding: EdgeInsets.only(bottom: 1.h),
-        //         child: Text(
-        //           !snapshot.hasData ? '0' : snapshot.data!.length.toString(),
-        //           style: Theme.of(context).textTheme.headlineMedium,
-        //         ),
-        //       );
-        //     }),
       ],
-    );
-  }
-}
-
-//phần đáy
-class BottomContainer extends StatelessWidget {
-  const BottomContainer({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final GlobalBloc globalBloc = Provider.of<GlobalBloc>(context);
-
-    return StreamBuilder(
-      stream: globalBloc.medicineList$,
-      builder: (context, snapshot) {
-        //có something
-        if (!snapshot.hasData) {
-          //if no data is saved
-          return Container();
-        }
-        //nếu không có data
-        else if (snapshot.data!.isEmpty) {
-          return Center(
-            child: Text(
-              'Chưa có đơn thuốc mới',
-              style: Theme.of(context).textTheme.displaySmall,
-              textAlign: TextAlign.center,
-            ),
-          );
-        }
-        // có data
-        else {
-          return GridView.builder(
-            padding: EdgeInsets.only(top: 1.h),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-            ),
-            itemCount: snapshot.data!.length,
-            itemBuilder: (context, index) {
-              return MedicineCard(medicine: snapshot.data![index]);
-            },
-          );
-        }
-      },
-    );
-  }
-}
-
-//cái thẻ thuốc đã thêm.
-class MedicineCard extends StatelessWidget {
-  const MedicineCard({super.key, required this.medicine});
-  final Medicine medicine;
-  //icon catalog
-  Hero makeIcon(double size) {
-    if (medicine.medicineType == 'Bottle') {
-      return Hero(
-        tag: medicine.medicineName! + medicine.medicineType!,
-        child: SvgPicture.asset(
-          'assets/icons/bottle.svg',
-          // ignore: deprecated_member_use
-          color: kOtherColor,
-          height: 7.h,
-        ),
-      );
-    } else if (medicine.medicineType == 'Pill') {
-      return Hero(
-        tag: medicine.medicineName! + medicine.medicineType!,
-        child: SvgPicture.asset(
-          'assets/icons/pill.svg',
-          // ignore: deprecated_member_use
-          color: kOtherColor,
-          height: 7.h,
-        ),
-      );
-    } else if (medicine.medicineType == 'Syringe') {
-      return Hero(
-        tag: medicine.medicineName! + medicine.medicineType!,
-        child: SvgPicture.asset(
-          'assets/icons/syringe.svg',
-          // ignore: deprecated_member_use
-          color: kOtherColor,
-          height: 7.h,
-        ),
-      );
-    } else if (medicine.medicineType == 'Tablet') {
-      return Hero(
-        tag: medicine.medicineName! + medicine.medicineType!,
-        child: SvgPicture.asset(
-          'assets/icons/tablet.svg',
-          // ignore: deprecated_member_use
-          color: kOtherColor,
-          height: 7.h,
-        ),
-      );
-    }
-    //in ra cái này khi lỗi
-    return Hero(
-      tag: medicine.medicineName! + medicine.medicineType!,
-      child: Icon(
-        Icons.error,
-        color: kOtherColor,
-        size: size,
-      ),
-    );
-  }
-
-  //cái ô hiển thị lịch
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      highlightColor: const Color.fromARGB(255, 255, 255, 255),
-      splashColor: const Color.fromARGB(255, 147, 135, 135),
-      onTap: () {
-        //điều hướng qua trang detail.
-        Future.delayed(const Duration(milliseconds: 400), () {
-          Navigator.of(context).push(
-            PageRouteBuilder<void>(
-              pageBuilder: (BuildContext context, Animation<double> animation,
-                  Animation<double> secondaryAnimation) {
-                return AnimatedBuilder(
-                  animation: animation,
-                  builder: (context, Widget? child) {
-                    return Opacity(
-                      opacity: animation.value,
-                      child: 
-                      MedicineDetails(medicine),
-                    );
-                  },
-                );
-              },
-              //transitionDuration: const Duration(milliseconds: 500),
-            ),
-          );
-        });
-      },
-      child: 
-      //cái ô bênh ngoài
-      Container(
-        padding: EdgeInsets.only(left: 2.w, right: 2.w, top: 1.h, bottom: 1.h),
-        margin: EdgeInsets.all(1.h),
-        decoration: BoxDecoration(
-          color: Colors.blueGrey,
-          borderRadius: BorderRadius.circular(2.h),
-        ),
-
-        child: 
-        //nội dung bênh trong
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            //
-            const Spacer(),
-            makeIcon(7.h),
-            const Spacer(),
-            //2 cái chữ bên trong
-            Hero(
-              tag: medicine.medicineName!,
-              child: Text(
-                medicine.medicineName!,
-                overflow: TextOverflow.fade,
-                textAlign: TextAlign.start,
-                style: 
-                Theme.of(context).textTheme.titleLarge,
-              ),
-            ),
-            //cái ô ngăn giữ tên và thời gian
-            SizedBox(
-              height: 1.h,
-            ),
-            //Hiện cái vòng tuần hoàn nhắc nhở
-            Text(
-              medicine.interval == 1
-                  ? "Mỗi ${medicine.interval} Giờ"
-                  : "Mỗi ${medicine.interval} Giờ",
-              overflow: TextOverflow.fade,
-              textAlign: TextAlign.start,
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

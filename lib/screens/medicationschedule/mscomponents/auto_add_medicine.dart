@@ -57,11 +57,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   }
 
   void pushMedicine() async {
-    int day2 = int.parse(_totalNumCtrl.text)~/(int.parse(_sNumCtrl.text) + int.parse(_trNumCtrl.text) + int.parse(_cNumCtrl.text) + int.parse(_tNumCtrl.text));
-    var outputFormat = DateFormat('yyyy-MM-dd');
-    var outputDate1 = outputFormat.format(nowTime.subtract(const Duration(days: 10)));
-    var outputDate2 = outputFormat.format(nowTime);
-    var outputDate3 = outputFormat.format(nowTime.add( Duration(days: day2)));
     final response = await http.post(
       Uri.parse("https://pp-devtest2.azurewebsites.net/api/prescripts"),
       headers: <String, String>{
@@ -71,14 +66,14 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       },
       body: jsonEncode(<String, dynamic>{
         "prescriptImage": "https://crazydiscostu.wordpress.com/wp-content/uploads/2023/11/history-of-the-rickroll.jpg",
-        "receptionDate": outputDate1,
+        "receptionDate": "${nowTime.year}-0${nowTime.month - 1}-0${nowTime.day}",
         "doctorName": "No",
         "hospitalName": "No",
         "prescriptDetails": [
           {
             "medicineName": _titleCtrl.text.toString(),
-            "dateStart": outputDate2,
-            "dateEnd": outputDate3,
+            "dateStart": "${nowTime.year}-0${nowTime.month}-0${nowTime.day}",
+            "dateEnd": "${nowTime.year}-0${nowTime.month}-0${nowTime.day + 1}",
             "totalDose": int.parse(_totalNumCtrl.text),
             "morningDose": int.parse(_sNumCtrl.text),
             "noonDose": int.parse(_trNumCtrl.text),

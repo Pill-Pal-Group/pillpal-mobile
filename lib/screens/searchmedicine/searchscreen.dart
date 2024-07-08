@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:pillpalmobile/constants.dart';
-import 'package:pillpalmobile/screens/freetrialscreens/test.dart';
 import 'package:pillpalmobile/screens/searchmedicine/smcomponents/medicenedetail.dart';
 import 'package:pillpalmobile/screens/searchmedicine/smcomponents/product_widget.dart';
 import 'package:pillpalmobile/screens/searchmedicine/smcomponents/utils.dart';
@@ -26,13 +25,6 @@ class _SearchScreenState extends State<SearchScreen> {
   bool pickCategory = false;
   final TextEditingController _titleCtrl2 = TextEditingController();
   bool isSelected = false;
-  @override
-  void dispose() {
-    medicines = [];
-    categoryList = [];
-    medicineListFillted = [];
-    super.dispose();
-  }
 
   //api call
   void fetchMedicine(String okene) async {
@@ -42,10 +34,8 @@ class _SearchScreenState extends State<SearchScreen> {
     final respone = await http.get(uri);
     final body = respone.body;
     final json = jsonDecode(body);
-    setState(() {
-      log(medicines.toString());
-      medicines = json;
-    });
+    log(medicines.toString());
+    medicines = json;
   }
 
   void fetchCategory() async {
@@ -63,9 +53,7 @@ class _SearchScreenState extends State<SearchScreen> {
     for (var e in medicines) {
       for (var x in e['categories']) {
         if (x['categoryName'] == categoryName) {
-          setState(() {
-            medicineListFillted.add(e);
-          });
+          medicineListFillted.add(e);
         }
       }
     }

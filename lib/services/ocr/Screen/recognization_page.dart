@@ -1,7 +1,10 @@
+import 'dart:convert';
 import 'dart:developer';
-
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
+import 'package:intl/intl.dart';
+import 'package:pillpalmobile/constants.dart';
 
 class RecognizePage extends StatefulWidget {
   final String? path;
@@ -19,7 +22,62 @@ class _RecognizePageState extends State<RecognizePage> {
   List<int> _medicineDoseTT = [];
   List<String> _medicineName = [];
   List<int> _medicineTotal = [];
+  String tokene = userInfomation.accessToken;
   TextEditingController controller = TextEditingController();
+  DateTime nowTime = DateTime.now();
+  void pushMedicine(String medName, int sang, int trua, int chieu, int toi,
+      int totalmed) async {
+    int day2 = totalmed~/(sang + trua + chieu + toi);
+    var outputFormat = DateFormat('yyyy-MM-dd');
+    var outputDate1 = outputFormat.format(nowTime.subtract(const Duration(days: 10)));
+    var outputDate2 = outputFormat.format(nowTime);
+    var outputDate3 = outputFormat.format(nowTime.add( Duration(days: day2)));
+    final response = await http.post(
+      Uri.parse("https://pp-devtest2.azurewebsites.net/api/prescripts"),
+      headers: <String, String>{
+        'accept': 'application/json',
+        'Authorization': 'Bearer $tokene',
+        'Content-Type': 'application/json'
+      },
+      body: jsonEncode(<String, dynamic>{
+        "prescriptImage":
+            "https://crazydiscostu.wordpress.com/wp-content/uploads/2023/11/history-of-the-rickroll.jpg",
+        "receptionDate": outputDate1,
+        "doctorName": "Gia kỳ",
+        "hospitalName": "Gia Định",
+        "prescriptDetails": [
+          {
+            "medicineName": medName,
+            "dateStart": outputDate2,
+            "dateEnd": outputDate3,
+            "totalDose": totalmed,
+            "morningDose": sang,
+            "noonDose": trua,
+            "afternoonDose": chieu,
+            "nightDose": toi,
+            "dosageInstruction": "Aftermeal"
+          }
+        ]
+      }),
+    );
+    log(response.statusCode.toString());
+    final json = jsonDecode(response.body);
+    genMediceneIntake(json['id']);
+    log(json.toString());
+  }
+
+  void genMediceneIntake(String pID) async {
+    final response = await http.post(
+      Uri.parse(
+          "https://pp-devtest2.azurewebsites.net/api/medication-intakes/$pID"),
+      headers: <String, String>{
+        'Authorization': 'Bearer $tokene',
+      },
+    );
+    final json = jsonDecode(response.body);
+    log(json.toString());
+    log("okene");
+  }
 
   @override
   void initState() {
@@ -41,46 +99,38 @@ class _RecognizePageState extends State<RecognizePage> {
             : Center(
                 child: Container(
                     //padding: const EdgeInsets.all(1),
-                    child:
-                        Column(children: [
-                          TextFormField(
-                          maxLines: MediaQuery.of(context).size.height.toInt(),
-                          controller: controller,
-                          decoration:
-                              const InputDecoration(hintText: "Text goes here..."),
-                        ),
-                      // TextButton(
-                      //   style: ButtonStyle(
-                      //     overlayColor:
-                      //         MaterialStateProperty.resolveWith<Color?>(
-                      //             (Set<MaterialState> states) {
-                      //       if (states.contains(MaterialState.focused))
-                      //         return Colors.red;
-                      //       return null; // Defer to the widget's default.
-                      //     }),
-                      //   ),
-                      //   onPressed: () {
-                      //     for (var i = _medicineName.length - 1; i >= 0; i--) {
-                      //       for (var x = i; x < 12;) {
-                      //         if (_medicineDose[x] != 0) {
-                      //           //log(_medicineDose[x].toString());
-                      //           log(_medicineName[i]);
-                      //           log(_medicineName[i]);
-                      //           log(_medicineDose[x].toString());
-
-                      //           // Navigator.push(
-                      //           //   context,
-                      //           //   MaterialPageRoute(
-                      //           //     builder: (context) => const ScanResulScreen(),
-                      //           //   ),
-                      //           // );
-                      //         }
-                      //       }
-                      //     }
-                      //   },
-                      //   child: Text("bat dau add"),
-                      // ),
-                    ])),
+                    child: Column(children: [
+                  TextFormField(
+                    maxLines: 20,
+                    controller: controller,
+                    decoration:
+                        const InputDecoration(hintText: "Text goes here..."),
+                  ),
+                  TextButton(
+                    style: ButtonStyle(
+                      overlayColor: MaterialStateProperty.resolveWith<Color?>(
+                          (Set<MaterialState> states) {
+                        if (states.contains(MaterialState.focused))
+                          return Colors.red;
+                        return null; // Defer to the widget's default.
+                      }),
+                    ),
+                    onPressed: () {
+                      for (var i = 0; i < _medicineName.length; i++) {
+                        pushMedicine(
+                          _medicineName[i],
+                          _medicineDoseS[i],
+                          _medicineDoseT[i],
+                          _medicineDoseC[i],
+                          _medicineDoseTT[i],
+                          _medicineTotal[i]);
+                      }
+                      log("OKe");
+                      
+                    },
+                    child: Text("bat dau add"),
+                  ),
+                ])),
               ));
   }
 
@@ -228,7 +278,7 @@ class _RecognizePageState extends State<RecognizePage> {
               i++) {
             tmp2 += tmp[i];
           }
-          
+
           addTimeSang(tmp2, "Chiều: ");
         } catch (e) {
           _medicineDoseC.add(0);
@@ -257,18 +307,18 @@ class _RecognizePageState extends State<RecognizePage> {
 
   void addTimeSang(String tmp, String template) {
     String stringType = tmp.replaceAll(template, "");
-      int inttmp = int.parse(stringType);
-      if(template == "Sáng: "){
-        _medicineDoseS.add(inttmp);
-      }
-      if(template == "Trưa: "){
-        _medicineDoseT.add(inttmp);
-      }
-      if(template == "Chiều: "){
-        _medicineDoseC.add(inttmp);
-      }
-      if(template == "Tối: "){
-        _medicineDoseTT.add(inttmp);
-      }
+    int inttmp = int.parse(stringType);
+    if (template == "Sáng: ") {
+      _medicineDoseS.add(inttmp);
+    }
+    if (template == "Trưa: ") {
+      _medicineDoseT.add(inttmp);
+    }
+    if (template == "Chiều: ") {
+      _medicineDoseC.add(inttmp);
+    }
+    if (template == "Tối: ") {
+      _medicineDoseTT.add(inttmp);
+    }
   }
 }

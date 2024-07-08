@@ -7,11 +7,13 @@ class MsInputFeild extends StatelessWidget {
   final String tittle;
   final String hint;
   final TextEditingController? controller;
+  final TextInputType type;
   final Widget? widget;
   const MsInputFeild({
     super.key,
     required this.tittle,
     required this.hint,
+    required this.type,
     this.controller,
     this.widget
     });
@@ -50,6 +52,7 @@ class MsInputFeild extends StatelessWidget {
                     autofocus: false,
                     cursorColor: Get.isDarkMode? Colors.grey[100]:Colors.grey[700],
                     controller: controller,
+                    keyboardType: type,
                     style: subtitlestyle,
                     decoration: InputDecoration(
                       hintText: hint,

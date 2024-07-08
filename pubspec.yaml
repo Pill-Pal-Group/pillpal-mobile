@@ -73,6 +73,7 @@ dependencies:
   date_picker_timeline: ^1.2.6
   slide_to_act: ^2.0.2
   font_awesome_flutter: ^10.7.0
+  file_picker: ^8.0.5
 
 
 

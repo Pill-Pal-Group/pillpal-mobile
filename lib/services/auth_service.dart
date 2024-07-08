@@ -39,10 +39,13 @@ Future<void> signInWithGoogle() async {
 
     userInfomation.loginuser = tokenResult;
     userInfomation.accessToken = json['accessToken'];
+    log(json['accessToken']);
     userInfomation.refreshToken = json['refreshToken'];
+    log(json['refreshToken']);
     userInfomation.tokenType = json['tokenType'];
+    log(json['tokenType']);
     userInfomation.countTIme = json['expiresIn'];
-
+    log(json['expiresIn'].toString());
     if (!userNow.additionalUserInfo!.isNewUser) {
       Get.to(() => const EntryPoint());
     } else {

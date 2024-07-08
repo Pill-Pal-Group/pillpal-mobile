@@ -76,6 +76,8 @@ class LinkImages{
   static const String emailVerify = "assets/picture/emailverify.png";
 
   static const String tempAvatar = "assets/picture/wsa.jpg";
+
+  static const String rickroll = "https://crazydiscostu.wordpress.com/wp-content/uploads/2023/11/history-of-the-rickroll.jpg";
 }
 
 class APILINK{
