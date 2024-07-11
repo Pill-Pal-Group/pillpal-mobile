@@ -43,10 +43,10 @@ class _HomePageState extends State<HomePage> {
     );
     final body = respone.body;
     final json = jsonDecode(body);
-    setState(() {
+
       thePrescriptsList = json;
       getPostsData();
-    });
+
     for (var element in thePrescriptsList) {
       medList.add(element['prescriptDetails']);
     }

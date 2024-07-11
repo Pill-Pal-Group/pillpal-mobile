@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:core';
 import 'dart:developer';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
@@ -16,22 +17,27 @@ class RecognizePage extends StatefulWidget {
 
 class _RecognizePageState extends State<RecognizePage> {
   bool _isBusy = false;
-  List<int> _medicineDoseS = [];
-  List<int> _medicineDoseT = [];
-  List<int> _medicineDoseC = [];
-  List<int> _medicineDoseTT = [];
-  List<String> _medicineName = [];
-  List<int> _medicineTotal = [];
+  final List<int> _medicineDoseS = [];
+  final List<int> _medicineDoseT = [];
+  final List<int> _medicineDoseC = [];
+  final List<int> _medicineDoseTT = [];
+  final List<String> _medicineName = [];
+  final List<int> _medicineTotal = [];
   String tokene = userInfomation.accessToken;
   TextEditingController controller = TextEditingController();
   DateTime nowTime = DateTime.now();
+  List<Map<String, dynamic>> tesrne = [];
+
+
+
   void pushMedicine(String medName, int sang, int trua, int chieu, int toi,
       int totalmed) async {
-    int day2 = totalmed~/(sang + trua + chieu + toi);
+    int day2 = totalmed ~/ (sang + trua + chieu + toi);
     var outputFormat = DateFormat('yyyy-MM-dd');
-    var outputDate1 = outputFormat.format(nowTime.subtract(const Duration(days: 10)));
+    var outputDate1 =
+        outputFormat.format(nowTime.subtract(const Duration(days: 10)));
     var outputDate2 = outputFormat.format(nowTime);
-    var outputDate3 = outputFormat.format(nowTime.add( Duration(days: day2)));
+    var outputDate3 = outputFormat.format(nowTime.add(Duration(days: day2)));
     final response = await http.post(
       Uri.parse("https://pp-devtest2.azurewebsites.net/api/prescripts"),
       headers: <String, String>{
@@ -79,10 +85,32 @@ class _RecognizePageState extends State<RecognizePage> {
     log("okene");
   }
 
+  void pushMedicineVer2(List<Map<String, dynamic>> tesrne) async {
+    final response = await http.post(
+      Uri.parse("https://pp-devtest2.azurewebsites.net/api/prescripts"),
+      headers: <String, String>{
+        'accept': 'application/json',
+        'Authorization': 'Bearer $tokene',
+        'Content-Type': 'application/json'
+      },
+      body: jsonEncode(<String, dynamic>{
+        "prescriptImage":
+            "https://crazydiscostu.wordpress.com/wp-content/uploads/2023/11/history-of-the-rickroll.jpg",
+        "receptionDate": "2024-06-09",
+        "doctorName": "Gia kỳ",
+        "hospitalName": "Gia Định",
+        "prescriptDetails": tesrne
+      }),
+    );
+    log(response.statusCode.toString());
+    final json = jsonDecode(response.body);
+    genMediceneIntake(json['id']);
+    log(json.toString());
+  }
+
   @override
   void initState() {
     super.initState();
-
     final InputImage inputImage = InputImage.fromFilePath(widget.path!);
 
     processImage(inputImage);
@@ -117,16 +145,23 @@ class _RecognizePageState extends State<RecognizePage> {
                     ),
                     onPressed: () {
                       for (var i = 0; i < _medicineName.length; i++) {
-                        pushMedicine(
-                          _medicineName[i],
-                          _medicineDoseS[i],
-                          _medicineDoseT[i],
-                          _medicineDoseC[i],
-                          _medicineDoseTT[i],
-                          _medicineTotal[i]);
+                        // pushMedicine(
+                        //     _medicineName[i],
+                        //     _medicineDoseS[i],
+                        //     _medicineDoseT[i],
+                        //     _medicineDoseC[i],
+                        //     _medicineDoseTT[i],
+                        //     _medicineTotal[i]);
+                        //pushMedicineVer2();
                       }
-                      log("OKe");
-                      
+                      //pushMedicineVer2();
+                      tesrne = [];
+                      for (var e in testList) {
+                        tesrne.add(e.toJsonNe());
+                      }
+                      log("${tesrne.toString()}");
+                      pushMedicineVer2(tesrne);
+
                     },
                     child: Text("bat dau add"),
                   ),
@@ -322,3 +357,61 @@ class _RecognizePageState extends State<RecognizePage> {
     }
   }
 }
+
+class ThePrescriptDetails {
+  String medicineName;
+  String dateStart;
+  String dateEnd;
+  int totalDose;
+  int morningDose;
+  int noonDose;
+  int afternoonDose;
+  int nightDose;
+  String dosageInstruction;
+
+  ThePrescriptDetails(
+      {required this.medicineName,
+      required this.dateStart,
+      required this.dateEnd,
+      required this.totalDose,
+      required this.morningDose,
+      required this.noonDose,
+      required this.afternoonDose,
+      required this.nightDose,
+      required this.dosageInstruction});
+
+  Map<String, dynamic> toJsonNe() => {
+        'medicineName': medicineName,
+        'dateStart': dateStart,
+        'dateEnd': dateEnd,
+        'totalDose': totalDose,
+        'morningDose': morningDose,
+        'noonDose': noonDose,
+        'afternoonDose': afternoonDose,
+        'nightDose': nightDose,
+        'dosageInstruction': dosageInstruction,
+      };
+}
+
+List<ThePrescriptDetails> testList = [
+  ThePrescriptDetails(
+      medicineName: "test1",
+      dateStart: "2024-07-09",
+      dateEnd: "2024-07-10",
+      totalDose: 4,
+      morningDose: 1,
+      noonDose: 0,
+      afternoonDose: 1,
+      nightDose: 0,
+      dosageInstruction: "Aftermeal"),
+  ThePrescriptDetails(
+      medicineName: "test2",
+      dateStart: "2024-07-09",
+      dateEnd: "2024-07-10",
+      totalDose: 4,
+      morningDose: 0,
+      noonDose: 1,
+      afternoonDose: 0,
+      nightDose: 1,
+      dosageInstruction: "Aftermeal"),
+];

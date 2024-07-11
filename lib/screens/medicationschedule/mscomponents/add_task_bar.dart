@@ -57,11 +57,16 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   }
 
   void pushMedicine() async {
-    int day2 = int.parse(_totalNumCtrl.text)~/(int.parse(_sNumCtrl.text) + int.parse(_trNumCtrl.text) + int.parse(_cNumCtrl.text) + int.parse(_tNumCtrl.text));
+    int day2 = int.parse(_totalNumCtrl.text) ~/
+        (int.parse(_sNumCtrl.text) +
+            int.parse(_trNumCtrl.text) +
+            int.parse(_cNumCtrl.text) +
+            int.parse(_tNumCtrl.text));
     var outputFormat = DateFormat('yyyy-MM-dd');
-    var outputDate1 = outputFormat.format(nowTime.subtract(const Duration(days: 10)));
+    var outputDate1 =
+        outputFormat.format(nowTime.subtract(const Duration(days: 10)));
     var outputDate2 = outputFormat.format(nowTime);
-    var outputDate3 = outputFormat.format(nowTime.add( Duration(days: day2)));
+    var outputDate3 = outputFormat.format(nowTime.add(Duration(days: day2)));
     final response = await http.post(
       Uri.parse("https://pp-devtest2.azurewebsites.net/api/prescripts"),
       headers: <String, String>{
@@ -70,7 +75,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         'Content-Type': 'application/json'
       },
       body: jsonEncode(<String, dynamic>{
-        "prescriptImage": "https://crazydiscostu.wordpress.com/wp-content/uploads/2023/11/history-of-the-rickroll.jpg",
+        "prescriptImage":
+            "https://crazydiscostu.wordpress.com/wp-content/uploads/2023/11/history-of-the-rickroll.jpg",
         "receptionDate": outputDate1,
         "doctorName": "No",
         "hospitalName": "No",
@@ -91,8 +97,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     );
     log(response.statusCode.toString());
     final json = jsonDecode(response.body);
-      genMediceneIntake(json['id']);
-      log(json.toString());
+    genMediceneIntake(json['id']);
+    log(json.toString());
   }
 
   void genMediceneIntake(String pID) async {
@@ -106,7 +112,68 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     final json = jsonDecode(response.body);
     log(json.toString());
   }
-  
+
+
+  void pushMedicine2() async {
+    var outputFormat = DateFormat('yyyy-MM-dd');
+    var outputDate1 =
+        outputFormat.format(nowTime.subtract(const Duration(days: 1)));
+    var outputDate2 = outputFormat.format(nowTime);
+    var outputDate3 = outputFormat.format(nowTime.add(Duration(days: 1)));
+    final response = await http.post(
+      Uri.parse("https://pp-devtest2.azurewebsites.net/api/prescripts"),
+      headers: <String, String>{
+        'accept': 'application/json',
+        'Authorization': 'Bearer $tokene',
+        'Content-Type': 'application/json'
+      },
+      body: jsonEncode(<String, dynamic>{
+        "prescriptImage":
+            "https://crazydiscostu.wordpress.com/wp-content/uploads/2023/11/history-of-the-rickroll.jpg",
+        "receptionDate": outputDate1,
+        "doctorName": "No",
+        "hospitalName": "No",
+        "prescriptDetails": [
+          {
+            "medicineName": _titleCtrl.text.toString(),
+            "dateStart": outputDate2,
+            "dateEnd": outputDate3,
+            "totalDose": int.parse(_sNumCtrl.text)+int.parse(_trNumCtrl.text)+int.parse(_cNumCtrl.text)+int.parse(_tNumCtrl.text),
+            "morningDose": int.parse(_sNumCtrl.text),
+            "noonDose": int.parse(_trNumCtrl.text),
+            "afternoonDose": int.parse(_cNumCtrl.text),
+            "nightDose": int.parse(_tNumCtrl.text),
+            "dosageInstruction": "Aftermeal"
+          }
+        ]
+      }),
+    );
+    log(response.statusCode.toString());
+    final json = jsonDecode(response.body);
+    //genMediceneIntake2(outputDate2,_starTIme,);
+    log(json.toString());
+  }
+
+  void genMediceneIntake2(
+      String dateTake, String timeTake, int dose, String id) async {
+    final response = await http.post(
+      Uri.parse(""),
+      headers: <String, String>{
+        'accept': 'application/json',
+        'Authorization': 'Bearer $tokene',
+        'Content-Type': 'application/json'
+      },
+      body: jsonEncode(<String, dynamic>{
+        "dateTake": dateTake,
+        "timeTake": timeTake,
+        "dose": dose,
+        "prescriptDetailId": id
+      }),
+    );
+    final json = jsonDecode(response.body);
+    log(json.toString());
+  }
+
   @override
   void initState() {
     super.initState();
@@ -333,16 +400,16 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   _validateDate() {
     if (_titleCtrl.text.isNotEmpty && _noteCtrl.text.isNotEmpty) {
       //add to data
-      if(_sNumCtrl.text.isEmpty){
+      if (_sNumCtrl.text.isEmpty) {
         _sNumCtrl.text = "0";
       }
-      if(_trNumCtrl.text.isEmpty){
+      if (_trNumCtrl.text.isEmpty) {
         _trNumCtrl.text = "0";
       }
-      if(_cNumCtrl.text.isEmpty){
+      if (_cNumCtrl.text.isEmpty) {
         _cNumCtrl.text = "0";
       }
-      if(_tNumCtrl.text.isEmpty){
+      if (_tNumCtrl.text.isEmpty) {
         _tNumCtrl.text = "0";
       }
 

@@ -26,7 +26,7 @@ class _CompareMedicineState extends State<CompareMedicine> {
       await launchUrl(googleUrl);
     }
   }
-
+  
   //funtion
   void getPostsData() {
     List<dynamic> responseList = widget.medInbrand2;

@@ -6,6 +6,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:pillpalmobile/constants.dart';
 import 'package:pillpalmobile/screens/freetrialscreens/trial_screen.dart';
 import 'package:pillpalmobile/screens/onboding/onboding_screen.dart';
+import 'package:pillpalmobile/screens/packageandpayment/option_payment.dart';
 import 'package:pillpalmobile/screens/tos/termofservice.dart';
 import 'package:pillpalmobile/screens/userinformation/profile_page.dart';
 import '../../../model/menu.dart';
@@ -46,7 +47,7 @@ class _SideBarState extends State<SideBar> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => const FreeTrialScreen(),
+            builder: (context) => OptionPaymentScreen(),
           ),
         );
         break;

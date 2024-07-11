@@ -51,9 +51,9 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
     );
     final body = respone.body;
     final json = jsonDecode(body);
-      ui = json;
-      log(ui['customerCode']);
-      fetchPrescripts(ui['customerCode']);
+    ui = json;
+    log(ui['customerCode']);
+    fetchPrescripts(ui['customerCode']);
 
     //log(ui.toString());
   }
@@ -74,8 +74,8 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
 
     for (var e in prescriptsList) {
       log(e['id']);
-        fetchMedicineIntake(e['id'], today);
-      }
+      fetchMedicineIntake(e['id'], today);
+    }
     //log(medicinesInTake.toString());
   }
 
@@ -102,8 +102,8 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
     }
     setState(() {
       for (var element in tmp) {
-      mInTake.add(element);
-    }
+        mInTake.add(element);
+      }
     });
     getPostsData();
     log(mInTake.toString());
@@ -182,7 +182,7 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
   @override
   void initState() {
     super.initState();
-     mInTake=[];
+    mInTake = [];
     notifyHelper = NotifyHelper();
     notifyHelper.initializeNotification();
     notifyHelper.requestIOSPermissions();
@@ -202,8 +202,9 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
   void dispose() {
     controller.dispose();
     super.dispose();
-    mInTake=[];
+    mInTake = [];
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -310,7 +311,6 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
           MsButton(
               lable: "Quét đơn",
               onTap:
-                  //() => Get.to(()=> const AddTaskScreen())
                   () => {
                         imagePickerModal(context, onCameraTap: () {
                           //log("Camera" as num);
@@ -349,7 +349,8 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
                             }
                           });
                         })
-                      }),
+                      }
+                      ),
           MsButton(
               lable: "Tạo Lịch",
               onTap: () => Get.to(() => const AddTaskScreen())
