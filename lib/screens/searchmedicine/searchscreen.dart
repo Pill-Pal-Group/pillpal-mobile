@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
@@ -29,24 +30,42 @@ class _SearchScreenState extends State<SearchScreen> {
   //api call
   void fetchMedicine(String okene) async {
     String url =
-        "https://pp-devtest2.azurewebsites.net/api/medicines?MedicineName=$okene&IncludeCategories=true&IncludeSpecifications=true&IncludePharmaceuticalCompanies=true&IncludeDosageForms=true&IncludeActiveIngredients=true&IncludeBrands=true";
+        "https://pp-devtest2.azurewebsites.net/api/medicines?MedicineName=$okene&Page=1&PageSize=10&IncludeCategories=true&IncludeSpecifications=true&IncludePharmaceuticalCompanies=true&IncludeDosageForms=true&IncludeActiveIngredients=true&IncludeBrands=true";
     final uri = Uri.parse(url);
-    final respone = await http.get(uri);
-    final body = respone.body;
-    final json = jsonDecode(body);
-    log(medicines.toString());
-    medicines = json;
+    final respone = await http.get(
+      uri,
+      headers: <String, String>{
+        'Authorization': 'Bearer ${userInfomation.accessToken}',
+      },
+    );
+
+    if (respone.statusCode == 200 || respone.statusCode == 201) {
+      setState(() {
+        final json = jsonDecode(respone.body);
+        medicines = json['data'];
+      });
+    } else {
+      log("fetchMedicine bug ${respone.statusCode}");
+    }
   }
 
   void fetchCategory() async {
-    String url = "https://pp-devtest2.azurewebsites.net/api/categories";
+    String url = "https://pp-devtest2.azurewebsites.net/api/categories?Page=1&PageSize=10";
     final uri = Uri.parse(url);
-    final respone = await http.get(uri);
-    final body = respone.body;
-    final json = jsonDecode(body);
-    setState(() {
-      categoryList = json;
-    });
+    final respone = await http.get(uri,
+      headers: <String, String>{
+        'Authorization': 'Bearer ${userInfomation.accessToken}',
+      },);
+    
+    if (respone.statusCode == 200 || respone.statusCode == 201) {
+      setState(() {
+        final json = jsonDecode(respone.body);
+        categoryList = json['data'];
+      });
+      //log(categoryList.toString());
+    } else {
+      log("fetchCategory bug ${respone.statusCode}");
+    }  
   }
 
   void filterByCategoryName(String categoryName) {
@@ -60,6 +79,7 @@ class _SearchScreenState extends State<SearchScreen> {
     setState(() {
       medicines = medicineListFillted;
     });
+    log(medicines.toString());
   }
 
   @override
@@ -191,7 +211,7 @@ class _SearchScreenState extends State<SearchScreen> {
               ),
               const SizedBox(height: 10),
               //list fillter
-              SizedBox(
+              categoryList.isEmpty ? const CupertinoActivityIndicator() : SizedBox(
                 height: 80,
                 width: MediaQuery.of(context).size.width,
                 child: ListView.builder(
@@ -233,7 +253,7 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   _makeList() {
-    return GridView.builder(
+    return medicines.isEmpty ? const CupertinoActivityIndicator() : GridView.builder(
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         crossAxisSpacing: 10,
@@ -253,7 +273,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     rqr: medicines[index]["requirePrescript"],
                     image: medicines[index]['image'],
                     specifName: medicines[index]['specification']['typeName'],
-                    specifDetail: medicines[index]['specification']['detail'],
+                    //specifDetail: medicines[index]['specification']['detail'],
                     activeIngredients: medicines[index]['activeIngredients'],
                     pharmaceuticalCompanies: medicines[index]
                         ['pharmaceuticalCompanies'],

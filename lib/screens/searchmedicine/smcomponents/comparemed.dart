@@ -35,10 +35,10 @@ class _CompareMedicineState extends State<CompareMedicine> {
       listItems.add(
         InkWell(
           child: Container(
-              height: 150,
+              height: 160,
               margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                  borderRadius: BorderRadius.all(Radius.circular(30.0)),
                   color: Colors.white,
                   boxShadow: [
                     BoxShadow(
@@ -69,7 +69,7 @@ class _CompareMedicineState extends State<CompareMedicine> {
                             height: 15,
                           ),
                           Text(
-                            "${post["price"]} VND",
+                            "${post["price"]}",
                             style: const TextStyle(
                                 fontSize: 20,
                                 color: Colors.black,

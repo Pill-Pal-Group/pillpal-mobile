@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:pillpalmobile/screens/searchmedicine/smcomponents/comparemed.dart';
 import 'utils.dart';
-
+import 'package:pillpalmobile/constants.dart';
 class MedicineDetailScreen extends StatelessWidget {
   final String medicineName;
   final bool rqr;
   final String image;
   final String specifName;
-  final String specifDetail;
+  //final String specifDetail;
   final List<dynamic> activeIngredients;
   final List<dynamic> pharmaceuticalCompanies;
   final List<dynamic> medInbrand;
@@ -18,7 +18,7 @@ class MedicineDetailScreen extends StatelessWidget {
       required this.rqr,
       required this.image,
       required this.specifName,
-      required this.specifDetail,
+      //required this.specifDetail,
       required this.activeIngredients,
       required this.pharmaceuticalCompanies,
       required this.medInbrand});
@@ -29,7 +29,7 @@ class MedicineDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
         child: Scaffold(
-          appBar: AppBar(),
+      appBar: AppBar(),
       body: Stack(
         children: [
           SizedBox(
@@ -71,8 +71,7 @@ class MedicineDetailScreen extends StatelessWidget {
             decoration: const BoxDecoration(
               color: Color.fromARGB(255, 255, 255, 255),
               borderRadius: BorderRadius.only(
-                  topLeft: const Radius.circular(20),
-                  topRight: const Radius.circular(20)),
+                  topLeft: Radius.circular(20), topRight: Radius.circular(20)),
             ),
             child: SingleChildScrollView(
               controller: scrollController,
@@ -126,7 +125,7 @@ class MedicineDetailScreen extends StatelessWidget {
                     height: 10,
                   ),
                   Text(
-                    "Kiểu ${specifName} ${specifDetail}",
+                    "Kiểu ${specifName}",
                     style: Theme.of(context)
                         .textTheme
                         .bodyMedium!
@@ -189,12 +188,40 @@ class MedicineDetailScreen extends StatelessWidget {
                             MaterialStateProperty.all<Color>(Colors.blue),
                       ),
                       onPressed: () {
-                        Navigator.push(
+                        if (userInfomation.paided) {
+                          Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => CompareMedicine(medInbrand2: medInbrand,),
+                              builder: (context) => CompareMedicine(
+                                medInbrand2: medInbrand,
+                              ),
                             ),
                           );
+                        }else{
+                          showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: Text('Chức năng nâng cao'),
+                              content: Text(
+                                  'Hãy mua gói trả phí để sử dụng'),
+                              backgroundColor: const Color(0xFFEFEFEF),
+                              shape: RoundedRectangleBorder(
+                                side: BorderSide(color: Colors.green, width: 2),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              actions: <Widget>[
+                                TextButton(
+                                  child: Text('Đóng'),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                        }
                       },
                       child: const Text('Tìm nơi bán'),
                     ),

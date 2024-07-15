@@ -1,7 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:pillpalmobile/services/auth_service.dart';
+import 'package:pillpalmobile/services/auth/auth_service.dart';
 import 'package:rive/rive.dart';
 import 'components/animated_btn.dart';
 class OnbodingScreen extends StatefulWidget {

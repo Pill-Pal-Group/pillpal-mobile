@@ -1,32 +1,42 @@
-import 'package:flutter/material.dart';
-import 'package:pillpalmobile/screens/packageandpayment/method_payment.dart';
+import 'dart:convert';
+import 'dart:developer';
 
+import 'package:flutter/material.dart';
+import 'package:pillpalmobile/constants.dart';
+import 'package:pillpalmobile/screens/packageandpayment/method_payment.dart';
+import 'package:http/http.dart' as http;
 
 class OptionPaymentScreen extends StatefulWidget {
+  const OptionPaymentScreen({super.key});
+
   @override
-  _OptionPaymentScreenState createState() => _OptionPaymentScreenState();
+  State<OptionPaymentScreen> createState() => _OptionPaymentScreenState();
 }
 
 class _OptionPaymentScreenState extends State<OptionPaymentScreen> {
-  final List<Map<String, dynamic>> packages = [
-    {
-      "title": "3 Tháng",
-      "price": "\$29.99",
-      "details": "Ideal for short-term plans."
-    },
-    {
-      "title": "6 Tháng",
-      "price": "\$54.99",
-      "details": "The most popular choice."
-    },
-    {
-      "title": "12 Tháng",
-      "price": "\$99.99",
-      "details": "Best value for long-term use."
-    },
-  ];
-
+  List<dynamic> packageList = [];
+  var selectPackage = null;
   int? selectedPackageIndex;
+  bool pickyet = false;
+
+  void fetchPackageList() async {
+    String url = "https://pp-devtest2.azurewebsites.net/api/package-categories";
+    final uri = Uri.parse(url);
+    final respone = await http.get(uri);
+    final body = respone.body;
+    final json = jsonDecode(body);
+    setState(() {
+          packageList = json;
+    });
+
+    log(packageList.toString());
+  }
+
+  @override
+  void initState() {
+    fetchPackageList();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,30 +55,30 @@ class _OptionPaymentScreenState extends State<OptionPaymentScreen> {
       ),
       child: Scaffold(
         appBar: AppBar(
-          title: const Center(
-            child: Text('Đăng ký gói'),
-          ),
-        ),
-        body: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Color(0xFF85FFBD), // Start color
-                Color(0xFFFFFB7D) // End color
-              ],
+            // title: const Center(
+            //   child: Text('Đăng ký gói'),
+            // ),
             ),
-          ),
+        body: Container(
+          // decoration: BoxDecoration(
+          //   gradient: LinearGradient(
+          //     begin: Alignment.topLeft,
+          //     end: Alignment.bottomRight,
+          //     colors: [
+          //       Color(0xFF85FFBD), // Start color
+          //       Color(0xFFFFFB7D) // End color
+          //     ],
+          //   ),
+          // ),
           child: Column(
             children: [
-              SizedBox(height: 16),
-              Image.asset('assets/images/logo.jpg', width: 100, height: 100),
-              SizedBox(height: 16),
-              Text('Mở khóa tất cả các tính năng của ứng dụng',
+              const SizedBox(height: 16),
+              Image.asset(LinkImages.tempAvatar, width: 100, height: 100),
+              const SizedBox(height: 16),
+              const Text('Mở khóa tất cả các tính năng của ứng dụng',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
 
-              SizedBox(height: 16), // Space between image and texts
+              const SizedBox(height: 16), // Space between image and texts
               const Row(
                 crossAxisAlignment: CrossAxisAlignment
                     .start, // Aligns the icon with the first line of text
@@ -100,7 +110,7 @@ class _OptionPaymentScreenState extends State<OptionPaymentScreen> {
                               color: Colors.black,
                             ),
                             SizedBox(width: 8),
-                            Text('Lên lịch nhắc nhở uống thuốc',
+                            Text('Gợi ý thuốc theo thành phần',
                                 style: TextStyle(fontSize: 14)),
                           ],
                         ),
@@ -122,39 +132,48 @@ class _OptionPaymentScreenState extends State<OptionPaymentScreen> {
                   ),
                 ],
               ),
-              SizedBox(height: 16), // Space between texts and ListView
+              const SizedBox(height: 16), // Space between texts and ListView
               Expanded(
                 child: ListView.builder(
-                  itemCount: packages.length,
+                  //itemCount: packages.length,
+                  itemCount: packageList.length,
                   itemBuilder: (context, index) {
-                    bool isSelected = index == selectedPackageIndex;
+                    //bool isSelected = index == selectedPackageIndex;
                     return GestureDetector(
                       onTap: () {
                         setState(() {
-                          selectedPackageIndex = index;
+                          //selectedPackageIndex = index;
+                          pickyet = !pickyet;
+                          if (pickyet) {
+                            selectPackage = packageList[index];
+                          } else {
+                            selectPackage = null;
+                          }
                         });
                       },
                       child: Card(
-                        color: isSelected ? Colors.blue : Colors.white,
-                        margin: EdgeInsets.all(10),
+                        //color: isSelected ? Colors.blue : Colors.white,
+                        color: pickyet ? Colors.blue : Colors.white,
+                        margin: const EdgeInsets.all(10),
                         child: ListTile(
                           title: Text(
-                            packages[index]["title"],
+                            packageList[index]["packageName"],
                             style: TextStyle(
-                                color: isSelected ? Colors.white : Colors.black,
+                                //color: isSelected ? Colors.white : Colors.black,
+                                color: pickyet ? Colors.white : Colors.black,
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold),
                           ),
                           subtitle: Text(
-                            "${packages[index]["details"]} - ${packages[index]["price"]}",
+                            "${packageList[index]["packageDescription"]} - ${packageList[index]["price"]} VND",
                             style: TextStyle(
-                              color:
-                                  isSelected ? Colors.white70 : Colors.black54,
+                              //color: isSelected ? Colors.white70 : Colors.black54,
+                              color: pickyet ? Colors.white70 : Colors.black54,
                               fontSize: 12,
                             ),
                           ),
-                          trailing: isSelected
-                              ? Icon(
+                          trailing: pickyet
+                              ? const Icon(
                                   Icons.check_circle,
                                   color: Colors.white,
                                 )
@@ -170,13 +189,16 @@ class _OptionPaymentScreenState extends State<OptionPaymentScreen> {
                     const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
                 child: ElevatedButton(
                   onPressed: () {
+                    log("${selectPackage.toString()}");
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => MethodPaymentScreen()),
+                          builder: (context) => MethodPaymentScreen(
+                                thePackagePick: selectPackage,
+                              )),
                     );
                   },
-                  child: Text('Đăng ký'),
+                  child: const Text('Đăng ký'),
                 ),
               ),
             ],

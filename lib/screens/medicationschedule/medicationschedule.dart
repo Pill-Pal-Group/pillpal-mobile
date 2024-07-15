@@ -49,12 +49,15 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
         'Authorization': 'Bearer ${userInfomation.accessToken}',
       },
     );
-    final body = respone.body;
-    final json = jsonDecode(body);
-    ui = json;
-    log(ui['customerCode']);
-    fetchPrescripts(ui['customerCode']);
+    if (respone.statusCode == 200 || respone.statusCode == 201) {
+        final json = jsonDecode(respone.body);
+        ui = json;
+      fetchPrescripts(ui['customerCode']);
+    } else {
+      log("fecthUserInfor bug");
+    }
 
+    //log(ui['customerCode']);
     //log(ui.toString());
   }
 
@@ -68,20 +71,28 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
         'Authorization': 'Bearer ${userInfomation.accessToken}',
       },
     );
-    final body = respone.body;
-    final json = jsonDecode(body);
-    prescriptsList = json;
-
-    for (var e in prescriptsList) {
-      log(e['id']);
-      fetchMedicineIntake(e['id'], today);
+    if (respone.statusCode == 200 || respone.statusCode == 201) {
+      final json = jsonDecode(respone.body);
+      
+        prescriptsList = json;
+      
+      for (var e in prescriptsList) {
+        fetchMedicineIntake(e['id'], today);
+      }
+    } else {
+      log("fetchPrescripts bug");
     }
+
     //log(medicinesInTake.toString());
   }
 
   void fetchMedicineIntake(String idpr, DateTime todayy) async {
+    var outputFormat = DateFormat('yyyy-MM-dd');
+    var outputDate2 = outputFormat.format(todayy);
+    log("fetchMedicineIntake bug ${outputDate2}");
+    log("fetchMedicineIntake bug ${idpr}");
     String url =
-        "https://pp-devtest2.azurewebsites.net/api/medication-intakes/$idpr?dateTake=${todayy.year}-${todayy.month}-${todayy.day}";
+        "https://pp-devtest2.azurewebsites.net/api/medication-intakes/$idpr?dateTake=$outputDate2";
     final uri = Uri.parse(url);
     final respone = await http.get(
       uri,
@@ -89,9 +100,14 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
         'Authorization': 'Bearer ${userInfomation.accessToken}',
       },
     );
-    final json = jsonDecode(respone.body);
-    medicinesInTake = json;
-    takeJTD();
+    //log("fetchMedicineIntake bug ${respone.statusCode}");
+    if (respone.statusCode == 200 || respone.statusCode == 201) {
+      final json = jsonDecode(respone.body);
+      //setState(() {
+        medicinesInTake = json;
+      //});
+      takeJTD();
+    } else {}
   }
 
   void takeJTD() {
@@ -100,11 +116,11 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
     for (var element in medicinesInTake) {
       tmp = element['medicationTakes'];
     }
-    setState(() {
+    //setState(() {
       for (var element in tmp) {
         mInTake.add(element);
       }
-    });
+    //});
     getPostsData();
     log(mInTake.toString());
   }
@@ -220,33 +236,45 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
           const SizedBox(
             height: 10,
           ),
-          Expanded(
-              child: ListView.builder(
-                  controller: controller,
-                  itemCount: itemsData.length,
-                  physics: const BouncingScrollPhysics(),
-                  itemBuilder: (context, index) {
-                    double scale = 1.0;
-                    if (topContainer > 0.5) {
-                      scale = index + 0.5 - topContainer;
-                      if (scale < 0) {
-                        scale = 0;
-                      } else if (scale > 1) {
-                        scale = 1;
-                      }
-                    }
-                    return Opacity(
-                      opacity: scale,
-                      child: Transform(
-                        transform: Matrix4.identity()..scale(scale, scale),
-                        alignment: Alignment.bottomCenter,
-                        child: Align(
-                            heightFactor: 0.7,
-                            alignment: Alignment.topCenter,
-                            child: itemsData[index]),
-                      ),
-                    );
-                  })),
+          mInTake.isEmpty
+              ? Column(
+                  children: [
+                    const SizedBox(
+                      height: 50,
+                    ),
+                    Text(
+                      "Hôm nay không có lời nhắc nào",
+                      style: headingstyle,
+                    ),
+                  ],
+                )
+              : Expanded(
+                  child: ListView.builder(
+                      controller: controller,
+                      itemCount: itemsData.length,
+                      physics: const BouncingScrollPhysics(),
+                      itemBuilder: (context, index) {
+                        double scale = 1.0;
+                        if (topContainer > 0.5) {
+                          scale = index + 0.5 - topContainer;
+                          if (scale < 0) {
+                            scale = 0;
+                          } else if (scale > 1) {
+                            scale = 1;
+                          }
+                        }
+                        return Opacity(
+                          opacity: scale,
+                          child: Transform(
+                            transform: Matrix4.identity()..scale(scale, scale),
+                            alignment: Alignment.bottomCenter,
+                            child: Align(
+                                heightFactor: 0.7,
+                                alignment: Alignment.topCenter,
+                                child: itemsData[index]),
+                          ),
+                        );
+                      })),
         ],
       ),
     );
@@ -310,10 +338,10 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
           ),
           MsButton(
               lable: "Quét đơn",
-              onTap:
-                  () => {
+              onTap: () => {
+                    if (userInfomation.paided)
+                      {
                         imagePickerModal(context, onCameraTap: () {
-                          //log("Camera" as num);
                           pickImage(source: ImageSource.camera).then((value) {
                             if (value != '') {
                               imageCropperView(value, context).then((value) {
@@ -331,7 +359,6 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
                             }
                           });
                         }, onGalleryTap: () {
-                          //log("Gallery" as num);
                           pickImage(source: ImageSource.gallery).then((value) {
                             if (value != '') {
                               imageCropperView(value, context).then((value) {
@@ -350,19 +377,36 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
                           });
                         })
                       }
-                      ),
+                    else
+                      {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: Text('Chức năng nâng cao'),
+                              content: Text(
+                                  'Hãy mua gói trả phí để sử dụng'),
+                              backgroundColor: const Color(0xFFEFEFEF),
+                              shape: RoundedRectangleBorder(
+                                side: BorderSide(color: Colors.green, width: 2),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              actions: <Widget>[
+                                TextButton(
+                                  child: Text('Đóng'),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        )
+                      }
+                  }),
           MsButton(
               lable: "Tạo Lịch",
-              onTap: () => Get.to(() => const AddTaskScreen())
-              // () => {
-              //       Navigator.push(
-              //         context,
-              //         MaterialPageRoute(
-              //           builder: (context) => const NewEntryPage(),
-              //         ),
-              //       )
-              //     }
-              ),
+              onTap: () => Get.to(() => const AddTaskScreen())),
         ],
       ),
     );

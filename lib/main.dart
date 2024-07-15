@@ -6,7 +6,7 @@ import 'package:pillpalmobile/constants.dart';
 import 'package:pillpalmobile/global_bloc.dart';
 import 'package:pillpalmobile/screens/medicationschedule/mscomponents/theme_services.dart';
 import 'package:pillpalmobile/screens/onboding/onboding_screen.dart';
-import 'package:pillpalmobile/services/notifications_service.dart';
+import 'package:pillpalmobile/services/noti/notifications_service.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';

@@ -47,7 +47,7 @@ class _SideBarState extends State<SideBar> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => OptionPaymentScreen(),
+            builder: (context) => const OptionPaymentScreen(),
           ),
         );
         break;
@@ -73,6 +73,12 @@ class _SideBarState extends State<SideBar> {
     }
   }
 
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     return SafeArea(

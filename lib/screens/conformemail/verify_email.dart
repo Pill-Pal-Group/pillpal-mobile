@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pillpalmobile/constants.dart';
 import 'package:pillpalmobile/screens/onboding/onboding_screen.dart';
-import 'package:pillpalmobile/services/auth_service.dart';
+import 'package:pillpalmobile/services/auth/auth_service.dart';
 
 class VerifyEmailScreen extends StatelessWidget {
   const VerifyEmailScreen({super.key});
