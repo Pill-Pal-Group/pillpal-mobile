@@ -24,7 +24,7 @@ class _TermofServiceState extends State<TermofService> {
     final respone = await http.get(
       uri,
       headers: <String, String>{
-        'Authorization': 'Bearer ${userInfomation.accessToken}',
+        'Authorization': 'Bearer ${UserInfomation.accessToken}',
       },
     );
     final json = jsonDecode(respone.body);

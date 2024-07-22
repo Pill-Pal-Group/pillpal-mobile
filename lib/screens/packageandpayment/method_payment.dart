@@ -7,6 +7,7 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:pillpalmobile/constants.dart';
 import 'package:http/http.dart' as http;
 import 'package:pillpalmobile/screens/entryPoint/entry_point.dart';
+import 'package:pillpalmobile/services/payment/momo.dart';
 
 class MethodPaymentScreen extends StatefulWidget {
   final dynamic thePackagePick;
@@ -17,7 +18,7 @@ class MethodPaymentScreen extends StatefulWidget {
 }
 
 class _MethodPaymentScreenState extends State<MethodPaymentScreen> {
-  String tokene = userInfomation.accessToken;
+  String tokene = UserInfomation.accessToken;
   //int _type = 1;
   List<dynamic> paymentList = [];
   bool pickyet = false;
@@ -56,8 +57,11 @@ class _MethodPaymentScreenState extends State<MethodPaymentScreen> {
     log(json.toString());
   }
 
+  
+
   void paymentConform(bool check, String packageID, String paymentID) {
     if (check) {
+      //Get.to(() => const MomoTest());
       postCustomerPackage(packageID, paymentID);
       Get.to(() => const EntryPoint());
     } else {

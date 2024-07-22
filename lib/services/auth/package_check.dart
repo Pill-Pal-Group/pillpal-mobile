@@ -13,16 +13,16 @@ void fetchpackageCheck() async {
     final respone = await http.get(
       uri,
       headers: <String, String>{
-        'Authorization': 'Bearer ${userInfomation.accessToken}',
+        'Authorization': 'Bearer ${UserInfomation.accessToken}',
       },
     );
     final json = jsonDecode(respone.body);
     package = json;
     if(package.length == 0){
-      userInfomation.paided = false;
+      UserInfomation.paided = false;
       log("nghèo");
     }else{
-      userInfomation.paided = true;
+      UserInfomation.paided = true;
       curentPackage = package;
       log("khong nghèo");
     }

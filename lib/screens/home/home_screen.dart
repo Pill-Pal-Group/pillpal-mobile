@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:pillpalmobile/constants.dart';
 import 'package:pillpalmobile/global_bloc.dart';
+import 'package:pillpalmobile/screens/home/hcomponents/prescriptdetails.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 import 'package:http/http.dart' as http;
@@ -38,14 +39,14 @@ class _HomePageState extends State<HomePage> {
     final respone = await http.get(
       uri,
       headers: <String, String>{
-        'Authorization': 'Bearer ${userInfomation.accessToken}',
+        'Authorization': 'Bearer ${UserInfomation.accessToken}',
       },
     );
     final body = respone.body;
     final json = jsonDecode(body);
 
-      thePrescriptsList = json;
-      getPostsData();
+    thePrescriptsList = json;
+    getPostsData();
 
     for (var element in thePrescriptsList) {
       medList.add(element['prescriptDetails']);
@@ -60,115 +61,98 @@ class _HomePageState extends State<HomePage> {
     final respone = await http.get(
       uri,
       headers: <String, String>{
-        'Authorization': 'Bearer ${userInfomation.accessToken}',
+        'Authorization': 'Bearer ${UserInfomation.accessToken}',
       },
     );
     final body = respone.body;
     final json = jsonDecode(body);
 
-      ui = json;
-      //log(ui['customerCode']);
-      fetchPrescripts(ui['customerCode']);
+    ui = json;
+    //log(ui['customerCode']);
+    fetchPrescripts(ui['customerCode']);
 
     //log(ui.toString());
   }
 
   void getPostsData() {
     List<dynamic> responseList = thePrescriptsList;
-    log(responseList.toString());
     List<Widget> listItems = [];
     responseList.forEach((post) {
       listItems.add(
         InkWell(
-          child: Container(
-              height: 150,
-              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(20.0)),
-                  color: Color.fromARGB(255, 255, 255, 255),
-                  boxShadow: [
-                    BoxShadow(
-                        color: Colors.black.withAlpha(100), blurRadius: 10.0),
-                  ]),
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Flexible(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            "Đơn Thuốc ngày ${DateFormat("yyyy-MM-dd").parse(post["receptionDate"])}",
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20,
+            child: Container(
+                height: 150,
+                margin:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                    color: Color.fromARGB(255, 255, 255, 255),
+                    boxShadow: [
+                      BoxShadow(
+                          color: Colors.black.withAlpha(100), blurRadius: 10.0),
+                    ]),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 20.0, vertical: 10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Flexible(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Text(
+                              "Đơn Thuốc ngày ${DateFormat("yyyy-MM-dd").parse(post["receptionDate"])}",
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                              ),
+                              overflow: TextOverflow.fade,
+                              maxLines: 2,
+                              softWrap: true,
                             ),
-                            overflow: TextOverflow.fade,
-                            maxLines: 2,
-                            softWrap: true,
-                          ),
-                          const SizedBox(
-                            height: 15,
-                          ),
-                          Text(
-                            "Bác sĩ: ${post["doctorName"]}",
-                            style: const TextStyle(
-                                fontSize: 15,
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold),
-                          ),
-                          Text(
-                            "BV: ${post["hospitalName"]}",
-                            style: const TextStyle(
-                                fontSize: 15,
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold),
-                          )
-                        ],
+                            const SizedBox(
+                              height: 15,
+                            ),
+                            Text(
+                              "Bác sĩ: ${post["doctorName"]}",
+                              style: const TextStyle(
+                                  fontSize: 15,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            Text(
+                              "BV: ${post["hospitalName"]}",
+                              style: const TextStyle(
+                                  fontSize: 15,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold),
+                            )
+                          ],
+                        ),
                       ),
-                    ),
-                    Image.network(
-                      "${post['prescriptImage']}",
-                      fit: BoxFit.fitWidth, //url,
-                      errorBuilder: (BuildContext context, Object exception,
-                          StackTrace? stackTrace) {
-                        return Image.asset("assets/picture/wsa.jpg");
-                      },
-                      height: 80,
-                    ),
-                  ],
+                      Image.network(
+                        "${post['prescriptImage']}",
+                        fit: BoxFit.fitWidth, //url,
+                        errorBuilder: (BuildContext context, Object exception,
+                            StackTrace? stackTrace) {
+                          return Image.asset("assets/picture/wsa.jpg");
+                        },
+                        height: 80,
+                      ),
+                    ],
+                  ),
+                )),
+            onTap: () {
+              log("click");
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => PrescriptDetails(pdList: post['prescriptDetails'],),
                 ),
-              )),
-          onTap: () {
-            // showDialog(
-            //   context: context,
-            //   builder: (BuildContext context) {
-            //     return Dialog(
-            //       shape: RoundedRectangleBorder(
-            //         borderRadius: BorderRadius.circular(20.0),
-            //       ),
-            //       elevation: 5.0,
-            //       backgroundColor: Colors.white,
-            //       child: Container(
-            //         padding: EdgeInsets.all(20.0),
-            //         child: ListView.builder(
-            //           itemCount: medList.length,
-            //           itemBuilder: (BuildContext context, int indext) {
-            //             return ListTile(
-            //               title: Text("Thuốc ${medList[0][indext]['medicineName']}"),
-            //               subtitle: Text("${medList[0][indext]['totalDose']} Viên | Sáng: ${medList[0][indext]['morningDose']} | Trưa: ${medList[0][indext]['noonDose']} | Chiều: ${medList[0][indext]['afternoonDose']} | Tối: ${medList[0][indext]['nightDose']}"),
-            //             );
-            //           },
-            //         ),
-            //       ),
-            //     );
-            //   },
-            // );
-          },
-        ),
+              );
+            }
+            ),
       );
     });
     setState(() {

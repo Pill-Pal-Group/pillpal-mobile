@@ -32,7 +32,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   final TextEditingController _cNumCtrl = TextEditingController();
   final TextEditingController _tNumCtrl = TextEditingController();
   final TextEditingController _totalNumCtrl = TextEditingController();
-  String tokene = userInfomation.accessToken;
+  String tokene = UserInfomation.accessToken;
   DateTime nowTime = DateTime.now();
   String _starTIme = DateFormat("hh:mm:a").format(DateTime.now()).toString();
   //int _selectedRemider = 10;

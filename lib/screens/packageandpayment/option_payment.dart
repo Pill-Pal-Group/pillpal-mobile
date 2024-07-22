@@ -142,6 +142,7 @@ class _OptionPaymentScreenState extends State<OptionPaymentScreen> {
                     return GestureDetector(
                       onTap: () {
                         setState(() {
+                          log(index.toString());
                           //selectedPackageIndex = index;
                           pickyet = !pickyet;
                           if (pickyet) {

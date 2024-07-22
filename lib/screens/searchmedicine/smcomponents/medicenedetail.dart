@@ -1,5 +1,8 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:pillpalmobile/screens/searchmedicine/smcomponents/comparemed.dart';
+import 'package:pillpalmobile/screens/searchmedicine/smcomponents/samemedicene.dart';
 import 'utils.dart';
 import 'package:pillpalmobile/constants.dart';
 class MedicineDetailScreen extends StatelessWidget {
@@ -94,7 +97,7 @@ class MedicineDetailScreen extends StatelessWidget {
                   //ten thuoc
                   Text(
                     medicineName,
-                    style: Theme.of(context).textTheme.headline2,
+                    style: Theme.of(context).textTheme.headlineSmall,
                   ),
                   const SizedBox(
                     height: 10,
@@ -188,7 +191,7 @@ class MedicineDetailScreen extends StatelessWidget {
                             MaterialStateProperty.all<Color>(Colors.blue),
                       ),
                       onPressed: () {
-                        if (userInfomation.paided) {
+                        if (UserInfomation.paided) {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -202,17 +205,17 @@ class MedicineDetailScreen extends StatelessWidget {
                           context: context,
                           builder: (BuildContext context) {
                             return AlertDialog(
-                              title: Text('Chức năng nâng cao'),
-                              content: Text(
+                              title: const Text('Chức năng nâng cao'),
+                              content: const Text(
                                   'Hãy mua gói trả phí để sử dụng'),
                               backgroundColor: const Color(0xFFEFEFEF),
                               shape: RoundedRectangleBorder(
-                                side: BorderSide(color: Colors.green, width: 2),
+                                side: const BorderSide(color: Colors.green, width: 2),
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               actions: <Widget>[
                                 TextButton(
-                                  child: Text('Đóng'),
+                                  child: const Text('Đóng'),
                                   onPressed: () {
                                     Navigator.of(context).pop();
                                   },
@@ -224,6 +227,52 @@ class MedicineDetailScreen extends StatelessWidget {
                         }
                       },
                       child: const Text('Tìm nơi bán'),
+                    ),
+                  ),
+                  SizedBox(
+                    width: double.infinity,
+                    child: TextButton(
+                      style: ButtonStyle(
+                        foregroundColor:
+                            MaterialStateProperty.all<Color>(Colors.blue),
+                      ),
+                      onPressed: () {
+                        if (UserInfomation.paided) {
+                          log(activeIngredients[0]['ingredientName'].toString());
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => SameMediceneScreen(iName: activeIngredients [0]['ingredientName'],
+                              ),
+                            ),
+                          );
+                        }else{
+                          showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: const Text('Chức năng nâng cao'),
+                              content: const Text(
+                                  'Hãy mua gói trả phí để sử dụng'),
+                              backgroundColor: const Color(0xFFEFEFEF),
+                              shape: RoundedRectangleBorder(
+                                side: const BorderSide(color: Colors.green, width: 2),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              actions: <Widget>[
+                                TextButton(
+                                  child: const Text('Đóng'),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                        }
+                      },
+                      child: const Text('Tìm Thuốc tương tự'),
                     ),
                   ),
                 ],

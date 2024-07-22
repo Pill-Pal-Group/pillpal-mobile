@@ -22,6 +22,7 @@ Future<void> signInWithGoogle() async {
 
     UserCredential userNow =
         await FirebaseAuth.instance.signInWithCredential(credential);
+
     final tokenResult = FirebaseAuth.instance.currentUser;
     final idToken = await tokenResult!.getIdToken();
     final token = idToken.toString();
@@ -37,15 +38,15 @@ Future<void> signInWithGoogle() async {
     );
     final json = jsonDecode(response.body);
 
-    userInfomation.loginuser = tokenResult;
-    userInfomation.accessToken = json['accessToken'];
+    UserInfomation.loginuser = tokenResult;
+    UserInfomation.accessToken = json['accessToken'];
     log(json['accessToken']);
-    userInfomation.refreshToken = json['refreshToken'];
-    log(json['refreshToken']);
-    userInfomation.tokenType = json['tokenType'];
-    log(json['tokenType']);
-    userInfomation.countTIme = json['expiresIn'];
-    log(json['expiresIn'].toString());
+    UserInfomation.refreshToken = json['refreshToken'];
+    //log(json['refreshToken']);
+    UserInfomation.tokenType = json['tokenType'];
+    //log(json['tokenType']);
+    UserInfomation.countTIme = json['expiresIn'];
+    //log(json['expiresIn'].toString());
     if (!userNow.additionalUserInfo!.isNewUser) {
       Get.to(() => const EntryPoint());
     } else {
@@ -56,4 +57,32 @@ Future<void> signInWithGoogle() async {
     Get.to(() => const OnbodingScreen());
     log("BugLogin ${e.toString()}");
   }
+}
+
+
+Future<void>  checklogin() async{
+  final tokenResult = FirebaseAuth.instance.currentUser;
+    final idToken = await tokenResult!.getIdToken();
+    final token = idToken.toString();
+
+    final response = await http.post(
+      Uri.parse("https://pp-devtest2.azurewebsites.net/api/auths/token-login"),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, dynamic>{
+        'token': token,
+      }),
+    );
+    final json = jsonDecode(response.body);
+
+    UserInfomation.loginuser = tokenResult;
+    UserInfomation.accessToken = json['accessToken'];
+    //log(json['accessToken']);
+    UserInfomation.refreshToken = json['refreshToken'];
+    //log(json['refreshToken']);
+    UserInfomation.tokenType = json['tokenType'];
+    //log(json['tokenType']);
+    UserInfomation.countTIme = json['expiresIn'];
+    Get.to(() => const EntryPoint());
 }

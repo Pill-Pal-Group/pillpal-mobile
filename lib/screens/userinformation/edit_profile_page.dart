@@ -43,7 +43,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       Uri.parse("https://pp-devtest2.azurewebsites.net/api/customers"),
       headers: <String, String>{
         'accept': 'application/json',
-        'Authorization': 'Bearer ${userInfomation.accessToken}',
+        'Authorization': 'Bearer ${UserInfomation.accessToken}',
         'Content-Type': 'application/json'
       },
       body: jsonEncode(<String, dynamic>{
@@ -66,7 +66,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
             physics: const BouncingScrollPhysics(),
             children: [
               ProfileWidget(
-                imagePath: userInfomation.loginuser!.photoURL.toString(),
+                imagePath: UserInfomation.loginuser!.photoURL.toString(),
                 isEdit: true,
                 onClicked: () async {
                   Navigator.of(context).push(

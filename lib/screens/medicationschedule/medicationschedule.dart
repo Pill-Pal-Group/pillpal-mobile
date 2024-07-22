@@ -46,12 +46,12 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
     final respone = await http.get(
       uri,
       headers: <String, String>{
-        'Authorization': 'Bearer ${userInfomation.accessToken}',
+        'Authorization': 'Bearer ${UserInfomation.accessToken}',
       },
     );
     if (respone.statusCode == 200 || respone.statusCode == 201) {
-        final json = jsonDecode(respone.body);
-        ui = json;
+      final json = jsonDecode(respone.body);
+      ui = json;
       fetchPrescripts(ui['customerCode']);
     } else {
       log("fecthUserInfor bug");
@@ -68,14 +68,14 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
     final respone = await http.get(
       uri,
       headers: <String, String>{
-        'Authorization': 'Bearer ${userInfomation.accessToken}',
+        'Authorization': 'Bearer ${UserInfomation.accessToken}',
       },
     );
     if (respone.statusCode == 200 || respone.statusCode == 201) {
       final json = jsonDecode(respone.body);
-      
-        prescriptsList = json;
-      
+
+      prescriptsList = json;
+
       for (var e in prescriptsList) {
         fetchMedicineIntake(e['id'], today);
       }
@@ -97,14 +97,14 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
     final respone = await http.get(
       uri,
       headers: <String, String>{
-        'Authorization': 'Bearer ${userInfomation.accessToken}',
+        'Authorization': 'Bearer ${UserInfomation.accessToken}',
       },
     );
     //log("fetchMedicineIntake bug ${respone.statusCode}");
     if (respone.statusCode == 200 || respone.statusCode == 201) {
       final json = jsonDecode(respone.body);
       //setState(() {
-        medicinesInTake = json;
+      medicinesInTake = json;
       //});
       takeJTD();
     } else {}
@@ -117,9 +117,9 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
       tmp = element['medicationTakes'];
     }
     //setState(() {
-      for (var element in tmp) {
-        mInTake.add(element);
-      }
+    for (var element in tmp) {
+      mInTake.add(element);
+    }
     //});
     getPostsData();
     log(mInTake.toString());
@@ -339,7 +339,7 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
           MsButton(
               lable: "Quét đơn",
               onTap: () => {
-                    if (userInfomation.paided)
+                    if (UserInfomation.paided)
                       {
                         imagePickerModal(context, onCameraTap: () {
                           pickImage(source: ImageSource.camera).then((value) {
@@ -384,8 +384,7 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
                           builder: (BuildContext context) {
                             return AlertDialog(
                               title: Text('Chức năng nâng cao'),
-                              content: Text(
-                                  'Hãy mua gói trả phí để sử dụng'),
+                              content: Text('Hãy mua gói trả phí để sử dụng'),
                               backgroundColor: const Color(0xFFEFEFEF),
                               shape: RoundedRectangleBorder(
                                 side: BorderSide(color: Colors.green, width: 2),
@@ -406,7 +405,9 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
                   }),
           MsButton(
               lable: "Tạo Lịch",
-              onTap: () => Get.to(() => const AddTaskScreen())),
+              onTap: () =>
+                  Get.to(() => const AddTaskScreen())),
+                  //Get.to(() => const TermofService2())),
         ],
       ),
     );

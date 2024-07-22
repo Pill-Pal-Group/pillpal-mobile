@@ -28,14 +28,14 @@ class _SearchScreenState extends State<SearchScreen> {
   bool isSelected = false;
 
   //api call
-  void fetchMedicine(String okene) async {
+  void fetchMedicine(String okene, int numBer) async {
     String url =
-        "https://pp-devtest2.azurewebsites.net/api/medicines?MedicineName=$okene&Page=1&PageSize=10&IncludeCategories=true&IncludeSpecifications=true&IncludePharmaceuticalCompanies=true&IncludeDosageForms=true&IncludeActiveIngredients=true&IncludeBrands=true";
+        "https://pp-devtest2.azurewebsites.net/api/medicines?MedicineName=$okene&Page=$numBer&&IncludeCategories=true&IncludeSpecifications=true&IncludePharmaceuticalCompanies=true&IncludeDosageForms=true&IncludeActiveIngredients=true&IncludeBrands=true";
     final uri = Uri.parse(url);
     final respone = await http.get(
       uri,
       headers: <String, String>{
-        'Authorization': 'Bearer ${userInfomation.accessToken}',
+        'Authorization': 'Bearer ${UserInfomation.accessToken}',
       },
     );
 
@@ -50,13 +50,16 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   void fetchCategory() async {
-    String url = "https://pp-devtest2.azurewebsites.net/api/categories?Page=1&PageSize=10";
+    String url =
+        "https://pp-devtest2.azurewebsites.net/api/categories?Page=1";
     final uri = Uri.parse(url);
-    final respone = await http.get(uri,
+    final respone = await http.get(
+      uri,
       headers: <String, String>{
-        'Authorization': 'Bearer ${userInfomation.accessToken}',
-      },);
-    
+        'Authorization': 'Bearer ${UserInfomation.accessToken}',
+      },
+    );
+
     if (respone.statusCode == 200 || respone.statusCode == 201) {
       setState(() {
         final json = jsonDecode(respone.body);
@@ -65,7 +68,7 @@ class _SearchScreenState extends State<SearchScreen> {
       //log(categoryList.toString());
     } else {
       log("fetchCategory bug ${respone.statusCode}");
-    }  
+    }
   }
 
   void filterByCategoryName(String categoryName) {
@@ -86,7 +89,7 @@ class _SearchScreenState extends State<SearchScreen> {
   void initState() {
     super.initState();
     fetchCategory();
-    fetchMedicine(_titleCtrl2.text);
+    fetchMedicine(_titleCtrl2.text, 1);
   }
 
   //api call
@@ -148,7 +151,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         IconButton(
                           onPressed: () => {
                             log(_titleCtrl2.text),
-                            fetchMedicine(_titleCtrl2.text),
+                            fetchMedicine(_titleCtrl2.text, 1),
                           },
                           icon: const Icon(
                             FontAwesomeIcons.magnifyingGlass,
@@ -166,7 +169,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             controller: _titleCtrl2,
                             style: subtitlestyle,
                             onChanged: (value) =>
-                                {log(value), fetchMedicine(value)},
+                                {log(value), fetchMedicine(value, 1)},
                             decoration: InputDecoration(
                                 hintText: "Nhập tên thuốc?",
                                 hintStyle: subtitlestyle,
@@ -211,38 +214,42 @@ class _SearchScreenState extends State<SearchScreen> {
               ),
               const SizedBox(height: 10),
               //list fillter
-              categoryList.isEmpty ? const CupertinoActivityIndicator() : SizedBox(
-                height: 80,
-                width: MediaQuery.of(context).size.width,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: categoryList.length,
-                  padding: const EdgeInsets.only(top: 20.0),
-                  itemBuilder: (context, index) {
-                    return Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: FilterChip(
-                          label: Text(categoryList[index]['categoryName']),
-                          selected: categoryChoiseList == (categoryList[index]),
-                          onSelected: (bool selected) {
-                            if (selected) {
-                              setState(() {
-                                categoryChoiseList = categoryList[index];
-                                filterByCategoryName(
-                                    categoryList[index]['categoryName']);
-                              });
-                            } else {
-                              setState(() {
-                                categoryChoiseList = null;
-                                fetchMedicine("");
-                                medicineListFillted = [];
-                              });
-                            }
-                          },
-                        ));
-                  },
-                ),
-              ),
+              categoryList.isEmpty
+                  ? const CupertinoActivityIndicator()
+                  : SizedBox(
+                      height: 80,
+                      width: MediaQuery.of(context).size.width,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: categoryList.length,
+                        padding: const EdgeInsets.only(top: 20.0),
+                        itemBuilder: (context, index) {
+                          return Padding(
+                              padding: const EdgeInsets.all(10.0),
+                              child: FilterChip(
+                                label:
+                                    Text(categoryList[index]['categoryName']),
+                                selected:
+                                    categoryChoiseList == (categoryList[index]),
+                                onSelected: (bool selected) {
+                                  if (selected) {
+                                    setState(() {
+                                      categoryChoiseList = categoryList[index];
+                                      filterByCategoryName(
+                                          categoryList[index]['categoryName']);
+                                    });
+                                  } else {
+                                    setState(() {
+                                      categoryChoiseList = null;
+                                      fetchMedicine("", 1);
+                                      medicineListFillted = [];
+                                    });
+                                  }
+                                },
+                              ));
+                        },
+                      ),
+                    ),
               // product grid view
               _makeList()
             ],
@@ -253,41 +260,45 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   _makeList() {
-    return medicines.isEmpty ? const CupertinoActivityIndicator() : GridView.builder(
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 10,
-        mainAxisSpacing: 40,
-      ),
-      shrinkWrap: true,
-      primary: false,
-      itemCount: medicines.length,
-      itemBuilder: (context, index) {
-        return GestureDetector(
-          onTap: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => MedicineDetailScreen(
-                    medicineName: medicines[index]['medicineName'],
-                    rqr: medicines[index]["requirePrescript"],
-                    image: medicines[index]['image'],
-                    specifName: medicines[index]['specification']['typeName'],
-                    //specifDetail: medicines[index]['specification']['detail'],
-                    activeIngredients: medicines[index]['activeIngredients'],
-                    pharmaceuticalCompanies: medicines[index]
-                        ['pharmaceuticalCompanies'],
-                    medInbrand: medicines[index]['medicineInBrands'],
-                  ),
-                ));
-          },
-          child: ProductWidget(
-            image: medicines[index]['image'],
-            medicineName: medicines[index]['medicineName'],
-            rqr: medicines[index]["requirePrescript"],
-          ),
-        );
-      },
-    );
+    return medicines.isEmpty
+        ? const CupertinoActivityIndicator()
+        : GridView.builder(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 40,
+            ),
+            shrinkWrap: true,
+            primary: false,
+            itemCount: medicines.length,
+            itemBuilder: (context, index) {
+              return GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => MedicineDetailScreen(
+                          medicineName: medicines[index]['medicineName'],
+                          rqr: medicines[index]["requirePrescript"],
+                          image: medicines[index]['image'],
+                          specifName: medicines[index]['specification']
+                              ['typeName'],
+                          //specifDetail: medicines[index]['specification']['detail'],
+                          activeIngredients: medicines[index]
+                              ['activeIngredients'],
+                          pharmaceuticalCompanies: medicines[index]
+                              ['pharmaceuticalCompanies'],
+                          medInbrand: medicines[index]['medicineInBrands'],
+                        ),
+                      ));
+                },
+                child: ProductWidget(
+                  image: medicines[index]['image'],
+                  medicineName: medicines[index]['medicineName'],
+                  rqr: medicines[index]["requirePrescript"],
+                ),
+              );
+            },
+          );
   }
 }

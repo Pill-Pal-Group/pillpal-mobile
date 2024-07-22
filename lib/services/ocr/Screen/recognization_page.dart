@@ -23,7 +23,7 @@ class _RecognizePageState extends State<RecognizePage> {
   final List<int> _medicineDoseTT = [];
   final List<String> _medicineName = [];
   final List<int> _medicineTotal = [];
-  String tokene = userInfomation.accessToken;
+  String tokene = UserInfomation.accessToken;
   TextEditingController controller = TextEditingController();
   DateTime nowTime = DateTime.now();
   List<Map<String, dynamic>> tesrne = [];

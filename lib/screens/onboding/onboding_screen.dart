@@ -102,14 +102,15 @@ class _OnbodingScreenState extends State<OnbodingScreen> {
                       btnAnimationController: _btnAnimationController,
                       //bo cai login vo day ne
                       press: () {
+                        
                         _btnAnimationController.isActive = true;
-                        Future.delayed(const Duration(milliseconds: 800),
+                        Future.delayed(const Duration(milliseconds: 700),
                             () async {
                           setState(() {
                             isShowSignInDialog = true;
                           });
                           signInWithGoogle();
-
+                          
                         });
                       },
                     ),

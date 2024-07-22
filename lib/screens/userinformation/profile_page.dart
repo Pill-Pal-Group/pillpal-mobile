@@ -28,7 +28,7 @@ class _ProfilePageState extends State<ProfilePage> {
     final respone = await http.get(
       uri,
       headers: <String, String>{
-        'Authorization': 'Bearer ${userInfomation.accessToken}',
+        'Authorization': 'Bearer ${UserInfomation.accessToken}',
       },
     );
     final json = jsonDecode(respone.body);
@@ -58,7 +58,7 @@ class _ProfilePageState extends State<ProfilePage> {
             //chuyển qua trang edit
             children: [
               ProfileWidget(
-                imagePath: userInfomation.loginuser!.photoURL.toString(),
+                imagePath: UserInfomation.loginuser!.photoURL.toString(),
                 onClicked: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
@@ -79,13 +79,13 @@ class _ProfilePageState extends State<ProfilePage> {
               Column(
                 children: [
                   Text(
-                    userInfomation.loginuser!.displayName.toString(),
+                    UserInfomation.loginuser!.displayName.toString(),
                     style: const TextStyle(
                         fontWeight: FontWeight.bold, fontSize: 24),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    userInfomation.loginuser!.email.toString(),
+                    UserInfomation.loginuser!.email.toString(),
                     style: const TextStyle(color: Colors.grey),
                   )
                 ],
@@ -94,7 +94,7 @@ class _ProfilePageState extends State<ProfilePage> {
               //hiện trang thái đăng ký gói
               Center(
                   child: 
-                !userInfomation.paided ?
+                !UserInfomation.paided ?
                 ButtonWidget(
                 text: 'Nâng cấp tài khoản?',
                 onClicked: () {

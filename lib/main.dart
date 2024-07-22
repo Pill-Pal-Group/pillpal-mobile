@@ -1,11 +1,10 @@
-
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:pillpalmobile/constants.dart';
 import 'package:pillpalmobile/global_bloc.dart';
 import 'package:pillpalmobile/screens/medicationschedule/mscomponents/theme_services.dart';
-import 'package:pillpalmobile/screens/onboding/onboding_screen.dart';
+import 'package:pillpalmobile/services/auth/staylogin_check.dart';
 import 'package:pillpalmobile/services/noti/notifications_service.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
@@ -65,6 +64,7 @@ class _MyAppState extends State<MyApp> {
 
  @override
   Widget build(BuildContext context) {
+    //log(FirebaseAuth.instance.currentUser.toString());
     return Provider<GlobalBloc>.value(
       value: globalBloc!,
       child: Sizer(builder: (context, orientation, deviceType) {
@@ -75,10 +75,9 @@ class _MyAppState extends State<MyApp> {
       theme: Themes.light,
       darkTheme: Themes.dark,
       themeMode: ThemeServices().theme,
-      home: const OnbodingScreen(),
-      
+      home: const StayLoginCheck(),
     );
-      //test
+      //testb
       }),
     );
   }

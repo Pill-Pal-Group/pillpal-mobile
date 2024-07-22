@@ -79,7 +79,7 @@ class APILINK {
   //static const String medicene = "https://pp-devtest2.azurewebsites.net/api/medicines?IncludeCategories=true&IncludeSpecifications=true&IncludePharmaceuticalCompanies=true&IncludeDosageForms=true&IncludeActiveIngredients=true&IncludeBrands=true";
 }
 
-class userInfomation {
+class UserInfomation {
   static User? loginuser;
   static String accessToken = "";
   static String refreshToken = "";
