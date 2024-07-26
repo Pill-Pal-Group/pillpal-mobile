@@ -59,7 +59,7 @@ class _CompareMedicineState extends State<CompareMedicine> {
                                 "Chưa cập nhật thông tin",
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
-                              fontSize: 20,
+                              fontSize: 15,
                             ),
                             overflow: TextOverflow.fade,
                             maxLines: 2,
@@ -71,7 +71,7 @@ class _CompareMedicineState extends State<CompareMedicine> {
                           Text(
                             "${post["price"]}",
                             style: const TextStyle(
-                                fontSize: 20,
+                                fontSize: 10,
                                 color: Colors.black,
                                 fontWeight: FontWeight.bold),
                           )

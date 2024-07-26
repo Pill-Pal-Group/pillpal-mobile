@@ -1,6 +1,9 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:pillpalmobile/constants.dart';
@@ -37,6 +40,12 @@ Future<void> signInWithGoogle() async {
       }),
     );
     final json = jsonDecode(response.body);
+    //get
+    // FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance; // Change here
+    // _firebaseMessaging.getToken().then((token){
+    // log("token is $token");
+    // });
+    //_getId();
 
     UserInfomation.loginuser = tokenResult;
     UserInfomation.accessToken = json['accessToken'];
@@ -59,6 +68,16 @@ Future<void> signInWithGoogle() async {
   }
 }
 
+// Future<void> _getId() async {
+//   var deviceInfo = DeviceInfoPlugin();
+//   if (Platform.isIOS) { // import 'dart:io'
+//     var iosDeviceInfo = await deviceInfo.iosInfo;
+//     log(iosDeviceInfo.toString());
+//   } else if(Platform.isAndroid) {
+//     var androidDeviceInfo = await deviceInfo.androidInfo;
+//     log("Day ne ${androidDeviceInfo.toString()}"); // unique ID on Android
+//   }
+// }
 
 Future<void>  checklogin() async{
   final tokenResult = FirebaseAuth.instance.currentUser;

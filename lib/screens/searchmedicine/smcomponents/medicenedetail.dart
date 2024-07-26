@@ -197,6 +197,7 @@ class MedicineDetailScreen extends StatelessWidget {
                             MaterialPageRoute(
                               builder: (context) => CompareMedicine(
                                 medInbrand2: medInbrand,
+                                
                               ),
                             ),
                           );

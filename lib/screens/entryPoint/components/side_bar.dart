@@ -4,7 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:pillpalmobile/constants.dart';
-import 'package:pillpalmobile/screens/conformemail/verify_email.dart';
 import 'package:pillpalmobile/screens/freetrialscreens/trial_screen.dart';
 import 'package:pillpalmobile/screens/onboding/onboding_screen.dart';
 import 'package:pillpalmobile/screens/packageandpayment/option_payment.dart';
@@ -40,7 +39,7 @@ class _SideBarState extends State<SideBar> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => const VerifyEmailScreen(),
+            builder: (context) => const FreeTrialScreen(),
           ),
         );
         break;

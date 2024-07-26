@@ -1,6 +1,8 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:pillpalmobile/model/menu.dart';
+import 'package:pillpalmobile/screens/entryPoint/entry_point.dart';
 import 'package:sizer/sizer.dart';
 
 class PrescriptDetails extends StatefulWidget {
@@ -125,7 +127,12 @@ class _PrescriptDetailsState extends State<PrescriptDetails> {
                   ),
                 )),
             onTap: () {
-              log("Something");
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => EntryPoint(selectpage: bottomNavItems.last,medname: post['medicineName'],),
+                ),
+              );
             }),
       );
     });

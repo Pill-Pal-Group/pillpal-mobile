@@ -74,6 +74,9 @@ dependencies:
   slide_to_act: ^2.0.2
   font_awesome_flutter: ^10.7.0
   file_picker: ^8.0.5
+  number_paginator: ^0.4.1
+  firebase_messaging: ^14.9.4
+  device_info_plus: ^10.1.0
 
 
 

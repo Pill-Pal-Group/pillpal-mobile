@@ -7,7 +7,7 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:pillpalmobile/constants.dart';
 import 'package:http/http.dart' as http;
 import 'package:pillpalmobile/screens/entryPoint/entry_point.dart';
-import 'package:pillpalmobile/services/payment/momo.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class MethodPaymentScreen extends StatefulWidget {
   final dynamic thePackagePick;
@@ -25,18 +25,18 @@ class _MethodPaymentScreenState extends State<MethodPaymentScreen> {
   String packageId = "";
   String paymentID = "";
 
-  void fetchPaymentList() async {
-    String url = "https://pp-devtest2.azurewebsites.net/api/payments";
-    final uri = Uri.parse(url);
-    final respone = await http.get(uri);
-    final body = respone.body;
-    final json = jsonDecode(body);
+  // void fetchPaymentList() async {
+  //   String url = "https://pp-devtest2.azurewebsites.net/api/payments";
+  //   final uri = Uri.parse(url);
+  //   final respone = await http.get(uri);
+  //   final body = respone.body;
+  //   final json = jsonDecode(body);
 
-    setState(() {
-      paymentList = json;
-    });
-    log(paymentList.toString());
-  }
+  //   setState(() {
+  //     paymentList = json;
+  //   });
+  //   log(paymentList.toString());
+  // }
 
   void postCustomerPackage(String packageID, String paymentID) async {
     final response = await http.post(
@@ -62,16 +62,44 @@ class _MethodPaymentScreenState extends State<MethodPaymentScreen> {
   void paymentConform(bool check, String packageID, String paymentID) {
     if (check) {
       //Get.to(() => const MomoTest());
-      postCustomerPackage(packageID, paymentID);
-      Get.to(() => const EntryPoint());
+      //postCustomerPackage(packageID, paymentID);
+      //Get.to(() => const EntryPoint());
+      log("oke r");
     } else {
       log("đã có vấn đề thanh toán");
     }
   }
 
+  void postPaymentToVNpay(String pcId) async {
+    log(pcId);
+    final response = await http.get(
+      Uri.parse(
+          "https://pp-devtest2.azurewebsites.net/api/payments/packages?PackageCategoryId=$pcId&PaymentType=ZALOPAY"),
+      headers: <String, String>{
+        'accept': 'application/json',
+        'Authorization': 'Bearer $tokene',
+        'Content-Type': 'application/json'
+      }
+    );
+    log(response.statusCode.toString());
+    final json = jsonDecode(response.body);
+    launchZaloWithLink(json['paymentUrl']);
+    log(json.toString());
+  }
+
+  Future<void> launchZaloWithLink(String address) async {
+    Uri googleUrl =
+        Uri.parse(address);
+    if (await canLaunchUrl(googleUrl)) {
+      log("oke123");
+      await launchUrl(googleUrl);
+    }
+  }
+
+
   @override
   void initState() {
-    fetchPaymentList();
+    //fetchPaymentList();
     super.initState();
   }
 
@@ -185,7 +213,8 @@ class _MethodPaymentScreenState extends State<MethodPaymentScreen> {
                   child: ElevatedButton(
                     onPressed: () {
                       //log("oke ${packageId} + ${paymentID}");
-                      paymentConform(true, packageId, paymentID);
+                      //postPaymentToVNpay(widget.thePackagePick['id']);
+                      //paymentConform(true, packageId, paymentID);
                     },
                     child: const Text('Chốt đơn'),
                   ),

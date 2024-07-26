@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:number_paginator/number_paginator.dart';
 import 'package:pillpalmobile/constants.dart';
 import 'package:pillpalmobile/screens/searchmedicine/smcomponents/medicenedetail.dart';
 import 'package:pillpalmobile/screens/searchmedicine/smcomponents/product_widget.dart';
@@ -11,7 +12,8 @@ import 'package:pillpalmobile/screens/searchmedicine/smcomponents/utils.dart';
 import 'package:http/http.dart' as http;
 
 class SearchScreen extends StatefulWidget {
-  const SearchScreen({super.key});
+  final String? medname;
+  const SearchScreen({super.key, this.medname});
 
   @override
   State<SearchScreen> createState() => _SearchScreenState();
@@ -22,15 +24,19 @@ class _SearchScreenState extends State<SearchScreen> {
   List<dynamic> medicines = [];
   List<dynamic> categoryList = [];
   List<dynamic> medicineListFillted = [];
+
   var categoryChoiseList;
   bool pickCategory = false;
   final TextEditingController _titleCtrl2 = TextEditingController();
   bool isSelected = false;
-
+  int numberOfPage = 0;
+  int onPage = 1;
+  ScrollController controllerList = ScrollController();
+  String test = "2";
   //api call
   void fetchMedicine(String okene, int numBer) async {
     String url =
-        "https://pp-devtest2.azurewebsites.net/api/medicines?MedicineName=$okene&Page=$numBer&&IncludeCategories=true&IncludeSpecifications=true&IncludePharmaceuticalCompanies=true&IncludeDosageForms=true&IncludeActiveIngredients=true&IncludeBrands=true";
+        "https://pp-devtest2.azurewebsites.net/api/medicines?MedicineName=$okene&Page=$numBer&PageSize=10&IncludeCategories=true&IncludeSpecifications=true&IncludePharmaceuticalCompanies=true&IncludeDosageForms=true&IncludeActiveIngredients=true&IncludeBrands=true";
     final uri = Uri.parse(url);
     final respone = await http.get(
       uri,
@@ -42,6 +48,7 @@ class _SearchScreenState extends State<SearchScreen> {
     if (respone.statusCode == 200 || respone.statusCode == 201) {
       setState(() {
         final json = jsonDecode(respone.body);
+        numberOfPage = json['totalPages'];
         medicines = json['data'];
       });
     } else {
@@ -50,8 +57,7 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   void fetchCategory() async {
-    String url =
-        "https://pp-devtest2.azurewebsites.net/api/categories?Page=1";
+    String url = "https://pp-devtest2.azurewebsites.net/api/categories?Page=1";
     final uri = Uri.parse(url);
     final respone = await http.get(
       uri,
@@ -82,12 +88,13 @@ class _SearchScreenState extends State<SearchScreen> {
     setState(() {
       medicines = medicineListFillted;
     });
-    log(medicines.toString());
+    //log(medicines.toString());
   }
 
   @override
   void initState() {
     super.initState();
+    _titleCtrl2.text = widget.medname ?? "";
     fetchCategory();
     fetchMedicine(_titleCtrl2.text, 1);
   }
@@ -98,6 +105,7 @@ class _SearchScreenState extends State<SearchScreen> {
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
+          controller: controllerList,
           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 30.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -150,7 +158,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       children: [
                         IconButton(
                           onPressed: () => {
-                            log(_titleCtrl2.text),
+                            //log(_titleCtrl2.text),
                             fetchMedicine(_titleCtrl2.text, 1),
                           },
                           icon: const Icon(
@@ -168,8 +176,10 @@ class _SearchScreenState extends State<SearchScreen> {
                                 : Colors.grey[700],
                             controller: _titleCtrl2,
                             style: subtitlestyle,
-                            onChanged: (value) =>
-                                {log(value), fetchMedicine(value, 1)},
+                            onChanged: (value) => {
+                              //log(value),
+                              fetchMedicine(value, 1)
+                            },
                             decoration: InputDecoration(
                                 hintText: "Nhập tên thuốc?",
                                 hintStyle: subtitlestyle,
@@ -196,14 +206,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       color: kPrimaryColor,
                     ),
                     child: IconButton(
-                      onPressed: () => {
-                        // showModalBottomSheet<void>(
-                        //   context: context,
-                        //   builder: (BuildContext context) {
-                        //     return const FilterChipExample();
-                        //   },
-                        // )
-                      },
+                      onPressed: () => {log("something here add this button line")},
                       icon: const Icon(
                         FontAwesomeIcons.filter,
                         color: Colors.white,
@@ -213,45 +216,64 @@ class _SearchScreenState extends State<SearchScreen> {
                 ],
               ),
               const SizedBox(height: 10),
+              medicines.isEmpty
+                  ? const Text("khong tim thay")
+                  : Column(
+                      children: [
+                        categoryList.isEmpty
+                            ? const Center(child: CupertinoActivityIndicator())
+                            : SizedBox(
+                                height: 80,
+                                width: MediaQuery.of(context).size.width,
+                                child: ListView.builder(
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: categoryList.length,
+                                  padding: const EdgeInsets.only(top: 20.0),
+                                  itemBuilder: (context, index) {
+                                    return Padding(
+                                        padding: const EdgeInsets.all(10.0),
+                                        child: FilterChip(
+                                          label: Text(categoryList[index]
+                                              ['categoryName']),
+                                          selected: categoryChoiseList ==
+                                              (categoryList[index]),
+                                          onSelected: (bool selected) {
+                                            if (selected) {
+                                              setState(() {
+                                                categoryChoiseList =
+                                                    categoryList[index];
+                                                filterByCategoryName(
+                                                    categoryList[index]
+                                                        ['categoryName']);
+                                              });
+                                            } else {
+                                              setState(() {
+                                                categoryChoiseList = null;
+                                                fetchMedicine("", 1);
+                                                medicineListFillted = [];
+                                              });
+                                            }
+                                          },
+                                        ));
+                                  },
+                                ),
+                              ),
+                        // product grid view
+
+                        _makeList(),
+
+                        NumberPaginator(
+                          numberPages: numberOfPage == 0 ? 1 : numberOfPage,
+                          onPageChange: (index) => {
+                            setState(() {
+                              controllerList.position.moveTo(0);
+                              fetchMedicine(_titleCtrl2.text, index + 1);
+                            })
+                          },
+                        )
+                      ],
+                    )
               //list fillter
-              categoryList.isEmpty
-                  ? const CupertinoActivityIndicator()
-                  : SizedBox(
-                      height: 80,
-                      width: MediaQuery.of(context).size.width,
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: categoryList.length,
-                        padding: const EdgeInsets.only(top: 20.0),
-                        itemBuilder: (context, index) {
-                          return Padding(
-                              padding: const EdgeInsets.all(10.0),
-                              child: FilterChip(
-                                label:
-                                    Text(categoryList[index]['categoryName']),
-                                selected:
-                                    categoryChoiseList == (categoryList[index]),
-                                onSelected: (bool selected) {
-                                  if (selected) {
-                                    setState(() {
-                                      categoryChoiseList = categoryList[index];
-                                      filterByCategoryName(
-                                          categoryList[index]['categoryName']);
-                                    });
-                                  } else {
-                                    setState(() {
-                                      categoryChoiseList = null;
-                                      fetchMedicine("", 1);
-                                      medicineListFillted = [];
-                                    });
-                                  }
-                                },
-                              ));
-                        },
-                      ),
-                    ),
-              // product grid view
-              _makeList()
             ],
           ),
         ),
@@ -260,8 +282,9 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   _makeList() {
+    //log(test);
     return medicines.isEmpty
-        ? const CupertinoActivityIndicator()
+        ? const Center(child: CupertinoActivityIndicator())
         : GridView.builder(
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,

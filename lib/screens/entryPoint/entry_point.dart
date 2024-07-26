@@ -4,6 +4,7 @@ import 'package:pillpalmobile/constants.dart';
 import 'package:pillpalmobile/screens/home/home_screen.dart';
 import 'package:pillpalmobile/screens/medicationschedule/medicationschedule.dart';
 import 'package:pillpalmobile/screens/searchmedicine/searchscreen.dart';
+import 'package:pillpalmobile/services/auth/package_check.dart';
 import 'package:pillpalmobile/utils/rive_utils.dart';
 import 'package:rive/rive.dart';
 import '../../model/menu.dart';
@@ -12,7 +13,9 @@ import 'components/menu_btn.dart';
 import 'components/side_bar.dart';
 
 class EntryPoint extends StatefulWidget {
-  const EntryPoint({super.key});
+  final Menu? selectpage;
+  final String? medname;
+  const EntryPoint({super.key, this.selectpage, this.medname});
 
   @override
   State<EntryPoint> createState() => _EntryPointState();
@@ -22,7 +25,7 @@ class _EntryPointState extends State<EntryPoint>
     with SingleTickerProviderStateMixin {
   bool isSideBarOpen = false;
   //2 cái biến lưu trang đầu tiên được nạp
-  Menu selectedBottonNav = bottomNavItems.first;
+  late Menu selectedBottonNav;
   Menu selectedSideMenu = sidebarMenus.first;
   //biến check xem có đang mở thanh bên không
   late SMIBool isMenuOpenInput;
@@ -43,7 +46,7 @@ class _EntryPointState extends State<EntryPoint>
       case "Lịch Uống":
         return const MedicationSchedule();
       case "Tìm Kiếm":
-        return const SearchScreen();
+        return SearchScreen(medname: widget.medname ?? "",);
       default:
         return const HomePage();
     }
@@ -56,6 +59,8 @@ class _EntryPointState extends State<EntryPoint>
 
   @override
   void initState() {
+    fetchpackageCheck();
+    selectedBottonNav = widget.selectpage ?? bottomNavItems.first;
     _animationController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 200))
       ..addListener(

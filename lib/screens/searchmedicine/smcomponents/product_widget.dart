@@ -15,7 +15,7 @@ class ProductWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     String? textne;
     void okenene(){
-    if(rqr){
+    if(!rqr){
       textne = oke;
     }else{
       textne = notoke;
