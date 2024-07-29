@@ -6,25 +6,30 @@ import 'package:pillpalmobile/constants.dart';
 bool paided = false;
 var curentPackage = [];
 void fetchpackageCheck() async {
-    paided = false;
-    var package = [];
-    String url = "https://pp-devtest2.azurewebsites.net/api/customers/packages";
-    final uri = Uri.parse(url);
-    final respone = await http.get(
-      uri,
-      headers: <String, String>{
-        'Authorization': 'Bearer ${UserInfomation.accessToken}',
-      },
-    );
+  paided = false;
+  var package = [];
+  String url = "https://pp-devtest2.azurewebsites.net/api/customers/packages";
+  final uri = Uri.parse(url);
+  final respone = await http.get(
+    uri,
+    headers: <String, String>{
+      'Authorization': 'Bearer ${UserInfomation.accessToken}',
+    },
+  );
+  if (respone.statusCode == 200 ||
+      respone.statusCode == 201 ||
+      respone.statusCode == 204) {
     final json = jsonDecode(respone.body);
     package = json;
-    if(package.length == 0){
+    if (package.isEmpty) {
       UserInfomation.paided = false;
-      log("nghèo");
-    }else{
+      log("fetchpackageCheck is Empty");
+    } else {
       UserInfomation.paided = true;
       curentPackage = package;
-      log("khong nghèo");
+      log("fetchpackageCheck has data");
     }
-
+  } else {
+    log("fetchpackageCheck Bug ${respone.statusCode}");
   }
+}

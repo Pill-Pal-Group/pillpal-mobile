@@ -19,9 +19,9 @@ class StayLoginCheck extends StatelessWidget {
               child: CircularProgressIndicator(),
             );
           } else if (snapshot.hasError) {
-            log("Lỗi nè");
+            log("StayLoginCheck Bug at services/auth/staylogin_check.dart");
             return const Center(
-              child: Text("Lỗi nè"),
+              child: Text("Lỗi kết nối hãy khởi động lại Ứng Dụng"),
             );
           } else {
             if (snapshot.data == null) {

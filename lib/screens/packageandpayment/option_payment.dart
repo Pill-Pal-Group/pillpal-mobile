@@ -29,7 +29,7 @@ class _OptionPaymentScreenState extends State<OptionPaymentScreen> {
           packageList = json;
     });
 
-    log(packageList.toString());
+    //(packageList.toString());
   }
 
   @override
@@ -138,12 +138,12 @@ class _OptionPaymentScreenState extends State<OptionPaymentScreen> {
                   //itemCount: packages.length,
                   itemCount: packageList.length,
                   itemBuilder: (context, index) {
-                    //bool isSelected = index == selectedPackageIndex;
+                    bool isSelected = index == selectedPackageIndex;
                     return GestureDetector(
                       onTap: () {
                         setState(() {
                           log(index.toString());
-                          //selectedPackageIndex = index;
+                          selectedPackageIndex = index;
                           pickyet = !pickyet;
                           if (pickyet) {
                             selectPackage = packageList[index];
@@ -153,15 +153,15 @@ class _OptionPaymentScreenState extends State<OptionPaymentScreen> {
                         });
                       },
                       child: Card(
-                        //color: isSelected ? Colors.blue : Colors.white,
-                        color: pickyet ? Colors.blue : Colors.white,
+                        color: isSelected ? Colors.blue : Colors.white,
+                        //color: pickyet ? Colors.blue : Colors.white,
                         margin: const EdgeInsets.all(10),
                         child: ListTile(
                           title: Text(
                             packageList[index]["packageName"],
                             style: TextStyle(
                                 //color: isSelected ? Colors.white : Colors.black,
-                                color: pickyet ? Colors.white : Colors.black,
+                                color: isSelected ? Colors.white : Colors.black,
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold),
                           ),
@@ -169,11 +169,11 @@ class _OptionPaymentScreenState extends State<OptionPaymentScreen> {
                             "${packageList[index]["packageDescription"]} - ${packageList[index]["price"]} VND",
                             style: TextStyle(
                               //color: isSelected ? Colors.white70 : Colors.black54,
-                              color: pickyet ? Colors.white70 : Colors.black54,
+                              color: isSelected ? Colors.white70 : Colors.black54,
                               fontSize: 12,
                             ),
                           ),
-                          trailing: pickyet
+                          trailing: isSelected
                               ? const Icon(
                                   Icons.check_circle,
                                   color: Colors.white,

@@ -145,13 +145,6 @@ class _PrescriptDetailsState extends State<PrescriptDetails> {
   void initState() {
     super.initState();
     getPostsData();
-    // controller.addListener(() {
-    //   double value = controller.offset / 119;
-    //   setState(() {
-    //     topContainer = value;
-    //     closeTopContainer = controller.offset > 50;
-    //   });
-    // });
   }
 
   @override
@@ -170,14 +163,6 @@ class _PrescriptDetailsState extends State<PrescriptDetails> {
                     physics: const BouncingScrollPhysics(),
                     itemBuilder: (context, index) {
                       double scale = 1.0;
-                      // if (topContainer > 0.5) {
-                      //   scale = index + 0.5 - topContainer;
-                      //   if (scale < 0) {
-                      //     scale = 0;
-                      //   } else if (scale > 1) {
-                      //     scale = 1;
-                      //   }
-                      // }
                       return Opacity(
                         opacity: scale,
                         child: Transform(

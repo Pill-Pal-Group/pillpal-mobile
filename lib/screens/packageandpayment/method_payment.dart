@@ -2,12 +2,12 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_zalopay_sdk/flutter_zalopay_sdk.dart';
 import 'package:pillpalmobile/constants.dart';
 import 'package:http/http.dart' as http;
 import 'package:pillpalmobile/screens/entryPoint/entry_point.dart';
-import 'package:url_launcher/url_launcher.dart';
+
 
 class MethodPaymentScreen extends StatefulWidget {
   final dynamic thePackagePick;
@@ -24,20 +24,7 @@ class _MethodPaymentScreenState extends State<MethodPaymentScreen> {
   bool pickyet = false;
   String packageId = "";
   String paymentID = "";
-
-  // void fetchPaymentList() async {
-  //   String url = "https://pp-devtest2.azurewebsites.net/api/payments";
-  //   final uri = Uri.parse(url);
-  //   final respone = await http.get(uri);
-  //   final body = respone.body;
-  //   final json = jsonDecode(body);
-
-  //   setState(() {
-  //     paymentList = json;
-  //   });
-  //   log(paymentList.toString());
-  // }
-
+  String payResult = "ko co gi";
   void postCustomerPackage(String packageID, String paymentID) async {
     final response = await http.post(
       Uri.parse(
@@ -83,23 +70,70 @@ class _MethodPaymentScreenState extends State<MethodPaymentScreen> {
     );
     log(response.statusCode.toString());
     final json = jsonDecode(response.body);
-    launchZaloWithLink(json['paymentUrl']);
+    //launchZaloWithLink(json['paymentUrl']);
+    log("payment test ${json['zp_trans_token']}");
+    appcheck(json['zp_trans_token'],json['customerPackageId']);
     log(json.toString());
   }
 
-  Future<void> launchZaloWithLink(String address) async {
-    Uri googleUrl =
-        Uri.parse(address);
-    if (await canLaunchUrl(googleUrl)) {
-      log("oke123");
-      await launchUrl(googleUrl);
+  void getcomfompayment(String pcId) async {
+    log(pcId);
+    final respone = await http.get(
+      Uri.parse(
+          "https://pp-devtest2.azurewebsites.net/api/payments/packages/payment?customerPackageId=$pcId"),
+      headers: <String, String>{
+        'accept': 'application/json',
+        'Authorization': 'Bearer $tokene',
+        'Content-Type': 'application/json'
+      }
+    );
+    log(respone.statusCode.toString());
+    if (respone.statusCode == 200 || respone.statusCode == 201) {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const EntryPoint(),
+          ),
+        );
+    } else {
+      log("fetchCategory bug ${respone.statusCode}");
     }
   }
+  
+  Future<void> appcheck(String zpToken,String cpId) async {
+    await FlutterZaloPaySdk.payOrder(zpToken: zpToken).then((event) {
+              setState(() {
+                switch (event) {
+                  case FlutterZaloPayStatus.cancelled:
+                    payResult = "User Huỷ Thanh Toán";
+                    log("payment test ${payResult}");
+                    break;
+                  case FlutterZaloPayStatus.success:
+                    payResult = "Thanh toán thành công";
+                    getcomfompayment(cpId);
+                    log("payment test ${payResult}");
+                    break;
+                  case FlutterZaloPayStatus.failed:
+                    payResult = "Thanh toán thất bại";
+                    //getcomfompayment(cpId);
+                    log("payment test ${payResult}");
+                    break;
+                  default:
+                    payResult = "Thanh toán thất bại";
+                    //getcomfompayment(cpId);
+                    log("payment test 2 ${payResult}");
+                    break;
+                }
+              });
+            });
+  }
+
+  
 
 
   @override
   void initState() {
-    //fetchPaymentList();
+    log(widget.thePackagePick['id']);
     super.initState();
   }
 
@@ -120,6 +154,74 @@ class _MethodPaymentScreenState extends State<MethodPaymentScreen> {
                 // const SizedBox(
                 //   height: 40,
                 // ),
+                GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            //selectedPackageIndex = index;
+                            pickyet = !pickyet;
+                          });
+                        },
+                        child: 
+                        Container(
+                          width: double.maxFinite,
+                          height: 55,
+                          decoration: BoxDecoration(
+                            border: pickyet
+                                ? Border.all(
+                                    width: 1, color: const Color(0xFFDB3022))
+                                : Border.all(width: 0.3, color: Colors.grey),
+                            borderRadius: BorderRadius.circular(5),
+                            color: Colors.transparent,
+                          ),
+                          child: Center(
+                            child: Padding(
+                              padding: const EdgeInsets.only(right: 20),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      // Radio(
+                                      //   value: 1,
+                                      //   groupValue: _type,
+                                      //   onChanged: pickyet,
+                                      //   activeColor: const Color(0xFFDB3022),
+                                      // ),
+                                      Padding(
+                                        padding: const EdgeInsets.all(10.0),
+                                        child: Text('ZaloPay',
+                                            style: pickyet
+                                                ? const TextStyle(
+                                                    fontSize: 15,
+                                                    fontWeight: FontWeight.w500,
+                                                    color: Color(0xFFDB3022))
+                                                : const TextStyle(
+                                                    fontSize: 15,
+                                                    fontWeight: FontWeight.w500,
+                                                    color: Colors.grey)),
+                                      ),
+                                    ],
+                                  ),
+                                  Image.network(
+                                    'https://haitrieu.com/wp-content/uploads/2022/10/Logo-ZaloPay-Square.png',
+                                    fit: BoxFit.fitHeight, //url,
+                                    errorBuilder: (BuildContext context,
+                                        Object exception,
+                                        StackTrace? stackTrace) {
+                                      return Image.asset(
+                                          "assets/picture/wsa.jpg");
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                 Expanded(
                   child: ListView.builder(
                     //itemCount: packages.length,
@@ -140,7 +242,8 @@ class _MethodPaymentScreenState extends State<MethodPaymentScreen> {
                             }
                           });
                         },
-                        child: Container(
+                        child: 
+                        Container(
                           width: double.maxFinite,
                           height: 55,
                           decoration: BoxDecoration(
@@ -213,7 +316,7 @@ class _MethodPaymentScreenState extends State<MethodPaymentScreen> {
                   child: ElevatedButton(
                     onPressed: () {
                       //log("oke ${packageId} + ${paymentID}");
-                      //postPaymentToVNpay(widget.thePackagePick['id']);
+                      postPaymentToVNpay(widget.thePackagePick['id']);
                       //paymentConform(true, packageId, paymentID);
                     },
                     child: const Text('Chốt đơn'),

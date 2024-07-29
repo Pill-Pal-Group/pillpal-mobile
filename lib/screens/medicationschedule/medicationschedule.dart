@@ -14,6 +14,7 @@ import 'package:pillpalmobile/screens/medicationschedule/mscomponents/msbutton.d
 import 'package:pillpalmobile/screens/medicationschedule/mscomponents/notification_services.dart';
 import 'package:pillpalmobile/screens/medicationschedule/mscomponents/theme_services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:pillpalmobile/services/auth/package_check.dart';
 import 'package:pillpalmobile/services/ocr/Screen/recognization_page.dart';
 import 'package:pillpalmobile/services/ocr/Utils/image_cropper_page.dart';
 import 'package:pillpalmobile/services/ocr/Utils/image_picker_class.dart';
@@ -53,12 +54,10 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
       final json = jsonDecode(respone.body);
       ui = json;
       fetchPrescripts(ui['customerCode']);
+      log("fecthUserInfor Success CustomerCode: ${ui['customerCode']}");
     } else {
-      log("fecthUserInfor bug");
+      log("fecthUserInfor bug ${respone.statusCode}");
     }
-
-    //log(ui['customerCode']);
-    //log(ui.toString());
   }
 
   void fetchPrescripts(String customerID) async {
@@ -71,43 +70,40 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
         'Authorization': 'Bearer ${UserInfomation.accessToken}',
       },
     );
+    final json = jsonDecode(respone.body);
     if (respone.statusCode == 200 || respone.statusCode == 201) {
-      final json = jsonDecode(respone.body);
-
+      log("fetchPrescripts success: ${json.toString()} ");
       prescriptsList = json;
-
       for (var e in prescriptsList) {
+        log("fetchPrescripts success idPr: ${e['id']} ");
         fetchMedicineIntake(e['id'], today);
       }
     } else {
       log("fetchPrescripts bug");
     }
-
-    //log(medicinesInTake.toString());
   }
 
   void fetchMedicineIntake(String idpr, DateTime todayy) async {
     var outputFormat = DateFormat('yyyy-MM-dd');
     var outputDate2 = outputFormat.format(todayy);
-    log("fetchMedicineIntake bug ${outputDate2}");
-    log("fetchMedicineIntake bug ${idpr}");
     String url =
-        "https://pp-devtest2.azurewebsites.net/api/medication-intakes/$idpr?dateTake=$outputDate2";
+        "https://pp-devtest2.azurewebsites.net/api/medication-intakes/prescripts/$idpr?dateTake=$outputDate2";
     final uri = Uri.parse(url);
     final respone = await http.get(
       uri,
       headers: <String, String>{
+        'accept': 'application/json',
         'Authorization': 'Bearer ${UserInfomation.accessToken}',
       },
     );
-    //log("fetchMedicineIntake bug ${respone.statusCode}");
+    final json = jsonDecode(respone.body);
     if (respone.statusCode == 200 || respone.statusCode == 201) {
-      final json = jsonDecode(respone.body);
-      //setState(() {
+      log("fetchMedicineIntake success idPr: $idpr at Date $todayy");
       medicinesInTake = json;
-      //});
       takeJTD();
-    } else {}
+    } else {
+      log("fetchMedicineIntake bug ${respone.statusCode}");
+    }
   }
 
   void takeJTD() {
@@ -116,13 +112,11 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
     for (var element in medicinesInTake) {
       tmp = element['medicationTakes'];
     }
-    //setState(() {
     for (var element in tmp) {
       mInTake.add(element);
     }
-    //});
     getPostsData();
-    log(mInTake.toString());
+    log("Done Load Medicine InTake: ${mInTake.toString()}");
   }
 
   void getPostsData() {
@@ -190,20 +184,19 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
         ),
       );
     });
-    setState(() {
-      itemsData = listItems;
-    });
+    itemsData = listItems;
   }
 
   @override
   void initState() {
+    fetchpackageCheck();
     super.initState();
     mInTake = [];
     notifyHelper = NotifyHelper();
     notifyHelper.initializeNotification();
     notifyHelper.requestIOSPermissions();
     fecthUserInfor();
-    getPostsData();
+    //getPostsData();
     controller.addListener(() {
       double value = controller.offset / 119;
 
@@ -289,7 +282,7 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
         width: 80,
         initialSelectedDate: DateTime.now(),
         selectedTextColor: Colors.white,
-        selectionColor: primaryClr,
+        selectionColor: Colors.cyan.shade200,
         dateTextStyle: GoogleFonts.lato(
             textStyle: const TextStyle(
                 fontSize: 20, fontWeight: FontWeight.w600, color: Colors.grey)),
@@ -405,9 +398,8 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
                   }),
           MsButton(
               lable: "Tạo Lịch",
-              onTap: () =>
-                  Get.to(() => const AddTaskScreen())),
-                  //Get.to(() => const TermofService2())),
+              onTap: () => Get.to(() => const AddTaskScreen())),
+          //Get.to(() => const TermofService2())),
         ],
       ),
     );
@@ -420,10 +412,6 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
       //leading: ,
 
       actions: [
-        // CircleAvatar(
-        //   backgroundImage: AssetImage(LinkImages.tempAvatar),
-        // ),
-        // SizedBox(width: 20)
         GestureDetector(
           onTap: () {
             log("oke");

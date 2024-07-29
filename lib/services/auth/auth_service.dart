@@ -1,7 +1,5 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'dart:io';
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get/get.dart';
@@ -40,22 +38,22 @@ Future<void> signInWithGoogle() async {
       }),
     );
     final json = jsonDecode(response.body);
-    //get
-    // FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance; // Change here
-    // _firebaseMessaging.getToken().then((token){
-    // log("token is $token");
-    // });
-    //_getId();
 
     UserInfomation.loginuser = tokenResult;
     UserInfomation.accessToken = json['accessToken'];
-    log(json['accessToken']);
+    log("accessToken ${UserInfomation.accessToken}");
     UserInfomation.refreshToken = json['refreshToken'];
-    //log(json['refreshToken']);
+    log("refreshToken ${UserInfomation.refreshToken}");
     UserInfomation.tokenType = json['tokenType'];
-    //log(json['tokenType']);
     UserInfomation.countTIme = json['expiresIn'];
-    //log(json['expiresIn'].toString());
+
+    //post divicetoken
+    FirebaseMessaging firebaseMessaging =
+        FirebaseMessaging.instance; // Change here
+    firebaseMessaging.getToken().then((token) {
+      diviceTokenPut(token, UserInfomation.accessToken);
+    });
+
     if (!userNow.additionalUserInfo!.isNewUser) {
       Get.to(() => const EntryPoint());
     } else {
@@ -68,40 +66,55 @@ Future<void> signInWithGoogle() async {
   }
 }
 
-// Future<void> _getId() async {
-//   var deviceInfo = DeviceInfoPlugin();
-//   if (Platform.isIOS) { // import 'dart:io'
-//     var iosDeviceInfo = await deviceInfo.iosInfo;
-//     log(iosDeviceInfo.toString());
-//   } else if(Platform.isAndroid) {
-//     var androidDeviceInfo = await deviceInfo.androidInfo;
-//     log("Day ne ${androidDeviceInfo.toString()}"); // unique ID on Android
-//   }
-// }
+Future<void> diviceTokenPut(String? token, String accessToken) async {
+  final response = await http.put(
+    Uri.parse(
+        "https://pp-devtest2.azurewebsites.net/api/customers/device-token"),
+    headers: <String, String>{
+      'accept': '*/*',
+      'Authorization': 'Bearer $accessToken',
+      'Content-Type': 'application/json',
+    },
+    body: jsonEncode(<String, dynamic>{
+      'deviceToken': '$token',
+    }),
+  );
+  if (response.statusCode == 200 ||
+      response.statusCode == 201 ||
+      response.statusCode == 204) {
+    log("diviceTokenPost success ${response.statusCode}");
+  } else {
+    log("diviceTokenPost bug ${response.statusCode}");
+  }
+}
 
-Future<void>  checklogin() async{
+Future<void> checklogin() async {
   final tokenResult = FirebaseAuth.instance.currentUser;
-    final idToken = await tokenResult!.getIdToken();
-    final token = idToken.toString();
+  final idToken = await tokenResult!.getIdToken();
+  final token = idToken.toString();
 
-    final response = await http.post(
-      Uri.parse("https://pp-devtest2.azurewebsites.net/api/auths/token-login"),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(<String, dynamic>{
-        'token': token,
-      }),
-    );
-    final json = jsonDecode(response.body);
-
+  final response = await http.post(
+    Uri.parse("https://pp-devtest2.azurewebsites.net/api/auths/token-login"),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(<String, dynamic>{
+      'token': token,
+    }),
+  );
+  final json = jsonDecode(response.body);
+  if (response.statusCode == 200 ||
+      response.statusCode == 201 ||
+      response.statusCode == 204) {
     UserInfomation.loginuser = tokenResult;
     UserInfomation.accessToken = json['accessToken'];
-    //log(json['accessToken']);
     UserInfomation.refreshToken = json['refreshToken'];
-    //log(json['refreshToken']);
     UserInfomation.tokenType = json['tokenType'];
-    //log(json['tokenType']);
     UserInfomation.countTIme = json['expiresIn'];
+    log("checklogin success ${response.statusCode}");
     Get.to(() => const EntryPoint());
+  } else {
+    log("checklogin bug ${response.statusCode}");
+    Get.to(() => const OnbodingScreen());
+  }
 }

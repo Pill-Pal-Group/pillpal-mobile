@@ -34,14 +34,12 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   final TextEditingController _totalNumCtrl = TextEditingController();
   String tokene = UserInfomation.accessToken;
   DateTime nowTime = DateTime.now();
-  String _starTIme = DateFormat("hh:mm:a").format(DateTime.now()).toString();
-  //int _selectedRemider = 10;
+  String _starTimes = DateFormat("hh:mm:a").format(DateTime.now()).toString();
+  String _starTImetr = DateFormat("hh:mm:a").format(DateTime.now()).toString();
+  String _starTImec = DateFormat("hh:mm:a").format(DateTime.now()).toString();
+  String _starTImet = DateFormat("hh:mm:a").format(DateTime.now()).toString();
   List<int> remindList = [10, 15, 20, 30];
-
-  //String _selectedRepeat = "Không nhắc lại";
   List<String> repeatList = ["Aftermeal", "Mỗi ngày"];
-
-  int _seletedColor = 0;
   //hamf
   @override
   void dispose() {
@@ -64,7 +62,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
             int.parse(_tNumCtrl.text));
     var outputFormat = DateFormat('yyyy-MM-dd');
     var outputDate1 =
-        outputFormat.format(nowTime.subtract(const Duration(days: 10)));
+        outputFormat.format(nowTime.subtract(const Duration(days: 1)));
     var outputDate2 = outputFormat.format(nowTime);
     var outputDate3 = outputFormat.format(nowTime.add(Duration(days: day2)));
     final response = await http.post(
@@ -95,69 +93,43 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         ]
       }),
     );
-    log(response.statusCode.toString());
     final json = jsonDecode(response.body);
-    genMediceneIntake(json['id']);
-    log(json.toString());
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      log("pushMedicine Sussecc ${json['prescriptDetails'][0]['id']}");
+
+      genMediceneIntake(day2,nowTime,json['prescriptDetails'][0]['id']);
+    } else {
+      log("pushMedicine bug ${response.statusCode}");
+    }
   }
 
-  void genMediceneIntake(String pID) async {
-    final response = await http.post(
-      Uri.parse(
-          "https://pp-devtest2.azurewebsites.net/api/medication-intakes/$pID"),
-      headers: <String, String>{
-        'Authorization': 'Bearer $tokene',
-      },
-    );
-    final json = jsonDecode(response.body);
-    log(json.toString());
-  }
-
-
-  void pushMedicine2() async {
+  void genMediceneIntake(int totalday, DateTime dateStarAdd, String id) {
     var outputFormat = DateFormat('yyyy-MM-dd');
-    var outputDate1 =
-        outputFormat.format(nowTime.subtract(const Duration(days: 1)));
-    var outputDate2 = outputFormat.format(nowTime);
-    var outputDate3 = outputFormat.format(nowTime.add(Duration(days: 1)));
-    final response = await http.post(
-      Uri.parse("https://pp-devtest2.azurewebsites.net/api/prescripts"),
-      headers: <String, String>{
-        'accept': 'application/json',
-        'Authorization': 'Bearer $tokene',
-        'Content-Type': 'application/json'
-      },
-      body: jsonEncode(<String, dynamic>{
-        "prescriptImage":
-            "https://crazydiscostu.wordpress.com/wp-content/uploads/2023/11/history-of-the-rickroll.jpg",
-        "receptionDate": outputDate1,
-        "doctorName": "No",
-        "hospitalName": "No",
-        "prescriptDetails": [
-          {
-            "medicineName": _titleCtrl.text.toString(),
-            "dateStart": outputDate2,
-            "dateEnd": outputDate3,
-            "totalDose": int.parse(_sNumCtrl.text)+int.parse(_trNumCtrl.text)+int.parse(_cNumCtrl.text)+int.parse(_tNumCtrl.text),
-            "morningDose": int.parse(_sNumCtrl.text),
-            "noonDose": int.parse(_trNumCtrl.text),
-            "afternoonDose": int.parse(_cNumCtrl.text),
-            "nightDose": int.parse(_tNumCtrl.text),
-            "dosageInstruction": "Aftermeal"
-          }
-        ]
-      }),
-    );
-    log(response.statusCode.toString());
-    final json = jsonDecode(response.body);
-    //genMediceneIntake2(outputDate2,_starTIme,);
-    log(json.toString());
+    for (var i = 0; i < totalday; i++) {
+      var dateTake = outputFormat.format(nowTime.add(Duration(days: i)));
+      if (int.parse(_sNumCtrl.text) > 0) {
+        postMediceneIntake(dateTake, _starTimes, int.parse(_sNumCtrl.text), id);
+      }
+      if (int.parse(_trNumCtrl.text) > 0) {
+        postMediceneIntake(dateTake, _starTImetr, int.parse(_trNumCtrl.text), id);
+      }
+      if (int.parse(_cNumCtrl.text) > 0) {
+        postMediceneIntake(dateTake, _starTImec, int.parse(_cNumCtrl.text), id);
+      }
+      if (int.parse(_tNumCtrl.text) > 0) {
+        postMediceneIntake(dateTake, _starTImetr, int.parse(_tNumCtrl.text), id);
+      }
+    }
   }
 
-  void genMediceneIntake2(
+  void postMediceneIntake(
       String dateTake, String timeTake, int dose, String id) async {
+        log("postMediceneIntake debug $dateTake");
+        log("postMediceneIntake debug $timeTake");
+        log("postMediceneIntake debug $dose");
+        log("postMediceneIntake debug $id");
     final response = await http.post(
-      Uri.parse(""),
+      Uri.parse("https://pp-devtest2.azurewebsites.net/api/medication-intakes"),
       headers: <String, String>{
         'accept': 'application/json',
         'Authorization': 'Bearer $tokene',
@@ -170,8 +142,12 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         "prescriptDetailId": id
       }),
     );
-    final json = jsonDecode(response.body);
-    log(json.toString());
+    log("postMediceneIntake debug ${response.body}");
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      log("postMediceneIntake Sussecc ${response.statusCode}");
+    } else {
+      log("postMediceneIntake bug ${response.statusCode}");
+    }
   }
 
   @override
@@ -258,7 +234,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                       ),
                     ),
                     SizedBox(
-                      width: 12,
+                      width: 5,
                     ),
                     Expanded(
                       child: MsInputFeild(
@@ -269,7 +245,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                       ),
                     ),
                     SizedBox(
-                      width: 12,
+                      width: 5,
                     ),
                     Expanded(
                       child: MsInputFeild(
@@ -280,7 +256,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                       ),
                     ),
                     SizedBox(
-                      width: 12,
+                      width: 5,
                     ),
                     Expanded(
                       child: MsInputFeild(
@@ -292,88 +268,87 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                     ),
                   ],
                 ),
-                MsInputFeild(
-                  type: TextInputType.datetime,
-                  tittle: "Giờ uống thuốc",
-                  hint: _starTIme,
-                  widget: IconButton(
-                    onPressed: () {
-                      _getSTimeFromUser(isStarTime: true);
-                    },
-                    icon: Icon(
-                      Icons.access_time_rounded,
-                      color: Colors.grey,
+                Row(
+                  children: [
+                    Expanded(
+                      child: MsInputFeild(
+                      type: TextInputType.datetime,
+                      tittle: "Giờ Sáng",
+                      hint: _starTimes,
+                      widget: IconButton(
+                        onPressed: () {
+                          _getSTimeFromUser(1);
+                        },
+                        icon: Icon(
+                          Icons.access_time_rounded,
+                          color: Colors.grey,
+                        ),
+                      ),
                     ),
-                  ),
+                    ),
+                    SizedBox(
+                      width: 5,
+                    ),
+                    Expanded(
+                      child: MsInputFeild(
+                      type: TextInputType.datetime,
+                      tittle: "Giờ Trưa",
+                      hint: _starTImetr,
+                      widget: IconButton(
+                        onPressed: () {
+                          _getSTimeFromUser(2);
+                        },
+                        icon: Icon(
+                          Icons.access_time_rounded,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ),
+                    ),
+                    SizedBox(
+                      width: 5,
+                    ),
+                  ],
                 ),
-                //gio
-                // Row(
-                //   children: [
-                //     //time bat dau
-                //     Expanded(
-                //         child: MsInputFeild(
-                //       tittle: "Giờ uống thuốc",
-                //       hint: _starTIme,
-                //       widget: IconButton(
-                //         onPressed: () {
-                //           _getSTimeFromUser(isStarTime: true);
-                //         },
-                //         icon: Icon(
-                //           Icons.access_time_rounded,
-                //           color: Colors.grey,
-                //         ),
-                //       ),
-                //     )
-                //     ),
-                //     // SizedBox(
-                //     //   width: 12,
-                //     // ),
-                //     //time end
-                //     // Expanded(
-                //     //     child: MsInputFeild(
-                //     //   tittle: "End time",
-                //     //   hint: _endtime,
-                //     //   widget: IconButton(
-                //     //     onPressed: () {
-                //     //       _getSTimeFromUser(isStarTime: false);
-                //     //     },
-                //     //     icon: Icon(
-                //     //       Icons.access_time_rounded,
-                //     //       color: Colors.grey,
-                //     //     ),
-                //     //   ),
-                //     // )),
-                //   ],
-                // ),
-                // bao truoc bao nhieu phut
-                // MsInputFeild(
-                //   tittle: 'Nhắc trước:',
-                //   hint: "Nhắc trước $_selectedRemider phút",
-                //   widget: DropdownButton(
-                //     icon: Icon(
-                //       Icons.keyboard_arrow_down,
-                //       color: Colors.grey,
-                //     ),
-                //     iconSize: 32,
-                //     elevation: 4,
-                //     style: subtitlestyle,
-                //     underline: Container(
-                //       height: 0,
-                //     ),
-                //     items: remindList.map<DropdownMenuItem<String>>((int value) {
-                //       return DropdownMenuItem<String>(
-                //         value: value.toString(),
-                //         child: Text(value.toString()),
-                //       );
-                //     }).toList(),
-                //     onChanged: (String? newValue) {
-                //       setState(() {
-                //         _selectedRemider = int.parse(newValue!);
-                //       });
-                //     },
-                //   ),
-                // ),
-                //lap laij ra sao
+                Row(
+                  children: [
+                    Expanded(
+                      child: MsInputFeild(
+                      type: TextInputType.datetime,
+                      tittle: "Giờ Chiều",
+                      hint: _starTImec,
+                      widget: IconButton(
+                        onPressed: () {
+                          _getSTimeFromUser(3);
+                        },
+                        icon: Icon(
+                          Icons.access_time_rounded,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ),
+                    ),
+                    SizedBox(
+                      width: 5,
+                    ),
+                    Expanded(
+                      child: MsInputFeild(
+                      type: TextInputType.datetime,
+                      tittle: "Giờ tối",
+                      hint: _starTImet,
+                      widget: IconButton(
+                        onPressed: () {
+                          _getSTimeFromUser(4);
+                        },
+                        icon: Icon(
+                          Icons.access_time_rounded,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ),
+                    ),
+                  ],
+                ),
                 ///test
                 SizedBox(
                   height: 20,
@@ -384,7 +359,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                   children: [
                     //_colorChose(),
                     MsButton(
-                      lable: 'Chốt đơn',
+                      lable: 'Thêm',
                       onTap: () => {_validateDate()},
                     )
                   ],
@@ -412,17 +387,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       if (_tNumCtrl.text.isEmpty) {
         _tNumCtrl.text = "0";
       }
-
-      log(_titleCtrl.text.toString());
-      log(_noteCtrl.text.toString());
-      log(_sNumCtrl.text.toString());
-      log(_trNumCtrl.text.toString());
-      log(_cNumCtrl.text.toString());
-      log(_tNumCtrl.text.toString());
-      log(_totalNumCtrl.text.toString());
-      log("${nowTime.year}-0${nowTime.month - 1}-0${nowTime.day}");
-      log("${nowTime.year}-0${nowTime.month}-0${nowTime.day}");
-      log("${nowTime.year}-0${nowTime.month}-0${nowTime.day + 2}");
       pushMedicine();
       Get.back();
     } else if (_titleCtrl.text.isEmpty || _noteCtrl.text.isEmpty) {
@@ -444,24 +408,38 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     if (_pickedDate != null) {
       setState(() {
         nowTime = _pickedDate;
-        //log(nowTime.toString());
+        log(nowTime.toString());
       });
     } else {
       log("something not right at time picker");
     }
   }
 
-  _getSTimeFromUser({required bool isStarTime}) async {
+  _getSTimeFromUser(int numb) async {
     var pickedTime = await _showTimepicker();
-    String _formatedTime = pickedTime.format(context);
+    // ignore: use_build_context_synchronously
+    String formatedTime = pickedTime.format(context);
     if (pickedTime == null) {
       log("time cancel");
-    } else if (isStarTime == true) {
-      setState(() {
-        _starTIme = _formatedTime;
-      });
-    } else if (isStarTime == false) {
-      setState(() {});
+    } else {
+      switch (numb) {
+        case 1:
+          _starTimes = formatedTime;
+          log("Time pick s: $_starTimes");
+          break;
+        case 2:
+          _starTImetr = formatedTime;
+          log("Time pick tr: $_starTImetr");
+          break;
+        case 3:
+          _starTImec = formatedTime;
+          log("Time pick c: $_starTImec");
+
+        case 4:
+          _starTImet = formatedTime;
+          log("Time pick t: $_starTImet");
+          break;
+      }
     }
   }
 
@@ -471,46 +449,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       context: context,
       initialTime:
           TimeOfDay(hour: DateTime.now().hour, minute: DateTime.now().minute),
-    );
-  }
-
-  _colorChose() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "Some Shit",
-          style: headingstyle,
-        ),
-        SizedBox(
-          height: 8,
-        ),
-        Wrap(
-          children: List<Widget>.generate(3, (int index) {
-            return GestureDetector(
-              onTap: () {
-                setState(() {
-                  _seletedColor = index;
-                });
-              },
-              child: Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: CircleAvatar(
-                  radius: 14,
-                  backgroundColor: Colors.grey,
-                  child: _seletedColor == index
-                      ? Icon(
-                          Icons.done,
-                          color: Colors.white,
-                          size: 16,
-                        )
-                      : Container(),
-                ),
-              ),
-            );
-          }),
-        )
-      ],
     );
   }
 }

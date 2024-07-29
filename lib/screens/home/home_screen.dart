@@ -19,7 +19,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List<dynamic> thePrescriptsList = [];
-  List<dynamic> medList = [];
+  //List<dynamic> medList = [];
   ScrollController controller = ScrollController();
   bool closeTopContainer = false;
   double topContainer = 0;
@@ -42,17 +42,20 @@ class _HomePageState extends State<HomePage> {
         'Authorization': 'Bearer ${UserInfomation.accessToken}',
       },
     );
-    final body = respone.body;
-    final json = jsonDecode(body);
 
-    thePrescriptsList = json;
-    getPostsData();
-
-    for (var element in thePrescriptsList) {
-      medList.add(element['prescriptDetails']);
+    if (respone.statusCode == 200 || respone.statusCode == 201) {
+      setState(() {
+        final json = jsonDecode(respone.body);
+        thePrescriptsList = json;
+        getPostsData();
+        log("fetchPrescripts success ${respone.statusCode}");
+        // for (var element in thePrescriptsList) {
+        //   medList.add(element['prescriptDetails']);
+        // }
+      });
+    } else {
+      log("fetchPrescripts bug ${respone.statusCode}");
     }
-    //log(medList.toString());
-    //log(thePrescriptsList.toString());
   }
 
   void fecthUserInfor() async {
@@ -64,14 +67,16 @@ class _HomePageState extends State<HomePage> {
         'Authorization': 'Bearer ${UserInfomation.accessToken}',
       },
     );
-    final body = respone.body;
-    final json = jsonDecode(body);
+    if (respone.statusCode == 200 || respone.statusCode == 201) {
 
-    ui = json;
-    //log(ui['customerCode']);
-    fetchPrescripts(ui['customerCode']);
+        final json = jsonDecode(respone.body);
+        ui = json;
+        fetchPrescripts(ui['customerCode']);
+        log("fecthUserInfor success ${respone.statusCode}");
 
-    //log(ui.toString());
+    } else {
+      log("fecthUserInfor bug ${respone.statusCode}");
+    }
   }
 
   void getPostsData() {
@@ -148,11 +153,12 @@ class _HomePageState extends State<HomePage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => PrescriptDetails(pdList: post['prescriptDetails'],),
+                  builder: (context) => PrescriptDetails(
+                    pdList: post['prescriptDetails'],
+                  ),
                 ),
               );
-            }
-            ),
+            }),
       );
     });
     setState(() {

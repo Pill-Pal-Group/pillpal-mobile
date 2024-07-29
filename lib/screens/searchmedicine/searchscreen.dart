@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -10,6 +11,7 @@ import 'package:pillpalmobile/screens/searchmedicine/smcomponents/medicenedetail
 import 'package:pillpalmobile/screens/searchmedicine/smcomponents/product_widget.dart';
 import 'package:pillpalmobile/screens/searchmedicine/smcomponents/utils.dart';
 import 'package:http/http.dart' as http;
+import 'package:pillpalmobile/services/auth/package_check.dart';
 
 class SearchScreen extends StatefulWidget {
   final String? medname;
@@ -28,15 +30,16 @@ class _SearchScreenState extends State<SearchScreen> {
   var categoryChoiseList;
   bool pickCategory = false;
   final TextEditingController _titleCtrl2 = TextEditingController();
+  final TextEditingController _categoryNameCtrl = TextEditingController();
   bool isSelected = false;
   int numberOfPage = 0;
   int onPage = 1;
   ScrollController controllerList = ScrollController();
   String test = "2";
   //api call
-  void fetchMedicine(String okene, int numBer) async {
+  void fetchMedicine(String medicineName, int pageNumBer,String categoryName) async {
     String url =
-        "https://pp-devtest2.azurewebsites.net/api/medicines?MedicineName=$okene&Page=$numBer&PageSize=10&IncludeCategories=true&IncludeSpecifications=true&IncludePharmaceuticalCompanies=true&IncludeDosageForms=true&IncludeActiveIngredients=true&IncludeBrands=true";
+        "https://pp-devtest2.azurewebsites.net/api/medicines?MedicineName=$medicineName&Category=$categoryName&Page=$pageNumBer&PageSize=10&IncludeCategories=true&IncludeSpecifications=true&IncludePharmaceuticalCompanies=true&IncludeDosageForms=true&IncludeActiveIngredients=true&IncludeBrands=true";
     final uri = Uri.parse(url);
     final respone = await http.get(
       uri,
@@ -57,7 +60,7 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   void fetchCategory() async {
-    String url = "https://pp-devtest2.azurewebsites.net/api/categories?Page=1";
+    String url = "https://pp-devtest2.azurewebsites.net/api/categories?Page=1&PageSize=10";
     final uri = Uri.parse(url);
     final respone = await http.get(
       uri,
@@ -67,36 +70,22 @@ class _SearchScreenState extends State<SearchScreen> {
     );
 
     if (respone.statusCode == 200 || respone.statusCode == 201) {
-      setState(() {
         final json = jsonDecode(respone.body);
         categoryList = json['data'];
-      });
-      //log(categoryList.toString());
+      log("fetchCategory Sussecc ${json['data']}");
     } else {
       log("fetchCategory bug ${respone.statusCode}");
     }
   }
 
-  void filterByCategoryName(String categoryName) {
-    for (var e in medicines) {
-      for (var x in e['categories']) {
-        if (x['categoryName'] == categoryName) {
-          medicineListFillted.add(e);
-        }
-      }
-    }
-    setState(() {
-      medicines = medicineListFillted;
-    });
-    //log(medicines.toString());
-  }
-
   @override
   void initState() {
     super.initState();
+    fetchpackageCheck();
     _titleCtrl2.text = widget.medname ?? "";
+    _categoryNameCtrl.text = "";
     fetchCategory();
-    fetchMedicine(_titleCtrl2.text, 1);
+    fetchMedicine(_titleCtrl2.text, 1,_categoryNameCtrl.text);
   }
 
   //api call
@@ -110,38 +99,30 @@ class _SearchScreenState extends State<SearchScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // lời mở
-              RichText(
-                text: const TextSpan(
-                  children: [
-                    TextSpan(
-                      text: "     Hỗ trợ tìm Thuốc\n",
-                      style: TextStyle(
-                        fontSize: 30,
-                        color: Colors.black87,
-                        fontWeight: FontWeight.w400,
-                      ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Expanded(
+                    flex: 4,
+                    child: FadeInUp(
+                      duration: const Duration(milliseconds: 1200),
+                      child: const Text('Việc gì khó \nCó PillPal lo',
+                          style: TextStyle(
+                              fontSize: 25,
+                              fontWeight: FontWeight.bold,
+                              color: Color.fromRGBO(97, 90, 90, 1))),
                     ),
-                    TextSpan(
-                      text: "     Với ",
-                      style: TextStyle(
-                        fontSize: 30,
-                        color: Colors.black87,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                    TextSpan(
-                      text: " PillPal",
-                      style: TextStyle(
-                        fontSize: 35,
-                        color: Colors.black87,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    )
-                  ],
-                ),
+                  ),
+                  Expanded(
+                    flex: 3,
+                    child: FadeInUp(
+                        duration: const Duration(milliseconds: 1300),
+                        child: Image.asset('assets/picture/wsa.jpg')),
+                  ),
+                ],
               ),
-              const SizedBox(height: 30),
+              const SizedBox(height: 20),
               // Thanh search
               Row(
                 children: [
@@ -159,7 +140,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         IconButton(
                           onPressed: () => {
                             //log(_titleCtrl2.text),
-                            fetchMedicine(_titleCtrl2.text, 1),
+                            fetchMedicine(_titleCtrl2.text, 1,_categoryNameCtrl.text),
                           },
                           icon: const Icon(
                             FontAwesomeIcons.magnifyingGlass,
@@ -178,7 +159,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             style: subtitlestyle,
                             onChanged: (value) => {
                               //log(value),
-                              fetchMedicine(value, 1)
+                              fetchMedicine(value, 1,_categoryNameCtrl.text)
                             },
                             decoration: InputDecoration(
                                 hintText: "Nhập tên thuốc?",
@@ -206,7 +187,8 @@ class _SearchScreenState extends State<SearchScreen> {
                       color: kPrimaryColor,
                     ),
                     child: IconButton(
-                      onPressed: () => {log("something here add this button line")},
+                      onPressed: () =>
+                          {log("something here add this button line")},
                       icon: const Icon(
                         FontAwesomeIcons.filter,
                         color: Colors.white,
@@ -240,16 +222,15 @@ class _SearchScreenState extends State<SearchScreen> {
                                           onSelected: (bool selected) {
                                             if (selected) {
                                               setState(() {
-                                                categoryChoiseList =
-                                                    categoryList[index];
-                                                filterByCategoryName(
-                                                    categoryList[index]
-                                                        ['categoryName']);
+                                                log(categoryList[index]['categoryName'].toString());
+                                                _categoryNameCtrl.text =
+                                                    categoryList[index]['categoryName'];
+                                                fetchMedicine(_titleCtrl2.text, 1,_categoryNameCtrl.text);
                                               });
                                             } else {
                                               setState(() {
                                                 categoryChoiseList = null;
-                                                fetchMedicine("", 1);
+                                                fetchMedicine("", 1,"");
                                                 medicineListFillted = [];
                                               });
                                             }
@@ -267,7 +248,7 @@ class _SearchScreenState extends State<SearchScreen> {
                           onPageChange: (index) => {
                             setState(() {
                               controllerList.position.moveTo(0);
-                              fetchMedicine(_titleCtrl2.text, index + 1);
+                              fetchMedicine(_titleCtrl2.text, index + 1,_categoryNameCtrl.text);
                             })
                           },
                         )

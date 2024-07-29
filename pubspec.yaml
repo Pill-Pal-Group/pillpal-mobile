@@ -77,6 +77,9 @@ dependencies:
   number_paginator: ^0.4.1
   firebase_messaging: ^14.9.4
   device_info_plus: ^10.1.0
+  flutter_zalopay_sdk: ^0.1.14
+  page_transition: ^2.1.0
+  animate_do: ^3.3.4
 
 
 
