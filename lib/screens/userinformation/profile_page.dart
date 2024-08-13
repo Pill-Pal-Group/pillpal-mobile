@@ -9,6 +9,7 @@ import 'package:pillpalmobile/screens/userinformation/components/button_widget.d
 import 'package:pillpalmobile/screens/userinformation/components/profile_widget.dart';
 import 'package:pillpalmobile/screens/userinformation/edit_profile_page.dart';
 import 'package:http/http.dart' as http;
+import 'package:pillpalmobile/services/auth/auth_service.dart';
 import 'package:pillpalmobile/services/auth/package_check.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -19,7 +20,6 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  
   var nowInformation;
 
   void fetchCustomerInfor() async {
@@ -31,11 +31,25 @@ class _ProfilePageState extends State<ProfilePage> {
         'Authorization': 'Bearer ${UserInfomation.accessToken}',
       },
     );
-    final json = jsonDecode(respone.body);
-    setState(() {
-      nowInformation = json;
-      
-    });
+
+    if (respone.statusCode == 200 || respone.statusCode == 201) {
+      log("fetchCustomerInfor success ${respone.statusCode}");
+      final json = jsonDecode(respone.body);
+      setState(() {
+        nowInformation = json;
+      });
+    } else if (respone.statusCode == 401) {
+      refreshAccessToken(
+              UserInfomation.accessToken, UserInfomation.refreshToken)
+          .whenComplete(() => fetchCustomerInfor());
+    } else {
+      log("fetchCustomerInfor bug ${respone.statusCode}");
+    }
+  }
+
+  String takerightdateformat(String inputdate){
+  final splitted = inputdate.split('T');
+  return splitted[0];
   }
 
   @override
@@ -51,159 +65,127 @@ class _ProfilePageState extends State<ProfilePage> {
         //app bar
         appBar: buildAppBar(context),
         body: Center(
-          child: nowInformation == null ? const CupertinoActivityIndicator() : ListView(
-            shrinkWrap: true,
-            physics: const BouncingScrollPhysics(),
-            //chuyển qua trang edit
-            children: [
-              ProfileWidget(
-                imagePath: UserInfomation.loginuser!.photoURL.toString(),
-                onClicked: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                        builder: (context) => EditProfilePage(
-                          userName: nowInformation['applicationUser']['userName'] ?? "", 
-                          dob: nowInformation['dob'] ?? "", 
-                          phoneNumber: nowInformation['applicationUser']['phoneNumber']?? "", 
-                          address: nowInformation['address']?? "", 
-                          sTime: nowInformation['breakfastTime']?? "", 
-                          lTime: nowInformation['lunchTime']?? "", 
-                          nTime: nowInformation['dinnerTime']?? "",
-                          )),
-                  );
-                },
-              ),
-              //tên thông tin cơ bản
-              const SizedBox(height: 24),
-              Column(
-                children: [
-                  Text(
-                    UserInfomation.loginuser!.displayName.toString(),
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: 24),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    UserInfomation.loginuser!.email.toString(),
-                    style: const TextStyle(color: Colors.grey),
-                  )
-                ],
-              ),
-              const SizedBox(height: 24),
-              //hiện trang thái đăng ký gói
-              Center(
-                  child: 
-                !UserInfomation.paided ?
-                ButtonWidget(
-                text: 'Nâng cấp tài khoản?',
-                onClicked: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const OptionPaymentScreen(),
-                    ),
-                  );
-                },
-              ) :ButtonWidget(
-                text: "đăng ký ${curentPackage[0]['duration'] ?? "...."} Ngày",
-                onClicked: () {
-                  log("đã đăng ký");
-                },
-              )
-              
-              ),
-              //
-              const SizedBox(height: 24),
-              //thông tin
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 48),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+          child: nowInformation == null
+              ? const CupertinoActivityIndicator()
+              : ListView(
+                  shrinkWrap: true,
+                  physics: const BouncingScrollPhysics(),
+                  //chuyển qua trang edit
                   children: [
-                    //tên
-                    const Text(
-                      'Họ và Tên:',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ProfileWidget(
+                      imagePath: UserInfomation.loginuser!.photoURL.toString(),
+                      onClicked: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                              builder: (context) => EditProfilePage(
+                                    dob: takerightdateformat(nowInformation['dob']),
+                                    phoneNumber: nowInformation['applicationUser']['phoneNumber'] ?? "",
+                                    address: nowInformation['address'] ?? "",
+                                    sTime: nowInformation['breakfastTime'] ?? "",
+                                    trTime: nowInformation['lunchTime'] ?? "",
+                                    cTime: nowInformation['afternoonTime'] ?? "",
+                                    tTime: nowInformation['dinnerTime'] ?? "",
+                                    offtime: nowInformation['mealTimeOffset'] ?? "",
+                                  )),
+                        );
+                      },
                     ),
-                    const SizedBox(height: 5),
-                    Text(
-                      nowInformation['applicationUser']['userName'] ??
-                          'Chưa cập nhật',
-                      style:  TextStyle(fontSize: 16, height: 1.4),
+                    //tên thông tin cơ bản
+                    const SizedBox(height: 24),
+                    Column(
+                      children: [
+                        Text(
+                          UserInfomation.loginuser!.displayName.toString(),
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 24),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          UserInfomation.loginuser!.email.toString(),
+                          style: const TextStyle(color: Colors.grey),
+                        )
+                      ],
                     ),
-                    const Text(
-                      'Email:',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 5),
-                    Text(
-                      nowInformation['applicationUser']['email'] ?? 'Chưa cập nhật',
-                      style: const TextStyle(fontSize: 16, height: 1.4),
-                    ),
-                    const Text(
-                      'Ngày Sinh:',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 5),
-                    Text(
-                      nowInformation['dob'] ?? 'Chưa cập nhật',
-                      style: const TextStyle(fontSize: 16, height: 1.4),
-                    ),
-                    //NTMS
-                    const Text(
-                      'Số Điện Thoại:',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 5),
-                    Text(
-                      nowInformation['applicationUser']['phoneNumber'] ??
-                          'Chưa cập nhật',
-                      style: const TextStyle(fontSize: 16, height: 1.4),
-                    ),
-                    //NTMS
-                    const Text(
-                      'Địa Chỉ:',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 5),
-                    Text(
-                      nowInformation['address'] ?? 'Chưa cập nhật',
-                      style: const TextStyle(fontSize: 16, height: 1.4),
-                    ),
-                    const Text(
-                      'Giờ ăn sáng mặc định:',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 5),
-                    Text(
-                      nowInformation['breakfastTime'] ?? 'Chưa cập nhật',
-                      style: const TextStyle(fontSize: 16, height: 1.4),
-                    ),
-                    const Text(
-                      'Giờ ăn Trưa mặc định:',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 5),
-                    Text(
-                      nowInformation['lunchTime'] ?? 'Chưa cập nhật',
-                      style: const TextStyle(fontSize: 16, height: 1.4),
-                    ),
-                    const Text(
-                      'Giờ ăn Chiều mặc định:',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 5),
-                    Text(
-                      nowInformation['afternoonTime'] ?? 'Chưa cập nhật',
-                      style: const TextStyle(fontSize: 16, height: 1.4),
+                    const SizedBox(height: 24),
+                    //hiện trang thái đăng ký gói
+                    Center(
+                        child: !UserInfomation.paided
+                            ? ButtonWidget(
+                                text: 'Nâng cấp tài khoản?',
+                                onClicked: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const OptionPaymentScreen(),
+                                    ),
+                                  );
+                                },
+                              )
+                            : ButtonWidget(
+                                text:
+                                    "đăng ký ${curentPackage[0]['duration'] ?? "...."} Ngày",
+                                onClicked: () {
+                                  log("đã đăng ký");
+                                },
+                              )),
+                    //
+                    const SizedBox(height: 24),
+                    //thông tin
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          itemProfile('Email', nowInformation['applicationUser']['email'] ??'Chưa cập nhật', CupertinoIcons.mail),
+                          const SizedBox(height: 10),
+                          itemProfile('Ngày Sinh', takerightdateformat(nowInformation['dob']), CupertinoIcons.calendar_circle),
+                          const SizedBox(height: 10),
+                          itemProfile('Số Điện Thoại', nowInformation['applicationUser']['phoneNumber'] ?? 'Chưa cập nhật', CupertinoIcons.phone),
+                          const SizedBox(height: 10),
+                          itemProfile('Địa Chỉ', nowInformation['address'] ?? 'Chưa cập nhật', CupertinoIcons.home),
+                          const SizedBox(height: 10),
+                          itemProfile('Giờ ăn sáng', nowInformation['breakfastTime'] ?? 'Chưa cập nhật', CupertinoIcons.sunrise_fill),
+                          const SizedBox(height: 10),
+                          itemProfile('Giờ ăn Trưa', nowInformation['lunchTime'] ?? 'Chưa cập nhật', CupertinoIcons.sun_max_fill),
+                          const SizedBox(height: 10),
+                          itemProfile('Giờ ăn Chiều', nowInformation['afternoonTime'] ?? 'Chưa cập nhật', CupertinoIcons.sunset_fill),
+                          const SizedBox(height: 10),
+                          itemProfile('Giờ ăn Tối', nowInformation['dinnerTime'] ?? 'Chưa cập nhật', CupertinoIcons.moon_stars_fill),
+                          const SizedBox(height: 10),
+                          itemProfile('Giờ nhắc trước', nowInformation['mealTimeOffset'] ?? 'Chưa cập nhật', CupertinoIcons.clock),
+                          const SizedBox(height: 10),
+                        ],
+                      ),
                     ),
                   ],
                 ),
-              ),
-            ],
-          ),
         ),
       ),
     );
   }
 }
+
+itemProfile(String title, String subtitle, IconData iconData) {
+    return Container(
+      decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: [
+            BoxShadow(
+                offset: Offset(0, 5),
+                color: Colors.deepOrange.withOpacity(.2),
+                spreadRadius: 2,
+                blurRadius: 10
+            )
+          ]
+      ),
+      child: ListTile(
+        title: Text(title),
+        subtitle: Text(subtitle),
+        // leading: Icon(iconData),
+        trailing: Icon(iconData,color: Colors.black),
+        tileColor: Colors.white,
+      ),
+    );
+  }

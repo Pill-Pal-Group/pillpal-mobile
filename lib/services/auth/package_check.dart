@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:http/http.dart' as http;
 import 'package:pillpalmobile/constants.dart';
+import 'package:pillpalmobile/services/auth/auth_service.dart';
 
 bool paided = false;
 var curentPackage = [];
@@ -29,6 +30,8 @@ void fetchpackageCheck() async {
       curentPackage = package;
       log("fetchpackageCheck has data");
     }
+  } else if(respone.statusCode == 401){
+    refreshAccessToken(UserInfomation.accessToken,UserInfomation.refreshToken).whenComplete(() => fetchpackageCheck());
   } else {
     log("fetchpackageCheck Bug ${respone.statusCode}");
   }

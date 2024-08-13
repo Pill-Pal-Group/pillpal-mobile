@@ -1,8 +1,6 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:pillpalmobile/constants.dart';
 
 class TermofService extends StatefulWidget {
   const TermofService({super.key});
@@ -24,7 +22,7 @@ class _TermofServiceState extends State<TermofService> {
     final respone = await http.get(
       uri,
       headers: <String, String>{
-        'Authorization': 'Bearer ${UserInfomation.accessToken}',
+        'accept': 'application/json',
       },
     );
     final json = jsonDecode(respone.body);
@@ -32,8 +30,6 @@ class _TermofServiceState extends State<TermofService> {
     setState(() {
       tosList = json;
     });
-
-    log(tosList.toString());
   }
 
   @override

@@ -11,6 +11,7 @@ import 'package:pillpalmobile/screens/searchmedicine/smcomponents/medicenedetail
 import 'package:pillpalmobile/screens/searchmedicine/smcomponents/product_widget.dart';
 import 'package:pillpalmobile/screens/searchmedicine/smcomponents/utils.dart';
 import 'package:http/http.dart' as http;
+import 'package:pillpalmobile/services/auth/auth_service.dart';
 import 'package:pillpalmobile/services/auth/package_check.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -27,17 +28,19 @@ class _SearchScreenState extends State<SearchScreen> {
   List<dynamic> categoryList = [];
   List<dynamic> medicineListFillted = [];
 
-  var categoryChoiseList;
-  bool pickCategory = false;
+  var categoryChoiseList = null;
+  int? selectedIndex;
+  bool pickyet = false;
+
   final TextEditingController _titleCtrl2 = TextEditingController();
   final TextEditingController _categoryNameCtrl = TextEditingController();
-  bool isSelected = false;
   int numberOfPage = 0;
   int onPage = 1;
   ScrollController controllerList = ScrollController();
-  String test = "2";
   //api call
-  void fetchMedicine(String medicineName, int pageNumBer,String categoryName) async {
+  void fetchMedicine(
+      String medicineName, int pageNumBer, String categoryName) async {
+        //medicineName = 'Thuốc Carhurol 10 BRV điều trị tăng cholesterol máu (3 vỉ x 10 viên)';
     String url =
         "https://pp-devtest2.azurewebsites.net/api/medicines?MedicineName=$medicineName&Category=$categoryName&Page=$pageNumBer&PageSize=10&IncludeCategories=true&IncludeSpecifications=true&IncludePharmaceuticalCompanies=true&IncludeDosageForms=true&IncludeActiveIngredients=true&IncludeBrands=true";
     final uri = Uri.parse(url);
@@ -54,13 +57,19 @@ class _SearchScreenState extends State<SearchScreen> {
         numberOfPage = json['totalPages'];
         medicines = json['data'];
       });
-    } else {
+      log("fetchMedicine Sussecc ${respone.statusCode}");
+    } else if (respone.statusCode == 401) {
+      refreshAccessToken(
+              UserInfomation.accessToken, UserInfomation.refreshToken)
+          .whenComplete(() => fetchMedicine(medicineName,pageNumBer,categoryName));
+    }else {
       log("fetchMedicine bug ${respone.statusCode}");
     }
   }
 
   void fetchCategory() async {
-    String url = "https://pp-devtest2.azurewebsites.net/api/categories?Page=1&PageSize=10";
+    String url =
+        "https://pp-devtest2.azurewebsites.net/api/categories?Page=1&PageSize=100";
     final uri = Uri.parse(url);
     final respone = await http.get(
       uri,
@@ -70,10 +79,14 @@ class _SearchScreenState extends State<SearchScreen> {
     );
 
     if (respone.statusCode == 200 || respone.statusCode == 201) {
-        final json = jsonDecode(respone.body);
-        categoryList = json['data'];
-      log("fetchCategory Sussecc ${json['data']}");
-    } else {
+      final json = jsonDecode(respone.body);
+      categoryList = json['data'];
+      log("fetchCategory Sussecc ${respone.statusCode}");
+    } else if (respone.statusCode == 401) {
+      refreshAccessToken(
+              UserInfomation.accessToken, UserInfomation.refreshToken)
+          .whenComplete(() => fetchCategory());
+    }else {
       log("fetchCategory bug ${respone.statusCode}");
     }
   }
@@ -85,7 +98,7 @@ class _SearchScreenState extends State<SearchScreen> {
     _titleCtrl2.text = widget.medname ?? "";
     _categoryNameCtrl.text = "";
     fetchCategory();
-    fetchMedicine(_titleCtrl2.text, 1,_categoryNameCtrl.text);
+    fetchMedicine(_titleCtrl2.text, 1, _categoryNameCtrl.text);
   }
 
   //api call
@@ -140,7 +153,8 @@ class _SearchScreenState extends State<SearchScreen> {
                         IconButton(
                           onPressed: () => {
                             //log(_titleCtrl2.text),
-                            fetchMedicine(_titleCtrl2.text, 1,_categoryNameCtrl.text),
+                            fetchMedicine(
+                                _titleCtrl2.text, 1, _categoryNameCtrl.text),
                           },
                           icon: const Icon(
                             FontAwesomeIcons.magnifyingGlass,
@@ -159,7 +173,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             style: subtitlestyle,
                             onChanged: (value) => {
                               //log(value),
-                              fetchMedicine(value, 1,_categoryNameCtrl.text)
+                              fetchMedicine(value, 1, _categoryNameCtrl.text)
                             },
                             decoration: InputDecoration(
                                 hintText: "Nhập tên thuốc?",
@@ -199,7 +213,7 @@ class _SearchScreenState extends State<SearchScreen> {
               ),
               const SizedBox(height: 10),
               medicines.isEmpty
-                  ? const Text("khong tim thay")
+                  ? const Center(child: Text("Không tìm thấy kết quả"))
                   : Column(
                       children: [
                         categoryList.isEmpty
@@ -212,25 +226,32 @@ class _SearchScreenState extends State<SearchScreen> {
                                   itemCount: categoryList.length,
                                   padding: const EdgeInsets.only(top: 20.0),
                                   itemBuilder: (context, index) {
+                                    bool isSelected = index == selectedIndex;
                                     return Padding(
                                         padding: const EdgeInsets.all(10.0),
                                         child: FilterChip(
                                           label: Text(categoryList[index]
                                               ['categoryName']),
-                                          selected: categoryChoiseList ==
-                                              (categoryList[index]),
+                                          selected: isSelected,
                                           onSelected: (bool selected) {
+                                            pickyet = !pickyet;
                                             if (selected) {
+                                              selectedIndex = index;
                                               setState(() {
-                                                log(categoryList[index]['categoryName'].toString());
+                                                log(categoryList[index]
+                                                        ['categoryName']
+                                                    .toString());
                                                 _categoryNameCtrl.text =
-                                                    categoryList[index]['categoryName'];
-                                                fetchMedicine(_titleCtrl2.text, 1,_categoryNameCtrl.text);
+                                                    categoryList[index]
+                                                        ['categoryName'];
+                                                fetchMedicine(_titleCtrl2.text,
+                                                    1, _categoryNameCtrl.text);
                                               });
                                             } else {
+                                              selectedIndex = -1;
                                               setState(() {
                                                 categoryChoiseList = null;
-                                                fetchMedicine("", 1,"");
+                                                fetchMedicine("", 1, "");
                                                 medicineListFillted = [];
                                               });
                                             }
@@ -248,7 +269,8 @@ class _SearchScreenState extends State<SearchScreen> {
                           onPageChange: (index) => {
                             setState(() {
                               controllerList.position.moveTo(0);
-                              fetchMedicine(_titleCtrl2.text, index + 1,_categoryNameCtrl.text);
+                              fetchMedicine(_titleCtrl2.text, index + 1,
+                                  _categoryNameCtrl.text);
                             })
                           },
                         )
@@ -263,7 +285,6 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   _makeList() {
-    //log(test);
     return medicines.isEmpty
         ? const Center(child: CupertinoActivityIndicator())
         : GridView.builder(

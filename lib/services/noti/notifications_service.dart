@@ -8,7 +8,6 @@ class NotificationController {
 
   static Future<void> onDismissAtionReciveMethod(ReceivedNotification receivedNotification) async {}
 
-
   @pragma("vm:entry-point")
   static Future<void> onActionReciveMethod(ReceivedNotification receivedNotification) async {}
 

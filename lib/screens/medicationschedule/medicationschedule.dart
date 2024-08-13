@@ -12,8 +12,8 @@ import 'package:pillpalmobile/constants.dart';
 import 'package:pillpalmobile/screens/medicationschedule/mscomponents/add_task_bar.dart';
 import 'package:pillpalmobile/screens/medicationschedule/mscomponents/msbutton.dart';
 import 'package:pillpalmobile/screens/medicationschedule/mscomponents/notification_services.dart';
-import 'package:pillpalmobile/screens/medicationschedule/mscomponents/theme_services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:pillpalmobile/services/auth/auth_service.dart';
 import 'package:pillpalmobile/services/auth/package_check.dart';
 import 'package:pillpalmobile/services/ocr/Screen/recognization_page.dart';
 import 'package:pillpalmobile/services/ocr/Utils/image_cropper_page.dart';
@@ -54,7 +54,10 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
       final json = jsonDecode(respone.body);
       ui = json;
       fetchPrescripts(ui['customerCode']);
-      log("fecthUserInfor Success CustomerCode: ${ui['customerCode']}");
+    } else if (respone.statusCode == 401) {
+      refreshAccessToken(
+              UserInfomation.accessToken, UserInfomation.refreshToken)
+          .whenComplete(() => fecthUserInfor());
     } else {
       log("fecthUserInfor bug ${respone.statusCode}");
     }
@@ -72,14 +75,14 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
     );
     final json = jsonDecode(respone.body);
     if (respone.statusCode == 200 || respone.statusCode == 201) {
-      log("fetchPrescripts success: ${json.toString()} ");
       prescriptsList = json;
-      for (var e in prescriptsList) {
-        log("fetchPrescripts success idPr: ${e['id']} ");
-        fetchMedicineIntake(e['id'], today);
-      }
+      thefor();
+    } else if (respone.statusCode == 401) {
+      refreshAccessToken(
+              UserInfomation.accessToken, UserInfomation.refreshToken)
+          .whenComplete(() => fetchPrescripts(customerID));
     } else {
-      log("fetchPrescripts bug");
+      log("fetchPrescripts bug ${respone.statusCode}");
     }
   }
 
@@ -98,25 +101,39 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
     );
     final json = jsonDecode(respone.body);
     if (respone.statusCode == 200 || respone.statusCode == 201) {
-      log("fetchMedicineIntake success idPr: $idpr at Date $todayy");
+      log("fetchMedicineIntake success ${respone.statusCode}");
       medicinesInTake = json;
       takeJTD();
+    } else if (respone.statusCode == 401) {
+      refreshAccessToken(
+              UserInfomation.accessToken, UserInfomation.refreshToken)
+          .whenComplete(() => fetchMedicineIntake(idpr, todayy));
     } else {
       log("fetchMedicineIntake bug ${respone.statusCode}");
     }
   }
 
-  void takeJTD() {
+  Future<void> takeJTD() async {
     //mInTake = [];
-    List<dynamic> tmp = [];
+    //List<dynamic> tmp = [];
     for (var element in medicinesInTake) {
-      tmp = element['medicationTakes'];
+      //tmp = element['medicationTakes'];
+      for (var element in element['medicationTakes']) {
+        mInTake.add(element);
+      }
     }
-    for (var element in tmp) {
-      mInTake.add(element);
-    }
+    // for (var element in tmp) {
+    //   mInTake.add(element);
+    // }
     getPostsData();
-    log("Done Load Medicine InTake: ${mInTake.toString()}");
+    log("Done Load Medicine InTake: ${mInTake.length}");
+  }
+
+  Future<void> thefor() async {
+    for (var e in prescriptsList) {
+      log("fetchPrescripts success idPr: ${e['id']}");
+      fetchMedicineIntake(e['id'], today);
+    }
   }
 
   void getPostsData() {
@@ -126,10 +143,10 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
       listItems.add(
         InkWell(
           child: Container(
-              height: 150,
-              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              height: 100,
+              margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
               decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                  borderRadius: BorderRadius.all(Radius.circular(10.0)),
                   color: Colors.white,
                   boxShadow: [
                     BoxShadow(
@@ -180,11 +197,27 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
                   ],
                 ),
               )),
-          onTap: () {},
+          onTap: () {
+            log('${post['dateTake']}/////${post['timeTake']}');
+            String timeTk = post['timeTake'];
+            var tmplist = timeTk.split(":");
+            int hour = int.parse(tmplist[0]);
+            int minute = int.parse(tmplist[1]);
+            String dateStringWithTimeZone = '${post['dateTake']}';
+            DateTime dateTimeWithTimeZone =
+                DateTime.parse(dateStringWithTimeZone);
+            DateTime dateTimeWithTimeZone2 =
+                dateTimeWithTimeZone.add(Duration(hours: hour));
+            DateTime dateTimeWithTimeZone3 =
+                dateTimeWithTimeZone2.add(Duration(minutes: minute));
+            log(dateTimeWithTimeZone3.toString());
+          },
         ),
       );
     });
-    itemsData = listItems;
+    setState(() {
+      itemsData = listItems;
+    });
   }
 
   @override
@@ -248,21 +281,21 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
                       physics: const BouncingScrollPhysics(),
                       itemBuilder: (context, index) {
                         double scale = 1.0;
-                        if (topContainer > 0.5) {
-                          scale = index + 0.5 - topContainer;
-                          if (scale < 0) {
-                            scale = 0;
-                          } else if (scale > 1) {
-                            scale = 1;
-                          }
-                        }
+                        // if (topContainer > 0.5) {
+                        //   scale = index + 0.5 - topContainer;
+                        //   if (scale < 0) {
+                        //     scale = 0;
+                        //   } else if (scale > 1) {
+                        //     scale = 1;
+                        //   }
+                        // }
                         return Opacity(
                           opacity: scale,
                           child: Transform(
                             transform: Matrix4.identity()..scale(scale, scale),
                             alignment: Alignment.bottomCenter,
                             child: Align(
-                                heightFactor: 0.7,
+                                heightFactor: 1,
                                 alignment: Alignment.topCenter,
                                 child: itemsData[index]),
                           ),
@@ -313,21 +346,18 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Container(
-            //padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  DateFormat.yMd().format(DateTime.now()),
-                  style: subHeadingstyle,
-                ),
-                Text(
-                  "Hôm Nay",
-                  style: headingstyle,
-                )
-              ],
-            ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                DateFormat.yMd().format(DateTime.now()),
+                style: subHeadingstyle,
+              ),
+              Text(
+                "Hôm Nay",
+                style: headingstyle,
+              )
+            ],
           ),
           MsButton(
               lable: "Quét đơn",
@@ -337,7 +367,7 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
                         imagePickerModal(context, onCameraTap: () {
                           pickImage(source: ImageSource.camera).then((value) {
                             if (value != '') {
-                              imageCropperView(value, context).then((value) {
+                              imageCropperView(value.$1, context).then((value) {
                                 if (value != '') {
                                   Navigator.push(
                                     context,
@@ -354,7 +384,7 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
                         }, onGalleryTap: () {
                           pickImage(source: ImageSource.gallery).then((value) {
                             if (value != '') {
-                              imageCropperView(value, context).then((value) {
+                              imageCropperView(value.$1, context).then((value) {
                                 if (value != '') {
                                   Navigator.push(
                                     context,
@@ -415,7 +445,7 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
         GestureDetector(
           onTap: () {
             log("oke");
-            ThemeServices().switchTheme();
+            //ThemeServices().switchTheme();
             notifyHelper.displayNotification(
                 title: 'You change your theme',
                 body: Get.isDarkMode

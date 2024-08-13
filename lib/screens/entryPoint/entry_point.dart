@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:pillpalmobile/constants.dart';
@@ -5,9 +6,13 @@ import 'package:pillpalmobile/screens/home/home_screen.dart';
 import 'package:pillpalmobile/screens/medicationschedule/medicationschedule.dart';
 import 'package:pillpalmobile/screens/searchmedicine/searchscreen.dart';
 import 'package:pillpalmobile/services/auth/package_check.dart';
+import 'package:pillpalmobile/services/noti/alarmlistupdate.dart';
 import 'package:pillpalmobile/utils/rive_utils.dart';
+import 'package:provider/provider.dart';
 import 'package:rive/rive.dart';
 import '../../model/menu.dart';
+
+import '../freetrialscreens/cpntest/Provier.dart';
 import 'components/btm_nav_item.dart';
 import 'components/menu_btn.dart';
 import 'components/side_bar.dart';
@@ -23,6 +28,9 @@ class EntryPoint extends StatefulWidget {
 
 class _EntryPointState extends State<EntryPoint>
     with SingleTickerProviderStateMixin {
+  //noti
+  DateTime? notificationtime;
+
   bool isSideBarOpen = false;
   //2 cái biến lưu trang đầu tiên được nạp
   late Menu selectedBottonNav;
@@ -46,12 +54,13 @@ class _EntryPointState extends State<EntryPoint>
       case "Lịch Uống":
         return const MedicationSchedule();
       case "Tìm Kiếm":
-        return SearchScreen(medname: widget.medname ?? "",);
+        return SearchScreen(
+          medname: widget.medname ?? "",
+        );
       default:
         return const HomePage();
     }
   }
-
 
   late AnimationController _animationController;
   late Animation<double> scalAnimation;
@@ -59,6 +68,13 @@ class _EntryPointState extends State<EntryPoint>
 
   @override
   void initState() {
+    // context.read<alarmprovider>().Inituilize(context);
+    // Timer.periodic(Duration(seconds: 1), (timer) {
+    //   // setState(() {});
+    // });
+    // context.read<alarmprovider>().GetData();
+    // reloadAlarmList().whenComplete(() {
+    // });
     fetchpackageCheck();
     selectedBottonNav = widget.selectpage ?? bottomNavItems.first;
     _animationController = AnimationController(

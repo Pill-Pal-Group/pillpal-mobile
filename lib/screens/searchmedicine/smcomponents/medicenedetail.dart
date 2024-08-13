@@ -1,10 +1,9 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:pillpalmobile/screens/searchmedicine/smcomponents/comparemed.dart';
 import 'package:pillpalmobile/screens/searchmedicine/smcomponents/samemedicene.dart';
 import 'utils.dart';
 import 'package:pillpalmobile/constants.dart';
+
 class MedicineDetailScreen extends StatelessWidget {
   final String medicineName;
   final bool rqr;
@@ -197,37 +196,37 @@ class MedicineDetailScreen extends StatelessWidget {
                             MaterialPageRoute(
                               builder: (context) => CompareMedicine(
                                 medInbrand2: medInbrand,
-                                
                               ),
                             ),
                           );
-                        }else{
+                        } else {
                           showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: const Text('Chức năng nâng cao'),
-                              content: const Text(
-                                  'Hãy mua gói trả phí để sử dụng'),
-                              backgroundColor: const Color(0xFFEFEFEF),
-                              shape: RoundedRectangleBorder(
-                                side: const BorderSide(color: Colors.green, width: 2),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              actions: <Widget>[
-                                TextButton(
-                                  child: const Text('Đóng'),
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text('Chức năng nâng cao'),
+                                content: const Text(
+                                    'Hãy mua gói trả phí để sử dụng'),
+                                backgroundColor: const Color(0xFFEFEFEF),
+                                shape: RoundedRectangleBorder(
+                                  side: const BorderSide(
+                                      color: Colors.green, width: 2),
+                                  borderRadius: BorderRadius.circular(10),
                                 ),
-                              ],
-                            );
-                          },
-                        );
+                                actions: <Widget>[
+                                  TextButton(
+                                    child: const Text('Đóng'),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                ],
+                              );
+                            },
+                          );
                         }
                       },
-                      child: const Text('Tìm nơi bán'),
+                      child: const Text('Giá thuốc và cửa hàng'),
                     ),
                   ),
                   SizedBox(
@@ -239,41 +238,42 @@ class MedicineDetailScreen extends StatelessWidget {
                       ),
                       onPressed: () {
                         if (UserInfomation.paided) {
-                          log(activeIngredients[0]['ingredientName'].toString());
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => SameMediceneScreen(iName: activeIngredients [0]['ingredientName'],
+                              builder: (context) => SameMediceneScreen(
+                                iName: activeIngredients,
                               ),
                             ),
                           );
-                        }else{
+                        } else {
                           showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: const Text('Chức năng nâng cao'),
-                              content: const Text(
-                                  'Hãy mua gói trả phí để sử dụng'),
-                              backgroundColor: const Color(0xFFEFEFEF),
-                              shape: RoundedRectangleBorder(
-                                side: const BorderSide(color: Colors.green, width: 2),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              actions: <Widget>[
-                                TextButton(
-                                  child: const Text('Đóng'),
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text('Chức năng nâng cao'),
+                                content: const Text(
+                                    'Hãy mua gói trả phí để sử dụng'),
+                                backgroundColor: const Color(0xFFEFEFEF),
+                                shape: RoundedRectangleBorder(
+                                  side: const BorderSide(
+                                      color: Colors.green, width: 2),
+                                  borderRadius: BorderRadius.circular(10),
                                 ),
-                              ],
-                            );
-                          },
-                        );
+                                actions: <Widget>[
+                                  TextButton(
+                                    child: const Text('Đóng'),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                ],
+                              );
+                            },
+                          );
                         }
                       },
-                      child: const Text('Tìm Thuốc tương tự'),
+                      child: const Text('Tìm Thuốc cùng hoạt chất'),
                     ),
                   ),
                 ],

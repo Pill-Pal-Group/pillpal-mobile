@@ -7,7 +7,7 @@ AppBar buildAppBar(BuildContext context) {
   final icon = CupertinoIcons.bandage;
 
   return AppBar(
-    leading: BackButton(),
+    leading: const BackButton(),
     backgroundColor: Colors.transparent,
     elevation: 0,
     actions: [IconButton(

@@ -1,15 +1,13 @@
 import 'dart:developer';
-
 import 'package:image_picker/image_picker.dart';
 
-Future<String> pickImage({ImageSource? source}) async {
+Future<(String,String?)> pickImage({ImageSource? source}) async {
   final picker = ImagePicker();
-
   String path = '';
-
+  String? imageName = '';
   try {
     final getImage = await picker.pickImage(source: source!);
-
+    imageName = getImage?.name.toString();
     if (getImage != null) {
       path = getImage.path;
     } else {
@@ -19,5 +17,5 @@ Future<String> pickImage({ImageSource? source}) async {
     log(e.toString());
   }
 
-  return path;
+  return (path,imageName);
 }

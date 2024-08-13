@@ -42,10 +42,10 @@ class NotifyHelper {
     );
     await flutterLocalNotificationsPlugin.show(
       0,
-      'You change your theme',
-      'You changed your theme back !',
+      title,
+      title,
       platformChannelSpecifics,
-      payload: 'It could be anything you pass',
+      payload: body,
     );
   }
 

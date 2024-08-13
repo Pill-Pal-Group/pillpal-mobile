@@ -1,43 +1,51 @@
+import 'dart:async';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:pillpalmobile/constants.dart';
 import 'package:pillpalmobile/global_bloc.dart';
+import 'package:pillpalmobile/screens/freetrialscreens/cpntest/Provier.dart';
 import 'package:pillpalmobile/screens/medicationschedule/mscomponents/theme_services.dart';
 import 'package:pillpalmobile/services/auth/staylogin_check.dart';
 import 'package:pillpalmobile/services/noti/notifications_service.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
+import 'package:timezone/data/latest_all.dart' as tz;
 
-
+FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
 Future<void> main() async {
-  await AwesomeNotifications().initialize(
-    null,
-     [
-      NotificationChannel(
+  //setup localnotification
+  await AwesomeNotifications().initialize(null, [
+    NotificationChannel(
       channelGroupKey: "bassic_channel_group",
-      channelKey: "NotiKey", 
-      channelName: "testnoti", 
+      channelKey: "NotiKey",
+      channelName: "testnoti",
       channelDescription: "oke r ne",
-      )
-     ],
-     channelGroups: [
-      NotificationChannelGroup(
-        channelGroupKey: "bassic_channel_group", 
-        channelGroupName: "bassic group"
-      )
-     ]
-  );
-
-  
-  bool isAllowedToSendNotification = await AwesomeNotifications().isNotificationAllowed();
-  if(isAllowedToSendNotification){
+    )
+  ], channelGroups: [
+    NotificationChannelGroup(
+        channelGroupKey: "bassic_channel_group",
+        channelGroupName: "bassic group")
+  ]);
+  bool isAllowedToSendNotification =
+      await AwesomeNotifications().isNotificationAllowed();
+  if (isAllowedToSendNotification) {
     AwesomeNotifications().requestPermissionToSendNotifications();
   }
-
   WidgetsFlutterBinding.ensureInitialized();
+  //setupthongbao
+  tz.initializeTimeZones();
+  flutterLocalNotificationsPlugin
+      .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>()!
+      .requestPermission();
+
   await Firebase.initializeApp();
+  
   runApp(const MyApp());
 }
 
@@ -49,37 +57,37 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  // This widget is the root of your application.
   GlobalBloc? globalBloc;
 
   @override
   void initState() {
     AwesomeNotifications().setListeners(
       onActionReceivedMethod: NotificationController.onActionReciveMethod,
-      onNotificationCreatedMethod: NotificationController.onNotificationCreateMethod,
-      onDismissActionReceivedMethod: NotificationController.onDismissAtionReciveMethod,
-      onNotificationDisplayedMethod: NotificationController.onNotificationDisplayMethod,
-      );
+      onNotificationCreatedMethod:
+          NotificationController.onNotificationCreateMethod,
+      onDismissActionReceivedMethod:
+          NotificationController.onDismissAtionReciveMethod,
+      onNotificationDisplayedMethod:
+          NotificationController.onNotificationDisplayMethod,
+    );
     globalBloc = GlobalBloc();
     super.initState();
   }
 
- @override
+  @override
   Widget build(BuildContext context) {
-    //log(FirebaseAuth.instance.currentUser.toString());
-    return Provider<GlobalBloc>.value(
-      value: globalBloc!,
+    return ChangeNotifierProvider(
+      create: (contex) => alarmprovider(),
       child: Sizer(builder: (context, orientation, deviceType) {
-        return 
-      GetMaterialApp(
-      title: 'Flutter Demo',
-      debugShowCheckedModeBanner: false,
-      theme: Themes.light,
-      darkTheme: Themes.dark,
-      themeMode: ThemeServices().theme,
-      home: const StayLoginCheck(),
-    );
-      //testb
+        return GetMaterialApp(
+          title: 'Flutter Demo',
+          debugShowCheckedModeBanner: false,
+          theme: Themes.light,
+          darkTheme: Themes.dark,
+          themeMode: ThemeServices().theme,
+          home: const StayLoginCheck(),
+          //home: const FreeTrialScreen(),
+        );
       }),
     );
   }

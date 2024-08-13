@@ -1,21 +1,29 @@
 import 'dart:convert';
 import 'dart:core';
 import 'dart:developer';
+import 'dart:io';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:intl/intl.dart';
 import 'package:pillpalmobile/constants.dart';
+import 'package:pillpalmobile/model/menu.dart';
+import 'package:pillpalmobile/screens/entryPoint/entry_point.dart';
 
 class RecognizePage extends StatefulWidget {
   final String? path;
-  const RecognizePage({Key? key, this.path}) : super(key: key);
+  const RecognizePage({super.key, this.path});
 
   @override
   State<RecognizePage> createState() => _RecognizePageState();
 }
 
 class _RecognizePageState extends State<RecognizePage> {
+  //controler
+  ScrollController sController = ScrollController();
+  late final InputImage inputImage;
+  String imageDLL = "";
   bool _isBusy = false;
   final List<int> _medicineDoseS = [];
   final List<int> _medicineDoseT = [];
@@ -26,66 +34,40 @@ class _RecognizePageState extends State<RecognizePage> {
   String tokene = UserInfomation.accessToken;
   TextEditingController controller = TextEditingController();
   DateTime nowTime = DateTime.now();
+  var outputFormat = DateFormat('yyyy-MM-dd');
   List<Map<String, dynamic>> tesrne = [];
-
-
-
-  void pushMedicine(String medName, int sang, int trua, int chieu, int toi,
-      int totalmed) async {
-    int day2 = totalmed ~/ (sang + trua + chieu + toi);
-    var outputFormat = DateFormat('yyyy-MM-dd');
-    var outputDate1 =
-        outputFormat.format(nowTime.subtract(const Duration(days: 10)));
-    var outputDate2 = outputFormat.format(nowTime);
-    var outputDate3 = outputFormat.format(nowTime.add(Duration(days: day2)));
-    final response = await http.post(
-      Uri.parse("https://pp-devtest2.azurewebsites.net/api/prescripts"),
-      headers: <String, String>{
-        'accept': 'application/json',
-        'Authorization': 'Bearer $tokene',
-        'Content-Type': 'application/json'
-      },
-      body: jsonEncode(<String, dynamic>{
-        "prescriptImage":
-            "https://crazydiscostu.wordpress.com/wp-content/uploads/2023/11/history-of-the-rickroll.jpg",
-        "receptionDate": outputDate1,
-        "doctorName": "Gia kỳ",
-        "hospitalName": "Gia Định",
-        "prescriptDetails": [
-          {
-            "medicineName": medName,
-            "dateStart": outputDate2,
-            "dateEnd": outputDate3,
-            "totalDose": totalmed,
-            "morningDose": sang,
-            "noonDose": trua,
-            "afternoonDose": chieu,
-            "nightDose": toi,
-            "dosageInstruction": "Aftermeal"
-          }
-        ]
-      }),
-    );
-    log(response.statusCode.toString());
-    final json = jsonDecode(response.body);
-    genMediceneIntake(json['id']);
-    log(json.toString());
+  List<ThePrescriptDetails> testList = [];
+  @override
+  void dispose() {
+    super.dispose();
+    controller.dispose();
   }
 
   void genMediceneIntake(String pID) async {
     final response = await http.post(
       Uri.parse(
-          "https://pp-devtest2.azurewebsites.net/api/medication-intakes/$pID"),
+          "https://pp-devtest2.azurewebsites.net/api/medication-intakes/prescripts/$pID"),
       headers: <String, String>{
         'Authorization': 'Bearer $tokene',
       },
     );
     final json = jsonDecode(response.body);
     log(json.toString());
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EntryPoint(
+          selectpage: bottomNavItems.first,
+        ),
+      ),
+    );
     log("okene");
   }
 
-  void pushMedicineVer2(List<Map<String, dynamic>> tesrne) async {
+  void pushMedicineVer2(
+      List<Map<String, dynamic>> tesrne, String imagelink) async {
+    var outputDate1 =
+        outputFormat.format(nowTime.subtract(const Duration(days: 10)));
     final response = await http.post(
       Uri.parse("https://pp-devtest2.azurewebsites.net/api/prescripts"),
       headers: <String, String>{
@@ -94,9 +76,8 @@ class _RecognizePageState extends State<RecognizePage> {
         'Content-Type': 'application/json'
       },
       body: jsonEncode(<String, dynamic>{
-        "prescriptImage":
-            "https://crazydiscostu.wordpress.com/wp-content/uploads/2023/11/history-of-the-rickroll.jpg",
-        "receptionDate": "2024-06-09",
+        "prescriptImage": imagelink,
+        "receptionDate": outputDate1,
         "doctorName": "Gia kỳ",
         "hospitalName": "Gia Định",
         "prescriptDetails": tesrne
@@ -106,67 +87,6 @@ class _RecognizePageState extends State<RecognizePage> {
     final json = jsonDecode(response.body);
     genMediceneIntake(json['id']);
     log(json.toString());
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    final InputImage inputImage = InputImage.fromFilePath(widget.path!);
-
-    processImage(inputImage);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(title: const Text("recognized page")),
-        body: _isBusy == true
-            ? const Center(
-                child: CircularProgressIndicator(),
-              )
-            : Center(
-                child: Container(
-                    //padding: const EdgeInsets.all(1),
-                    child: Column(children: [
-                  TextFormField(
-                    maxLines: 20,
-                    controller: controller,
-                    decoration:
-                        const InputDecoration(hintText: "Text goes here..."),
-                  ),
-                  TextButton(
-                    style: ButtonStyle(
-                      overlayColor: MaterialStateProperty.resolveWith<Color?>(
-                          (Set<MaterialState> states) {
-                        if (states.contains(MaterialState.focused))
-                          return Colors.red;
-                        return null; // Defer to the widget's default.
-                      }),
-                    ),
-                    onPressed: () {
-                      for (var i = 0; i < _medicineName.length; i++) {
-                        // pushMedicine(
-                        //     _medicineName[i],
-                        //     _medicineDoseS[i],
-                        //     _medicineDoseT[i],
-                        //     _medicineDoseC[i],
-                        //     _medicineDoseTT[i],
-                        //     _medicineTotal[i]);
-                        //pushMedicineVer2();
-                      }
-                      //pushMedicineVer2();
-                      tesrne = [];
-                      for (var e in testList) {
-                        tesrne.add(e.toJsonNe());
-                      }
-                      log("${tesrne.toString()}");
-                      pushMedicineVer2(tesrne);
-
-                    },
-                    child: Text("bat dau add"),
-                  ),
-                ])),
-              ));
   }
 
   void processImage(InputImage image) async {
@@ -212,25 +132,6 @@ class _RecognizePageState extends State<RecognizePage> {
 
     ///End busy state
     setState(() {
-      for (var i = 0; i < _medicineName.length; i++) {
-        controller.text += _medicineName[i];
-        controller.text += "\n";
-        controller.text += _medicineTotal[i].toString();
-        controller.text += " Viêng";
-        controller.text += "\n";
-        controller.text += "Sang: ";
-        controller.text += _medicineDoseS[i].toString();
-        controller.text += "\n";
-        controller.text += "Trua: ";
-        controller.text += _medicineDoseT[i].toString();
-        controller.text += "\n";
-        controller.text += "Chieu: ";
-        controller.text += _medicineDoseC[i].toString();
-        controller.text += "\n";
-        controller.text += "Toi: ";
-        controller.text += _medicineDoseTT[i].toString();
-        controller.text += "\n";
-      }
       _isBusy = false;
     });
   }
@@ -356,6 +257,208 @@ class _RecognizePageState extends State<RecognizePage> {
       _medicineDoseTT.add(inttmp);
     }
   }
+
+  Future<void> uploads(String? imageName) async {
+    final tmppath = 'Prescripts/$imageName';
+    final file = File(widget.path!);
+    final ref = FirebaseStorage.instance.ref().child(tmppath);
+    UploadTask? ult = ref.putFile(file);
+
+    final sanpshot = await ult.whenComplete(() {});
+    final url = await sanpshot.ref.getDownloadURL();
+    setState(() {
+      log("datacheck $url");
+      imageDLL = url;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    inputImage = InputImage.fromFilePath(widget.path!);
+    processImage(inputImage);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(title: const Text("Kết quả")),
+        body: _isBusy == true
+            ? const Center(
+                child: CircularProgressIndicator(),
+              )
+            : Column(
+                children: [
+                  Expanded(
+                      child: SizedBox(
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: _medicineName.length,
+                      itemBuilder: (context, index) {
+                        return Column(
+                          children: [
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            Center(
+                                child: Text("Thuốc ${_medicineName[index]}")),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: TextField(
+                                    //obscureText: true,
+                                    decoration: InputDecoration(
+                                      border: const OutlineInputBorder(),
+                                      labelText: _medicineName[index],
+                                    ),
+                                    onChanged: (value) {
+                                      _medicineName[index] = value;
+                                    },
+                                  ),
+                                ),
+                                const SizedBox(
+                                  width: 10,
+                                ),
+                                Expanded(
+                                  child: TextField(
+                                    //obscureText: true,
+                                    decoration: InputDecoration(
+                                      border: const OutlineInputBorder(),
+                                      labelText:
+                                          _medicineTotal[index].toString(),
+                                    ),
+                                    onChanged: (value) {
+                                      _medicineTotal[index] = int.parse(value);
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: TextField(
+                                    //obscureText: true,
+                                    decoration: InputDecoration(
+                                      border: const OutlineInputBorder(),
+                                      labelText:
+                                          _medicineDoseS[index].toString(),
+                                    ),
+                                    onChanged: (value) {
+                                      _medicineDoseS[index] = int.parse(value);
+                                    },
+                                  ),
+                                ),
+                                const SizedBox(
+                                  width: 5,
+                                ),
+                                Expanded(
+                                  child: TextField(
+                                    //obscureText: true,
+                                    decoration: InputDecoration(
+                                      border: const OutlineInputBorder(),
+                                      labelText:
+                                          _medicineDoseT[index].toString(),
+                                    ),
+                                    onChanged: (value) {
+                                      _medicineDoseT[index] = int.parse(value);
+                                    },
+                                  ),
+                                ),
+                                const SizedBox(
+                                  width: 5,
+                                ),
+                                Expanded(
+                                  child: TextField(
+                                    //obscureText: true,
+                                    decoration: InputDecoration(
+                                      border: const OutlineInputBorder(),
+                                      labelText:
+                                          _medicineDoseC[index].toString(),
+                                    ),
+                                    onChanged: (value) {
+                                      _medicineDoseC[index] = int.parse(value);
+                                    },
+                                  ),
+                                ),
+                                const SizedBox(
+                                  width: 5,
+                                ),
+                                Expanded(
+                                  child: TextField(
+                                    //obscureText: true,
+                                    decoration: InputDecoration(
+                                      border: const OutlineInputBorder(),
+                                      labelText:
+                                          _medicineDoseTT[index].toString(),
+                                    ),
+                                    onChanged: (value) {
+                                      _medicineDoseTT[index] = int.parse(value);
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  )),
+                  const SizedBox(width: 5),
+                  TextButton(
+                    style: ButtonStyle(
+                      overlayColor: MaterialStateProperty.resolveWith<Color?>(
+                          (Set<MaterialState> states) {
+                        if (states.contains(MaterialState.focused)) {
+                          return Colors.red;
+                        }
+                        return null; // Defer to the widget's default.
+                      }),
+                    ),
+                    onPressed: () {
+                      var outputDate2 = outputFormat.format(nowTime);
+                      for (var i = 0; i < _medicineName.length; i++) {
+                        if ((_medicineDoseS[i] +
+                                _medicineDoseT[i] +
+                                _medicineDoseC[i] +
+                                _medicineDoseTT[i]) >
+                            0) {
+                          int endday = _medicineTotal[i] ~/
+                              (_medicineDoseS[i] +
+                                  _medicineDoseT[i] +
+                                  _medicineDoseC[i] +
+                                  _medicineDoseTT[i]);
+                          var outputDate3 = outputFormat
+                              .format(nowTime.add(Duration(days: endday)));
+                          testList.add(ThePrescriptDetails(
+                              medicineName: _medicineName[i],
+                              dateStart: outputDate2,
+                              dateEnd: outputDate3,
+                              totalDose: _medicineTotal[i],
+                              morningDose: _medicineDoseS[i],
+                              noonDose: _medicineDoseT[i],
+                              afternoonDose: _medicineDoseC[i],
+                              nightDose: _medicineDoseTT[i],
+                              dosageInstruction: "Aftermeal"));
+                        }
+                      }
+                      tesrne = [];
+                      for (var e in testList) {
+                        tesrne.add(e.toJsonNe());
+                      }
+                      log("datacheck ${tesrne.toString()}");
+                      uploads(widget.path!).whenComplete(() {
+                        pushMedicineVer2(tesrne, imageDLL);
+                      });
+                    },
+                    child: const Text("Bắt đầu thêm đơn thuốc"),
+                  ),
+                ],
+              ));
+  }
 }
 
 class ThePrescriptDetails {
@@ -392,26 +495,3 @@ class ThePrescriptDetails {
         'dosageInstruction': dosageInstruction,
       };
 }
-
-List<ThePrescriptDetails> testList = [
-  ThePrescriptDetails(
-      medicineName: "test1",
-      dateStart: "2024-07-09",
-      dateEnd: "2024-07-10",
-      totalDose: 4,
-      morningDose: 1,
-      noonDose: 0,
-      afternoonDose: 1,
-      nightDose: 0,
-      dosageInstruction: "Aftermeal"),
-  ThePrescriptDetails(
-      medicineName: "test2",
-      dateStart: "2024-07-09",
-      dateEnd: "2024-07-10",
-      totalDose: 4,
-      morningDose: 0,
-      noonDose: 1,
-      afternoonDose: 0,
-      nightDose: 1,
-      dosageInstruction: "Aftermeal"),
-];

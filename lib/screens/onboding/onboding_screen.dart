@@ -1,9 +1,10 @@
 import 'dart:ui';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pillpalmobile/services/auth/auth_service.dart';
 import 'package:rive/rive.dart';
 import 'components/animated_btn.dart';
+import 'package:flutter/src/widgets/image.dart' as imagePacke;
+
 class OnbodingScreen extends StatefulWidget {
   const OnbodingScreen({super.key});
   @override
@@ -39,7 +40,7 @@ class _OnbodingScreenState extends State<OnbodingScreen> {
             width: MediaQuery.of(context).size.width * 1.7,
             left: 100,
             bottom: 100,
-            child: Image.asset(
+            child: imagePacke.Image.asset(
               "assets/Backgrounds/Spline.png",
             ),
           ),
@@ -92,7 +93,7 @@ class _OnbodingScreenState extends State<OnbodingScreen> {
                       ),
                     ),
                     const Spacer(flex: 1),
-                    const Image(
+                    const imagePacke.Image(
                       image: AssetImage('assets/picture/loginpic.png'),
                       opacity: AlwaysStoppedAnimation(0.7),
                     ),

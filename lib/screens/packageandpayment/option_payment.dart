@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:pillpalmobile/constants.dart';
+import 'package:pillpalmobile/screens/medicationschedule/mscomponents/notification_services.dart';
 import 'package:pillpalmobile/screens/packageandpayment/method_payment.dart';
 import 'package:http/http.dart' as http;
 
@@ -14,6 +15,7 @@ class OptionPaymentScreen extends StatefulWidget {
 }
 
 class _OptionPaymentScreenState extends State<OptionPaymentScreen> {
+  var notifyHelper;
   List<dynamic> packageList = [];
   var selectPackage = null;
   int? selectedPackageIndex;
@@ -26,14 +28,16 @@ class _OptionPaymentScreenState extends State<OptionPaymentScreen> {
     final body = respone.body;
     final json = jsonDecode(body);
     setState(() {
-          packageList = json;
+      packageList = json;
     });
-
-    //(packageList.toString());
   }
 
   @override
   void initState() {
+    log("${selectPackage.toString()}");
+    notifyHelper = NotifyHelper();
+    notifyHelper.initializeNotification();
+    notifyHelper.requestIOSPermissions();
     fetchPackageList();
     super.initState();
   }
@@ -169,7 +173,8 @@ class _OptionPaymentScreenState extends State<OptionPaymentScreen> {
                             "${packageList[index]["packageDescription"]} - ${packageList[index]["price"]} VND",
                             style: TextStyle(
                               //color: isSelected ? Colors.white70 : Colors.black54,
-                              color: isSelected ? Colors.white70 : Colors.black54,
+                              color:
+                                  isSelected ? Colors.white70 : Colors.black54,
                               fontSize: 12,
                             ),
                           ),
@@ -190,14 +195,64 @@ class _OptionPaymentScreenState extends State<OptionPaymentScreen> {
                     const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
                 child: ElevatedButton(
                   onPressed: () {
-                    log("${selectPackage.toString()}");
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => MethodPaymentScreen(
-                                thePackagePick: selectPackage,
-                              )),
-                    );
+                    //log("${selectPackage.toString()}");
+                    if (selectPackage == null) {
+                      showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: Text('Hãy chọn gói bạn muốn mua'),
+                              content: Text('Bạn chưa chọn gói nào vui lòng kiểm tra lại'),
+                              backgroundColor: const Color(0xFFEFEFEF),
+                              shape: RoundedRectangleBorder(
+                                side: BorderSide(color: Colors.red, width: 2),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              actions: <Widget>[
+                                TextButton(
+                                  child: Text('Đóng'),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                    } else {
+                      if (UserInfomation.paided) {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: Text('Đã đã mua gói không thể mua thêm'),
+                              content: Text('Mỗi khách hàng chỉ có thể mua một gói dịch vụ trong một chu kỳ sử dụng'),
+                              backgroundColor: const Color(0xFFEFEFEF),
+                              shape: RoundedRectangleBorder(
+                                side: BorderSide(color: Colors.red, width: 2),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              actions: <Widget>[
+                                TextButton(
+                                  child: Text('Đóng'),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      } else {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => MethodPaymentScreen(
+                                    thePackagePick: selectPackage,
+                                  )),
+                        );
+                      }
+                    }
                   },
                   child: const Text('Đăng ký'),
                 ),

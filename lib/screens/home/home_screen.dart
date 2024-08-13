@@ -1,12 +1,10 @@
 import 'dart:convert';
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:pillpalmobile/constants.dart';
-import 'package:pillpalmobile/global_bloc.dart';
 import 'package:pillpalmobile/screens/home/hcomponents/prescriptdetails.dart';
-import 'package:provider/provider.dart';
+import 'package:pillpalmobile/services/auth/auth_service.dart';
 import 'package:sizer/sizer.dart';
 import 'package:http/http.dart' as http;
 
@@ -19,7 +17,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List<dynamic> thePrescriptsList = [];
-  //List<dynamic> medList = [];
   ScrollController controller = ScrollController();
   bool closeTopContainer = false;
   double topContainer = 0;
@@ -49,10 +46,11 @@ class _HomePageState extends State<HomePage> {
         thePrescriptsList = json;
         getPostsData();
         log("fetchPrescripts success ${respone.statusCode}");
-        // for (var element in thePrescriptsList) {
-        //   medList.add(element['prescriptDetails']);
-        // }
       });
+    } else if (respone.statusCode == 401) {
+      refreshAccessToken(
+              UserInfomation.accessToken, UserInfomation.refreshToken)
+          .whenComplete(() => fetchPrescripts(customerID));
     } else {
       log("fetchPrescripts bug ${respone.statusCode}");
     }
@@ -68,12 +66,14 @@ class _HomePageState extends State<HomePage> {
       },
     );
     if (respone.statusCode == 200 || respone.statusCode == 201) {
-
-        final json = jsonDecode(respone.body);
-        ui = json;
-        fetchPrescripts(ui['customerCode']);
-        log("fecthUserInfor success ${respone.statusCode}");
-
+      final json = jsonDecode(respone.body);
+      ui = json;
+      fetchPrescripts(ui['customerCode']);
+      log("fecthUserInfor success ${respone.statusCode}");
+    } else if (respone.statusCode == 401) {
+      refreshAccessToken(
+              UserInfomation.accessToken, UserInfomation.refreshToken)
+          .whenComplete(() => fecthUserInfor());
     } else {
       log("fecthUserInfor bug ${respone.statusCode}");
     }
@@ -90,8 +90,8 @@ class _HomePageState extends State<HomePage> {
                 margin:
                     const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(20.0)),
-                    color: Color.fromARGB(255, 255, 255, 255),
+                    borderRadius: const BorderRadius.all(Radius.circular(20.0)),
+                    color: const Color.fromARGB(255, 255, 255, 255),
                     boxShadow: [
                       BoxShadow(
                           color: Colors.black.withAlpha(100), blurRadius: 10.0),
@@ -143,7 +143,8 @@ class _HomePageState extends State<HomePage> {
                             StackTrace? stackTrace) {
                           return Image.asset("assets/picture/wsa.jpg");
                         },
-                        height: 80,
+                        //height: 80,
+                        width: 50,
                       ),
                     ],
                   ),
@@ -155,6 +156,7 @@ class _HomePageState extends State<HomePage> {
                 MaterialPageRoute(
                   builder: (context) => PrescriptDetails(
                     pdList: post['prescriptDetails'],
+                    prescriptID: post['id'],
                   ),
                 ),
               );
@@ -170,14 +172,14 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     fecthUserInfor();
-    controller.addListener(() {
-      double value = controller.offset / 119;
+    // controller.addListener(() {
+    //   double value = controller.offset / 119;
 
-      setState(() {
-        topContainer = value;
-        closeTopContainer = controller.offset > 50;
-      });
-    });
+    //   setState(() {
+    //     topContainer = value;
+    //     closeTopContainer = controller.offset > 50;
+    //   });
+    // });
   }
 
   @override
@@ -204,21 +206,13 @@ class _HomePageState extends State<HomePage> {
                     physics: const BouncingScrollPhysics(),
                     itemBuilder: (context, index) {
                       double scale = 1.0;
-                      if (topContainer > 0.5) {
-                        scale = index + 0.5 - topContainer;
-                        if (scale < 0) {
-                          scale = 0;
-                        } else if (scale > 1) {
-                          scale = 1;
-                        }
-                      }
                       return Opacity(
                         opacity: scale,
                         child: Transform(
                           transform: Matrix4.identity()..scale(scale, scale),
                           alignment: Alignment.bottomCenter,
                           child: Align(
-                              heightFactor: 0.7,
+                              heightFactor: 1,
                               alignment: Alignment.topCenter,
                               child: itemsData[index]),
                         ),
@@ -236,7 +230,6 @@ class TopContainer extends StatelessWidget {
   const TopContainer({super.key});
   @override
   Widget build(BuildContext context) {
-    Provider.of<GlobalBloc>(context);
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [

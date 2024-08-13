@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -27,8 +26,6 @@ class _TermofService2State extends State<TermofService2> {
     setState(() {
       tosList = json;
     });
-
-    log(tosList.toString());
   }
 
   @override

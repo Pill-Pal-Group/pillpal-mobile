@@ -1,19 +1,23 @@
-// ignore_for_file: prefer_const_constructors
-
 import 'dart:convert';
 import 'dart:developer';
-import 'package:flutter/cupertino.dart';
+import 'dart:io';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:pillpalmobile/constants.dart';
-//import 'package:pillpalmobile/model/medicine_type.dart';
+import 'package:pillpalmobile/model/menu.dart';
+import 'package:pillpalmobile/screens/entryPoint/entry_point.dart';
 import 'package:pillpalmobile/screens/home/new_entry/new_entry_bloc.dart';
-//import 'package:pillpalmobile/screens/home/new_entry/new_entry_page.dart';
 import 'package:pillpalmobile/screens/medicationschedule/mscomponents/inputfeild.dart';
 import 'package:pillpalmobile/screens/medicationschedule/mscomponents/msbutton.dart';
+import 'package:pillpalmobile/screens/medicationschedule/mscomponents/notification_services.dart';
+import 'package:pillpalmobile/services/auth/auth_service.dart';
+import 'package:pillpalmobile/services/noti/alarmlistupdate.dart';
+import 'package:pillpalmobile/services/ocr/Utils/image_picker_class.dart';
+import 'package:pillpalmobile/services/ocr/Widgets/modal_dialog.dart';
 import 'package:provider/provider.dart';
-//import 'package:sizer/sizer.dart';
 import 'package:http/http.dart' as http;
 
 class AddTaskScreen extends StatefulWidget {
@@ -24,6 +28,7 @@ class AddTaskScreen extends StatefulWidget {
 }
 
 class _AddTaskScreenState extends State<AddTaskScreen> {
+  var notifyHelper;
   late NewEntryBloc _newEntryBloc;
   final TextEditingController _titleCtrl = TextEditingController();
   final TextEditingController _noteCtrl = TextEditingController();
@@ -40,6 +45,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   String _starTImet = DateFormat("hh:mm:a").format(DateTime.now()).toString();
   List<int> remindList = [10, 15, 20, 30];
   List<String> repeatList = ["Aftermeal", "Mỗi ngày"];
+  String imageprdLink = "";
+  String prid = '';
   //hamf
   @override
   void dispose() {
@@ -54,7 +61,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     _totalNumCtrl.dispose();
   }
 
-  void pushMedicine() async {
+  Future<void> pushMedicine() async {
     int day2 = int.parse(_totalNumCtrl.text) ~/
         (int.parse(_sNumCtrl.text) +
             int.parse(_trNumCtrl.text) +
@@ -96,8 +103,12 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     final json = jsonDecode(response.body);
     if (response.statusCode == 200 || response.statusCode == 201) {
       log("pushMedicine Sussecc ${json['prescriptDetails'][0]['id']}");
-
-      genMediceneIntake(day2,nowTime,json['prescriptDetails'][0]['id']);
+      prid = json['prescriptDetails'][0]['id'];
+      genMediceneIntake(day2, nowTime, json['prescriptDetails'][0]['id']);
+    } else if (response.statusCode == 401) {
+      refreshAccessToken(
+              UserInfomation.accessToken, UserInfomation.refreshToken)
+          .whenComplete(() => pushMedicine());
     } else {
       log("pushMedicine bug ${response.statusCode}");
     }
@@ -111,23 +122,25 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         postMediceneIntake(dateTake, _starTimes, int.parse(_sNumCtrl.text), id);
       }
       if (int.parse(_trNumCtrl.text) > 0) {
-        postMediceneIntake(dateTake, _starTImetr, int.parse(_trNumCtrl.text), id);
+        postMediceneIntake(
+            dateTake, _starTImetr, int.parse(_trNumCtrl.text), id);
       }
       if (int.parse(_cNumCtrl.text) > 0) {
         postMediceneIntake(dateTake, _starTImec, int.parse(_cNumCtrl.text), id);
       }
       if (int.parse(_tNumCtrl.text) > 0) {
-        postMediceneIntake(dateTake, _starTImetr, int.parse(_tNumCtrl.text), id);
+        postMediceneIntake(
+            dateTake, _starTImetr, int.parse(_tNumCtrl.text), id);
       }
     }
   }
 
   void postMediceneIntake(
       String dateTake, String timeTake, int dose, String id) async {
-        log("postMediceneIntake debug $dateTake");
-        log("postMediceneIntake debug $timeTake");
-        log("postMediceneIntake debug $dose");
-        log("postMediceneIntake debug $id");
+    log("postMediceneIntake debug $dateTake");
+    log("postMediceneIntake debug $timeTake");
+    log("postMediceneIntake debug $dose");
+    log("postMediceneIntake debug $id");
     final response = await http.post(
       Uri.parse("https://pp-devtest2.azurewebsites.net/api/medication-intakes"),
       headers: <String, String>{
@@ -145,14 +158,60 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     log("postMediceneIntake debug ${response.body}");
     if (response.statusCode == 200 || response.statusCode == 201) {
       log("postMediceneIntake Sussecc ${response.statusCode}");
+    } else if (response.statusCode == 401) {
+      refreshAccessToken(
+              UserInfomation.accessToken, UserInfomation.refreshToken)
+          .whenComplete(() => postMediceneIntake(dateTake, timeTake, dose, id));
     } else {
       log("postMediceneIntake bug ${response.statusCode}");
     }
   }
 
+  void updateMedicineImage(String prescriptDetailId, String imageLink) async {
+    String url =
+        "https://pp-devtest2.azurewebsites.net/api/prescripts/prescript-details/$prescriptDetailId/image";
+    final uri = Uri.parse(url);
+    final respone = await http.put(uri,
+        headers: <String, String>{
+          'accept': '*/*',
+          'Authorization': 'Bearer ${UserInfomation.accessToken}',
+          'Content-Type': 'application/json'
+        },
+        body: jsonEncode(<String, dynamic>{'medicineImage': imageLink}));
+    if (respone.statusCode == 200 ||
+        respone.statusCode == 201 ||
+        respone.statusCode == 204) {
+      log("updateMedicineImage success ${respone.statusCode}");
+    } else if (respone.statusCode == 401) {
+      refreshAccessToken(
+              UserInfomation.accessToken, UserInfomation.refreshToken)
+          .whenComplete(
+              () => updateMedicineImage(prescriptDetailId, imageLink));
+    } else {
+      log("updateMedicineImage bug ${respone.statusCode}");
+    }
+  }
+
+  Future<void> uploads(String? imageName, String pathinput) async {
+    final tmppath = 'Medicines/$imageName';
+    final file = File(pathinput);
+    final ref = FirebaseStorage.instance.ref().child(tmppath);
+    UploadTask? ult = ref.putFile(file);
+
+    final sanpshot = await ult.whenComplete(() {});
+    final url = await sanpshot.ref.getDownloadURL();
+    setState(() {
+      log("uploads success $url");
+      imageprdLink = url;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
+    notifyHelper = NotifyHelper();
+    notifyHelper.initializeNotification();
+    notifyHelper.requestIOSPermissions();
     _newEntryBloc = NewEntryBloc();
   }
 
@@ -195,7 +254,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                   tittle: 'Ngày bắt đầu',
                   hint: DateFormat.yMd().format(nowTime),
                   widget: IconButton(
-                    icon: Icon(
+                    icon: const Icon(
                       Icons.calendar_today_outlined,
                       color: Colors.grey,
                     ),
@@ -219,8 +278,40 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                       ),
                     ),
                     SizedBox(
-                      width: MediaQuery.of(context).size.width / 2,
-                    )
+                      width: MediaQuery.of(context).size.width / 3,
+                    ),
+                    Column(
+                      children: [
+                        Text(
+                          "Ảnh Thuốc",
+                          style: headingstyle,
+                        ),
+                        IconButton(
+                          icon: const Icon(
+                            Icons.camera,
+                            color: Colors.black,
+                          ),
+                          onPressed: () {
+                            imagePickerModal(context, onCameraTap: () {
+                              pickImage(source: ImageSource.camera)
+                                  .then((value) {
+                                if (value.$1 != '') {
+                                  log("pick anh don thuoc ${value.$2}");
+                                  uploads(value.$2, value.$1);
+                                }
+                              });
+                            }, onGalleryTap: () {
+                              pickImage(source: ImageSource.gallery)
+                                  .then((value) {
+                                if (value.$1 != '') {
+                                  log("pick anh don thuoc ${value.$2}");
+                                }
+                              });
+                            });
+                          },
+                        ),
+                      ],
+                    ),
                   ],
                 ),
                 Row(
@@ -233,7 +324,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                         controller: _sNumCtrl,
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       width: 5,
                     ),
                     Expanded(
@@ -272,38 +363,38 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                   children: [
                     Expanded(
                       child: MsInputFeild(
-                      type: TextInputType.datetime,
-                      tittle: "Giờ Sáng",
-                      hint: _starTimes,
-                      widget: IconButton(
-                        onPressed: () {
-                          _getSTimeFromUser(1);
-                        },
-                        icon: Icon(
-                          Icons.access_time_rounded,
-                          color: Colors.grey,
+                        type: TextInputType.datetime,
+                        tittle: "Giờ Sáng",
+                        hint: _starTimes,
+                        widget: IconButton(
+                          onPressed: () {
+                            _getSTimeFromUser(1);
+                          },
+                          icon: Icon(
+                            Icons.access_time_rounded,
+                            color: Colors.grey,
+                          ),
                         ),
                       ),
-                    ),
                     ),
                     SizedBox(
                       width: 5,
                     ),
                     Expanded(
                       child: MsInputFeild(
-                      type: TextInputType.datetime,
-                      tittle: "Giờ Trưa",
-                      hint: _starTImetr,
-                      widget: IconButton(
-                        onPressed: () {
-                          _getSTimeFromUser(2);
-                        },
-                        icon: Icon(
-                          Icons.access_time_rounded,
-                          color: Colors.grey,
+                        type: TextInputType.datetime,
+                        tittle: "Giờ Trưa",
+                        hint: _starTImetr,
+                        widget: IconButton(
+                          onPressed: () {
+                            _getSTimeFromUser(2);
+                          },
+                          icon: Icon(
+                            Icons.access_time_rounded,
+                            color: Colors.grey,
+                          ),
                         ),
                       ),
-                    ),
                     ),
                     SizedBox(
                       width: 5,
@@ -314,46 +405,44 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                   children: [
                     Expanded(
                       child: MsInputFeild(
-                      type: TextInputType.datetime,
-                      tittle: "Giờ Chiều",
-                      hint: _starTImec,
-                      widget: IconButton(
-                        onPressed: () {
-                          _getSTimeFromUser(3);
-                        },
-                        icon: Icon(
-                          Icons.access_time_rounded,
-                          color: Colors.grey,
+                        type: TextInputType.datetime,
+                        tittle: "Giờ Chiều",
+                        hint: _starTImec,
+                        widget: IconButton(
+                          onPressed: () {
+                            _getSTimeFromUser(3);
+                          },
+                          icon: Icon(
+                            Icons.access_time_rounded,
+                            color: Colors.grey,
+                          ),
                         ),
                       ),
-                    ),
                     ),
                     SizedBox(
                       width: 5,
                     ),
                     Expanded(
                       child: MsInputFeild(
-                      type: TextInputType.datetime,
-                      tittle: "Giờ tối",
-                      hint: _starTImet,
-                      widget: IconButton(
-                        onPressed: () {
-                          _getSTimeFromUser(4);
-                        },
-                        icon: Icon(
-                          Icons.access_time_rounded,
-                          color: Colors.grey,
+                        type: TextInputType.datetime,
+                        tittle: "Giờ tối",
+                        hint: _starTImet,
+                        widget: IconButton(
+                          onPressed: () {
+                            _getSTimeFromUser(4);
+                          },
+                          icon: Icon(
+                            Icons.access_time_rounded,
+                            color: Colors.grey,
+                          ),
                         ),
                       ),
                     ),
-                    ),
                   ],
                 ),
-                ///test
-                SizedBox(
+                const SizedBox(
                   height: 20,
                 ),
-                //
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -387,8 +476,29 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       if (_tNumCtrl.text.isEmpty) {
         _tNumCtrl.text = "0";
       }
-      pushMedicine();
-      Get.back();
+      pushMedicine()
+          .whenComplete(() => updateMedicineImage(prid, imageprdLink));
+
+      notifyHelper.displayNotification(
+          title: 'Thêm thành công', body: 'Chúc một ngày tốt lành');
+//       reloadAlarmList().whenComplete(() {
+// Navigator.push(
+//         context,
+//         MaterialPageRoute(
+//           builder: (context) => EntryPoint(
+//             selectpage: bottomNavItems[1],
+//           ),
+//         ),
+//       );
+//       });
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => EntryPoint(
+            selectpage: bottomNavItems[1],
+          ),
+        ),
+      );
     } else if (_titleCtrl.text.isEmpty || _noteCtrl.text.isEmpty) {
       Get.snackbar("Hãy điền thông tin", "Vui lòng nhập đầy đủ thông tin",
           snackPosition: SnackPosition.BOTTOM,

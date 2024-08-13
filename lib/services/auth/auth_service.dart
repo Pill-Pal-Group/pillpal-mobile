@@ -102,6 +102,7 @@ Future<void> checklogin() async {
       'token': token,
     }),
   );
+
   final json = jsonDecode(response.body);
   if (response.statusCode == 200 ||
       response.statusCode == 201 ||
@@ -116,5 +117,30 @@ Future<void> checklogin() async {
   } else {
     log("checklogin bug ${response.statusCode}");
     Get.to(() => const OnbodingScreen());
+  }
+}
+
+Future<void> refreshAccessToken(String expiredToken,String refreshToken) async {
+  final response = await http.post(
+    Uri.parse("https://pp-devtest2.azurewebsites.net/api/auths/token-login"),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(<String, dynamic>{
+      'expiredToken': expiredToken,
+      'refreshToken': refreshToken,
+    }),
+  );
+  final json = jsonDecode(response.body);
+  if (response.statusCode == 200 ||
+      response.statusCode == 201 ||
+      response.statusCode == 204) {
+    UserInfomation.accessToken = json['accessToken'];
+    UserInfomation.refreshToken = json['refreshToken'];
+    UserInfomation.tokenType = json['tokenType'];
+    UserInfomation.countTIme = json['expiresIn'];
+    log("refreshAccessToken success ${response.statusCode}");
+  } else {
+    log("refreshAccessToken bug ${response.statusCode}");
   }
 }
