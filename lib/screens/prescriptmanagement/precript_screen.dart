@@ -1,8 +1,8 @@
-
 import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:number_paginator/number_paginator.dart';
 import 'package:pillpalmobile/constants.dart';
 import 'package:pillpalmobile/screens/home/hcomponents/prescriptdetails.dart';
 import 'package:pillpalmobile/services/auth/auth_service.dart';
@@ -23,16 +23,16 @@ class _PrecriptManagementState extends State<PrecriptManagement> {
   double topContainer = 0;
   List<Widget> itemsData = [];
   var ui;
-
+  int numberOfPage = 0;
   @override
   void dispose() {
     super.dispose();
     controller.dispose();
   }
 
-  void fetchPrescripts(String customerID) async {
+  void fetchPrescripts(int index) async {
     String url =
-        "https://pp-devtest2.azurewebsites.net/api/prescripts?CustomerCode=$customerID&IncludePrescriptDetails=true";
+        "https://pp-devtest2.azurewebsites.net/api/prescripts?Page=$index&PageSize=10&IncludePrescriptDetails=true";
     final uri = Uri.parse(url);
     final respone = await http.get(
       uri,
@@ -44,43 +44,22 @@ class _PrecriptManagementState extends State<PrecriptManagement> {
     if (respone.statusCode == 200 || respone.statusCode == 201) {
       setState(() {
         final json = jsonDecode(respone.body);
-        thePrescriptsList = json;
+        thePrescriptsList = json['data'];
+        numberOfPage = json['totalPages'];
         getPostsData();
         log("fetchPrescripts success ${respone.statusCode}");
       });
     } else if (respone.statusCode == 401) {
       refreshAccessToken(
               UserInfomation.accessToken, UserInfomation.refreshToken)
-          .whenComplete(() => fetchPrescripts(customerID));
+          .whenComplete(() => fetchPrescripts(index));
     } else {
       log("fetchPrescripts bug ${respone.statusCode}");
     }
   }
-  
-  void fecthUserInfor() async {
-    String url = "https://pp-devtest2.azurewebsites.net/api/customers/info";
-    final uri = Uri.parse(url);
-    final respone = await http.get(
-      uri,
-      headers: <String, String>{
-        'Authorization': 'Bearer ${UserInfomation.accessToken}',
-      },
-    );
-    if (respone.statusCode == 200 || respone.statusCode == 201) {
-      final json = jsonDecode(respone.body);
-      ui = json;
-      fetchPrescripts(ui['customerCode']);
-      log("fecthUserInfor success ${respone.statusCode}");
-    } else if (respone.statusCode == 401) {
-      refreshAccessToken(
-              UserInfomation.accessToken, UserInfomation.refreshToken)
-          .whenComplete(() => fecthUserInfor());
-    }else {
-      log("fecthUserInfor bug ${respone.statusCode}");
-    }
-  }
-  
-   void getPostsData() {
+
+
+  void getPostsData() {
     List<dynamic> responseList = thePrescriptsList;
     List<Widget> listItems = [];
     responseList.forEach((post) {
@@ -145,7 +124,7 @@ class _PrecriptManagementState extends State<PrecriptManagement> {
                           return Image.asset("assets/picture/wsa.jpg");
                         },
                         //height: 80,
-                        width: 50,
+                        width: MediaQuery.of(context).size.width / 5,
                       ),
                     ],
                   ),
@@ -158,6 +137,7 @@ class _PrecriptManagementState extends State<PrecriptManagement> {
                   builder: (context) => PrescriptDetails(
                     pdList: post['prescriptDetails'],
                     prescriptID: post['id'],
+                    mediaQuery: MediaQuery.of(context).size.width / 6,
                   ),
                 ),
               );
@@ -168,10 +148,11 @@ class _PrecriptManagementState extends State<PrecriptManagement> {
       itemsData = listItems;
     });
   }
-@override
+
+  @override
   void initState() {
     super.initState();
-    fecthUserInfor();
+    fetchPrescripts(numberOfPage + 1);
     // controller.addListener(() {
     //   double value = controller.offset / 119;
 
@@ -181,46 +162,55 @@ class _PrecriptManagementState extends State<PrecriptManagement> {
     //   });
     // });
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        title: const Center(child: Text("Lịch sử đơn thuốc")),
+      ),
       body: Padding(
         padding: EdgeInsets.all(2.h),
-        child: Column(
-          children: [
-            //the widget take space as per need
-            Expanded(
-                child: ListView.builder(
-                    controller: controller,
-                    itemCount: itemsData.length,
-                    physics: const BouncingScrollPhysics(),
-                    itemBuilder: (context, index) {
-                      double scale = 1.0;
-                      if (topContainer > 0.5) {
-                        scale = index + 0.5 - topContainer;
-                        if (scale < 0) {
-                          scale = 0;
-                        } else if (scale > 1) {
-                          scale = 1;
-                        }
-                      }
-                      return Opacity(
-                        opacity: scale,
-                        child: Transform(
-                          transform: Matrix4.identity()..scale(scale, scale),
-                          alignment: Alignment.bottomCenter,
-                          child: Align(
-                              heightFactor: 0.7,
-                              alignment: Alignment.topCenter,
-                              child: itemsData[index]),
-                        ),
-                      );
-                    })),
-          ],
+          child: Column(
+            children: [
+              Expanded(
+                  child: ListView.builder(
+                      controller: controller,
+                      itemCount: itemsData.length,
+                      physics: const BouncingScrollPhysics(),
+                      itemBuilder: (context, index) {
+                        double scale = 1.0;
+                        // if (topContainer > 0.5) {
+                        //   scale = index + 0.5 - topContainer;
+                        //   if (scale < 0) {
+                        //     scale = 0;
+                        //   } else if (scale > 1) {
+                        //     scale = 1;
+                        //   }
+                        // }
+                        return Opacity(
+                          opacity: scale,
+                          child: Transform(
+                            transform: Matrix4.identity()..scale(scale, scale),
+                            alignment: Alignment.bottomCenter,
+                            child: Align(
+                                heightFactor: 0.7,
+                                alignment: Alignment.topCenter,
+                                child: itemsData[index]),
+                          ),
+                        );
+                      })),
+              NumberPaginator(
+                numberPages: numberOfPage == 0 ? 1 : numberOfPage,
+                onPageChange: (index) => {
+                  setState(() {
+                    fetchPrescripts(index + 1);
+                  })
+                },
+              )
+            ],
+          ),
         ),
-      ),
     );
   }
 }

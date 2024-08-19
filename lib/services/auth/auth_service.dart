@@ -24,6 +24,11 @@ Future<void> signInWithGoogle() async {
     UserCredential userNow =
         await FirebaseAuth.instance.signInWithCredential(credential);
 
+    log("email check: 1 ${googleUser}");
+    log("email check: 2 ${googleAuth}");
+    log("email check: 3 ${credential}");
+    log("email check: 4 ${userNow}");
+
     final tokenResult = FirebaseAuth.instance.currentUser;
     final idToken = await tokenResult!.getIdToken();
     final token = idToken.toString();

@@ -22,14 +22,18 @@ class _OptionPaymentScreenState extends State<OptionPaymentScreen> {
   bool pickyet = false;
 
   void fetchPackageList() async {
-    String url = "https://pp-devtest2.azurewebsites.net/api/package-categories";
+    String url = APILINK.fetchPackageList;
     final uri = Uri.parse(url);
     final respone = await http.get(uri);
-    final body = respone.body;
-    final json = jsonDecode(body);
-    setState(() {
+    if (respone.statusCode == 200 || respone.statusCode == 201 || respone.statusCode== 204) {
+      final body = respone.body;
+      final json = jsonDecode(body);
+      setState(() {
       packageList = json;
     });
+    }else {
+      log("HomePage fetchPrescripts bug ${respone.statusCode}");
+    }
   }
 
   @override
@@ -77,7 +81,7 @@ class _OptionPaymentScreenState extends State<OptionPaymentScreen> {
           child: Column(
             children: [
               const SizedBox(height: 16),
-              Image.asset(LinkImages.tempAvatar, width: 100, height: 100),
+              Image.asset(LinkImages.erroPicHandelLocal, width: 100, height: 100),
               const SizedBox(height: 16),
               const Text('Mở khóa tất cả các tính năng của ứng dụng',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),

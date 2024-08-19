@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pillpalmobile/constants.dart';
 import 'package:rive/rive.dart';
 //này là cái class của nút mở thanh bên
 class MenuBtn extends StatelessWidget {
@@ -28,7 +29,7 @@ class MenuBtn extends StatelessWidget {
             ],
           ),
           child: RiveAnimation.asset(
-            "assets/RiveAssets/menu_button.riv",
+            LinkImages.openMenuButton,
             onInit: riveOnInit,
           ),
         ),

@@ -1,19 +1,18 @@
 import 'dart:async';
-
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:pillpalmobile/constants.dart';
 import 'package:pillpalmobile/global_bloc.dart';
-import 'package:pillpalmobile/screens/freetrialscreens/cpntest/Provier.dart';
-import 'package:pillpalmobile/screens/medicationschedule/mscomponents/theme_services.dart';
 import 'package:pillpalmobile/services/auth/staylogin_check.dart';
 import 'package:pillpalmobile/services/noti/notifications_service.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
+
+import 'services/noti/alarm_provider.dart';
 
 FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
@@ -77,7 +76,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (contex) => alarmprovider(),
+      create: (contex) => Alarmprovider(),
       child: Sizer(builder: (context, orientation, deviceType) {
         return GetMaterialApp(
           title: 'Flutter Demo',

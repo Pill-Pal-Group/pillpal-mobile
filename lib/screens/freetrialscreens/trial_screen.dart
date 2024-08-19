@@ -1,9 +1,6 @@
-import 'dart:async';
-import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:pillpalmobile/screens/freetrialscreens/cpntest/Add_Alarm.dart';
-import 'package:pillpalmobile/screens/freetrialscreens/cpntest/Provier.dart';
+import 'package:pillpalmobile/services/noti/alarm_provider.dart';
 import 'package:provider/provider.dart';
 
 
@@ -19,14 +16,7 @@ class _FreeTrialScreenState extends State<FreeTrialScreen> {
 
    @override
   void initState() {
-    //context.read<alarmprovider>().DeleteData();
-    context.read<alarmprovider>().Inituilize(context);
-    Timer.periodic(Duration(seconds: 1), (timer) {
-      // setState(() {});
-    });
-
     super.initState();
-    context.read<alarmprovider>().GetData();
   }
   @override
   Widget build(BuildContext context) {
@@ -51,8 +41,8 @@ class _FreeTrialScreenState extends State<FreeTrialScreen> {
       ),
       body: ListView(
         children: [
-          Consumer<alarmprovider>(builder: (context, alarm, child) {
-            return Container(
+          Consumer<Alarmprovider>(builder: (context, alarm, child) {
+            return SizedBox(
               height: MediaQuery.of(context).size.height * 0.7,
               child: ListView.builder(
                   itemCount: alarm.modelist.length,
@@ -79,7 +69,7 @@ class _FreeTrialScreenState extends State<FreeTrialScreen> {
                                       children: [
                                         Text(
                                           alarm.modelist[index].dateTime!,
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                               fontWeight: FontWeight.bold,
                                               fontSize: 16,
                                               color: Colors.black),
@@ -87,28 +77,19 @@ class _FreeTrialScreenState extends State<FreeTrialScreen> {
                                         Padding(
                                           padding:
                                               const EdgeInsets.only(left: 8.0),
-                                          child: Text("|" +
-                                              alarm.modelist[index].label
-                                                  .toString()),
+                                          child: Text("|${alarm.modelist[index].medicineIntakeName}"),
                                         ),
                                       ],
                                     ),
                                     CupertinoSwitch(
                                         value:(alarm.modelist[index].milliseconds! < DateTime.now().microsecondsSinceEpoch)? false:alarm.modelist[index].check,
                                         onChanged: (v) {
-
-
-                                          alarm.EditSwitch(index, v);
-
-
-
-
-                                          alarm.CancelNotification(alarm.modelist[index].id!);
-
+                                          //alarm.editSwitch(index, v);
+                                          //alarm.cancelNotification(alarm.modelist[index].medicineIntakeId!);
                                         }),
                                   ],
                                 ),
-                                Text(alarm.modelist[index].when!)
+                                Text(alarm.modelist[index].repeat!)
                               ],
                             ),
                           ),
@@ -118,7 +99,7 @@ class _FreeTrialScreenState extends State<FreeTrialScreen> {
           }),
           Container(
             height: MediaQuery.of(context).size.height * 0.1,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
                 borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(30),
                     topRight: Radius.circular(30)),
@@ -126,14 +107,13 @@ class _FreeTrialScreenState extends State<FreeTrialScreen> {
             child: Center(
                 child: GestureDetector(
               onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => AddAlarm()));
+                
               },
               child: Container(
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                       color: Colors.white, shape: BoxShape.circle),
-                  child: Padding(
-                    padding: const EdgeInsets.all(12.0),
+                  child: const Padding(
+                    padding: EdgeInsets.all(12.0),
                     child: Icon(Icons.add),
                   )),
             )),

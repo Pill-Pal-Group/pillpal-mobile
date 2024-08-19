@@ -17,8 +17,9 @@ import 'package:http/http.dart' as http;
 class PrescriptDetails extends StatefulWidget {
   final String prescriptID;
   final List<dynamic> pdList;
+  final double mediaQuery;
   const PrescriptDetails(
-      {super.key, required this.pdList, required this.prescriptID});
+      {super.key, required this.pdList, required this.prescriptID, required this.mediaQuery});
 
   @override
   State<PrescriptDetails> createState() => _PrescriptDetailsState();
@@ -30,6 +31,7 @@ class _PrescriptDetailsState extends State<PrescriptDetails> {
   double topContainer = 0;
   List<Widget> itemsData = [];
   String imageprdLink = "";
+
   @override
   void dispose() {
     super.dispose();
@@ -37,8 +39,8 @@ class _PrescriptDetailsState extends State<PrescriptDetails> {
   }
 
   Future<void> deletePrescripts(String prID) async {
-    log("DeletePrescripts $prID");
-    String url = "https://pp-devtest2.azurewebsites.net/api/prescripts/$prID";
+    //log("Home DeletePrescripts $prID");
+    String url = APILINK.deletePrescriptsHeader+prID;
     final uri = Uri.parse(url);
     final respone = await http.delete(uri,headers: <String, String>{
           'accept': '*/*',
@@ -46,19 +48,18 @@ class _PrescriptDetailsState extends State<PrescriptDetails> {
           'Content-Type': 'application/json'
         },);
     if (respone.statusCode == 200 || respone.statusCode == 201 ||respone.statusCode == 204 ) {
-      log("DeletePrescripts Success ${respone.statusCode}");
+      log("Home DeletePrescripts Success ${respone.statusCode}");
     } else if (respone.statusCode == 404) {
-      log("dcmm");
       refreshAccessToken(
               UserInfomation.accessToken, UserInfomation.refreshToken)
           .whenComplete(() => deletePrescripts(prID));
     } else {
-      log("DeletePrescripts bug ${respone.statusCode}");
+      log("Home DeletePrescripts bug ${respone.statusCode}");
     }
   }
 
   void updateMedicineImage(String prescriptDetailId,String imageLink) async {
-    log("updateMedicineImage Success $prescriptDetailId");
+    //log("Home updateMedicineImage Success $prescriptDetailId");
     String url =
         "https://pp-devtest2.azurewebsites.net/api/prescripts/prescript-details/$prescriptDetailId/image";
     final uri = Uri.parse(url);
@@ -72,7 +73,7 @@ class _PrescriptDetailsState extends State<PrescriptDetails> {
           'medicineImage': imageLink
         }));
     if (respone.statusCode == 200 || respone.statusCode == 201 || respone.statusCode == 204) {
-      log("updateMedicineImage success ${respone.statusCode}");
+      log("Home updateMedicineImage success ${respone.statusCode}");
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -84,19 +85,18 @@ class _PrescriptDetailsState extends State<PrescriptDetails> {
               UserInfomation.accessToken, UserInfomation.refreshToken)
           .whenComplete(() => updateMedicineImage(prescriptDetailId,imageLink));
     } else {
-      log("updateMedicineImage bug ${respone.statusCode}");
+      log("Home updateMedicineImage bug ${respone.statusCode}");
     }
   }
 
-  void getPostsData() {
-    log(widget.pdList.toString());
+  void getPostsData(double md) {
     List<dynamic> responseList = widget.pdList;
     List<Widget> listItems = [];
-    responseList.forEach((post) {
+    for (var post in responseList) {
       listItems.add(
         InkWell(
             child: Container(
-                height: 150,
+                height: 120,
                 margin:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                 decoration: BoxDecoration(
@@ -182,9 +182,9 @@ class _PrescriptDetailsState extends State<PrescriptDetails> {
                         fit: BoxFit.fitWidth, //url,
                         errorBuilder: (BuildContext context, Object exception,
                             StackTrace? stackTrace) {
-                          return Image.asset("assets/picture/wsa.jpg");
+                          return Image.asset(LinkImages.erroPicHandelLocal);
                         },
-                        height: 80,
+                        width: md,
                       ),
                     ],
                   ),
@@ -243,7 +243,7 @@ class _PrescriptDetailsState extends State<PrescriptDetails> {
               );
             }),
       );
-    });
+    }
     setState(() {
       itemsData = listItems;
     });
@@ -266,7 +266,7 @@ class _PrescriptDetailsState extends State<PrescriptDetails> {
   @override
   void initState() {
     super.initState();
-    getPostsData();
+    getPostsData(widget.mediaQuery);
   }
 
   @override
@@ -292,22 +292,23 @@ class _PrescriptDetailsState extends State<PrescriptDetails> {
                       ),
                       actions: <Widget>[
                         TextButton(
-                          child: Text('Xóa'),
+                          child: const Text('Xóa'),
                           onPressed: () {
-                            log("lay dung r ne ${widget.prescriptID}");
                             deletePrescripts(widget.prescriptID).whenComplete(
-                                () {Navigator.push(
+                                () {
+                        Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (context) => EntryPoint(
                                 selectpage: bottomNavItems[0],
                               ),
                             ),
-                          );});
+                          );
+                        });
                           },
                         ),
                         TextButton(
-                          child: Text('Hủy'),
+                          child: const Text('Hủy'),
                           onPressed: () {
                             Navigator.of(context).pop();
                           },

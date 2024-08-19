@@ -5,6 +5,8 @@ import 'package:intl/intl.dart';
 import 'package:pillpalmobile/constants.dart';
 import 'package:pillpalmobile/screens/home/hcomponents/prescriptdetails.dart';
 import 'package:pillpalmobile/services/auth/auth_service.dart';
+import 'package:pillpalmobile/services/noti/alarm_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 import 'package:http/http.dart' as http;
 
@@ -21,7 +23,6 @@ class _HomePageState extends State<HomePage> {
   bool closeTopContainer = false;
   double topContainer = 0;
   List<Widget> itemsData = [];
-  var ui;
 
   @override
   void dispose() {
@@ -29,140 +30,133 @@ class _HomePageState extends State<HomePage> {
     controller.dispose();
   }
 
-  void fetchPrescripts(String customerID) async {
-    String url =
-        "https://pp-devtest2.azurewebsites.net/api/prescripts?CustomerCode=$customerID&IncludePrescriptDetails=true";
-    final uri = Uri.parse(url);
+  void fetchPrescripts() async {
+    final uri = Uri.parse(APILINK.homePagefetchPrescripts);
     final respone = await http.get(
       uri,
       headers: <String, String>{
         'Authorization': 'Bearer ${UserInfomation.accessToken}',
       },
     );
-
     if (respone.statusCode == 200 || respone.statusCode == 201) {
       setState(() {
         final json = jsonDecode(respone.body);
-        thePrescriptsList = json;
+        thePrescriptsList = json['data'];
         getPostsData();
-        log("fetchPrescripts success ${respone.statusCode}");
+        log("HomePage fetchPrescripts success ${respone.statusCode}");
       });
     } else if (respone.statusCode == 401) {
       refreshAccessToken(
               UserInfomation.accessToken, UserInfomation.refreshToken)
-          .whenComplete(() => fetchPrescripts(customerID));
+          .whenComplete(() => fetchPrescripts());
     } else {
-      log("fetchPrescripts bug ${respone.statusCode}");
+      log("HomePage fetchPrescripts bug ${respone.statusCode}");
     }
   }
 
-  void fecthUserInfor() async {
-    String url = "https://pp-devtest2.azurewebsites.net/api/customers/info";
-    final uri = Uri.parse(url);
-    final respone = await http.get(
-      uri,
-      headers: <String, String>{
-        'Authorization': 'Bearer ${UserInfomation.accessToken}',
-      },
-    );
-    if (respone.statusCode == 200 || respone.statusCode == 201) {
-      final json = jsonDecode(respone.body);
-      ui = json;
-      fetchPrescripts(ui['customerCode']);
-      log("fecthUserInfor success ${respone.statusCode}");
-    } else if (respone.statusCode == 401) {
-      refreshAccessToken(
-              UserInfomation.accessToken, UserInfomation.refreshToken)
-          .whenComplete(() => fecthUserInfor());
-    } else {
-      log("fecthUserInfor bug ${respone.statusCode}");
+  bool check() {
+    DateFormat dateFormat = DateFormat("yyyy-MM-dd");
+    for (var x in thePrescriptsList) {
+      for (var element in x['prescriptDetails']) {
+        if (dateFormat.parse(element['dateEnd']).isAfter(DateTime.now())) {
+          return true;
+        } else {
+          return false;
+        }
+      }
     }
+    return false;
   }
 
   void getPostsData() {
     List<dynamic> responseList = thePrescriptsList;
     List<Widget> listItems = [];
-    responseList.forEach((post) {
-      listItems.add(
-        InkWell(
-            child: Container(
-                height: 150,
-                margin:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                decoration: BoxDecoration(
-                    borderRadius: const BorderRadius.all(Radius.circular(20.0)),
-                    color: const Color.fromARGB(255, 255, 255, 255),
-                    boxShadow: [
-                      BoxShadow(
-                          color: Colors.black.withAlpha(100), blurRadius: 10.0),
-                    ]),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 20.0, vertical: 10),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Flexible(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text(
-                              "Đơn Thuốc ngày ${DateFormat("yyyy-MM-dd").parse(post["receptionDate"])}",
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20,
+    DateFormat dateFormat = DateFormat("yyyy-MM-dd");
+    for (var post in responseList) {
+      if (check()) {
+        listItems.add(
+          InkWell(
+              child: Container(
+                  height: 150,
+                  margin:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                  decoration: BoxDecoration(
+                      borderRadius:
+                          const BorderRadius.all(Radius.circular(20.0)),
+                      color: const Color.fromARGB(255, 255, 255, 255),
+                      boxShadow: [
+                        BoxShadow(
+                            color: Colors.black.withAlpha(100),
+                            blurRadius: 10.0),
+                      ]),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20.0, vertical: 10),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Flexible(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Text(
+                                "Đơn Thuốc ngày ${dateFormat.parse(post["receptionDate"])}",
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20,
+                                ),
+                                overflow: TextOverflow.fade,
+                                maxLines: 2,
+                                softWrap: true,
                               ),
-                              overflow: TextOverflow.fade,
-                              maxLines: 2,
-                              softWrap: true,
-                            ),
-                            const SizedBox(
-                              height: 15,
-                            ),
-                            Text(
-                              "Bác sĩ: ${post["doctorName"]}",
-                              style: const TextStyle(
-                                  fontSize: 15,
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                            Text(
-                              "BV: ${post["hospitalName"]}",
-                              style: const TextStyle(
-                                  fontSize: 15,
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.bold),
-                            )
-                          ],
+                              const SizedBox(
+                                height: 15,
+                              ),
+                              Text(
+                                "Bác sĩ: ${post["doctorName"]}",
+                                style: const TextStyle(
+                                    fontSize: 15,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              Text(
+                                "BV: ${post["hospitalName"]}",
+                                style: const TextStyle(
+                                    fontSize: 15,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold),
+                              )
+                            ],
+                          ),
                         ),
-                      ),
-                      Image.network(
-                        "${post['prescriptImage']}",
-                        fit: BoxFit.fitWidth, //url,
-                        errorBuilder: (BuildContext context, Object exception,
-                            StackTrace? stackTrace) {
-                          return Image.asset("assets/picture/wsa.jpg");
-                        },
-                        //height: 80,
-                        width: 50,
-                      ),
-                    ],
+                        Image.network(
+                          "${post['prescriptImage']}",
+                          fit: BoxFit.fitWidth, //url,
+                          errorBuilder: (BuildContext context, Object exception,
+                              StackTrace? stackTrace) {
+                            return Image.asset(LinkImages.erroPicHandelLocal);
+                          },
+                          //height: 80,
+                          width: MediaQuery.of(context).size.width / 5,
+                        ),
+                      ],
+                    ),
+                  )),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PrescriptDetails(
+                      pdList: post['prescriptDetails'],
+                      prescriptID: post['id'],
+                      mediaQuery: MediaQuery.of(context).size.width / 8,
+                    ),
                   ),
-                )),
-            onTap: () {
-              log("click");
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => PrescriptDetails(
-                    pdList: post['prescriptDetails'],
-                    prescriptID: post['id'],
-                  ),
-                ),
-              );
-            }),
-      );
-    });
+                );
+              }),
+        );
+      }
+    }
     setState(() {
       itemsData = listItems;
     });
@@ -170,8 +164,14 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
+    context.read<Alarmprovider>().getData().whenComplete(() {
+      context.read<Alarmprovider>().reloadNotification().whenComplete(() {
+        //log("ReloadNotification End ${context.read<Alarmprovider>().modelist.toString()}");
+      });
+    });
+    fetchPrescripts();
     super.initState();
-    fecthUserInfor();
+
     // controller.addListener(() {
     //   double value = controller.offset / 119;
 

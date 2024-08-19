@@ -29,8 +29,7 @@ class _MethodPaymentScreenState extends State<MethodPaymentScreen> {
   String payResult = "ko co gi";
   void postCustomerPackage(String packageID, String paymentID) async {
     final response = await http.post(
-      Uri.parse(
-          "https://pp-devtest2.azurewebsites.net/api/customer-packages/packages"),
+      Uri.parse(APILINK.postCustomerPackage),
       headers: <String, String>{
         'accept': 'application/json',
         'Authorization': 'Bearer $tokene',
@@ -58,20 +57,19 @@ class _MethodPaymentScreenState extends State<MethodPaymentScreen> {
     log(pcId);
     final response = await http.get(
         Uri.parse(
-            "https://pp-devtest2.azurewebsites.net/api/payments/packages?PackageCategoryId=${pcId}&PaymentType=ZALOPAY"),
+            "${APILINK.postPaymentToVNpay}$pcId&PaymentType=ZALOPAY"),
         headers: <String, String>{
           'accept': 'application/json',
           'Authorization': 'Bearer $tokene',
           'Content-Type': 'application/json'
         });
 
-    if (response.statusCode == 200 || response.statusCode == 201) {
+    if (response.statusCode == 200 || response.statusCode == 201 || response.statusCode == 204) {
       log("fetchCategory Sussecc ${response.statusCode}");
       final json = jsonDecode(response.body);
       log("payment test ${json['paymentUrl']}");
-      log("payment test ${json['zp_trans_token']}");
-      appcheck(json['zp_trans_token'], json['customerPackageId']);
-
+      log("payment test ${json['zpTransToken']}");
+      appcheck(json['zpTransToken'], json['customerPackageId']);
     } else if (response.statusCode == 401) {
       refreshAccessToken(
               UserInfomation.accessToken, UserInfomation.refreshToken)
@@ -85,17 +83,16 @@ class _MethodPaymentScreenState extends State<MethodPaymentScreen> {
     log(pcId);
     final respone = await http.get(
         Uri.parse(
-            "https://pp-devtest2.azurewebsites.net/api/payments/packages/payment?customerPackageId=$pcId"),
+            "${APILINK.getcomfompayment}$pcId"),
         headers: <String, String>{
           'accept': 'application/json',
           'Authorization': 'Bearer $tokene',
           'Content-Type': 'application/json'
         });
     log(respone.statusCode.toString());
-    if (respone.statusCode == 200 || respone.statusCode == 201) {
-            notifyHelper.displayNotification(
-                title: 'Thanh toán thành công',
-                body: 'Chúc một ngày tốt lành');
+    if (respone.statusCode == 200 || respone.statusCode == 201 || respone.statusCode == 204) {
+      notifyHelper.displayNotification(
+          title: 'Thanh toán thành công', body: 'Chúc một ngày tốt lành');
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -214,11 +211,11 @@ class _MethodPaymentScreenState extends State<MethodPaymentScreen> {
                               ],
                             ),
                             Image.network(
-                              'https://haitrieu.com/wp-content/uploads/2022/10/Logo-ZaloPay-Square.png',
+                              LinkImages.zalopayLogo,
                               fit: BoxFit.fitHeight, //url,
                               errorBuilder: (BuildContext context,
                                   Object exception, StackTrace? stackTrace) {
-                                return Image.asset("assets/picture/wsa.jpg");
+                                return Image.asset(LinkImages.erroPicHandelLocal);
                               },
                             ),
                           ],
@@ -299,7 +296,7 @@ class _MethodPaymentScreenState extends State<MethodPaymentScreen> {
                                         Object exception,
                                         StackTrace? stackTrace) {
                                       return Image.asset(
-                                          "assets/picture/wsa.jpg");
+                                          LinkImages.erroPicHandelLocal);
                                     },
                                   ),
                                 ],
@@ -324,7 +321,7 @@ class _MethodPaymentScreenState extends State<MethodPaymentScreen> {
                       postPaymentToVNpay(widget.thePackagePick['id']);
                       //paymentConform(true, packageId, paymentID);
                     },
-                    child: const Text('Chốt đơn'),
+                    child: const Text('Thanh Toán'),
                   ),
                 ),
               ],

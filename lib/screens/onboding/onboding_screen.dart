@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:pillpalmobile/constants.dart';
 import 'package:pillpalmobile/services/auth/auth_service.dart';
 import 'package:rive/rive.dart';
 import 'components/animated_btn.dart';
@@ -14,7 +15,6 @@ class OnbodingScreen extends StatefulWidget {
 class _OnbodingScreenState extends State<OnbodingScreen> {
   late RiveAnimationController _btnAnimationController;
   bool isShowSignInDialog = false;
-  
   @override
   void dispose() {
     super.dispose();
@@ -40,8 +40,7 @@ class _OnbodingScreenState extends State<OnbodingScreen> {
             width: MediaQuery.of(context).size.width * 1.7,
             left: 100,
             bottom: 100,
-            child: imagePacke.Image.asset(
-              "assets/Backgrounds/Spline.png",
+            child: imagePacke.Image.asset(LinkImages.underMovingShape,
             ),
           ),
           //cái hình động
@@ -52,7 +51,7 @@ class _OnbodingScreenState extends State<OnbodingScreen> {
             ),
           ),
           const RiveAnimation.asset(
-            "assets/RiveAssets/shapes.riv",
+            LinkImages.movingShape,
           ),
           //cái màng mờ mờ ảo ảo
           Positioned.fill(
@@ -94,7 +93,7 @@ class _OnbodingScreenState extends State<OnbodingScreen> {
                     ),
                     const Spacer(flex: 1),
                     const imagePacke.Image(
-                      image: AssetImage('assets/picture/loginpic.png'),
+                      image: AssetImage(LinkImages.pillLogo),
                       opacity: AlwaysStoppedAnimation(0.7),
                     ),
                     const Spacer(flex: 1),

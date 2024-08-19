@@ -73,6 +73,15 @@ class _SameMediceneScreenState extends State<SameMediceneScreen> {
     });
   }
 
+  String name(){
+  String tmp = "";
+    for (var element in widget.iName) {
+      tmp += element['ingredientName'];
+      tmp += ", ";
+    }
+    return tmp;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -98,7 +107,7 @@ class _SameMediceneScreenState extends State<SameMediceneScreen> {
                     flex: 4,
                     child: FadeInUp(
                       duration: const Duration(milliseconds: 1200),
-                      child: Text('Có ${medicineListFillted.length} Thuốc có \nChung hoạt chất',
+                      child: Text('Có ${medicineListFillted.length} Thuốc có \nChung hoạt chất ${name()}',
                           style: const TextStyle(
                               fontSize: 25,
                               fontWeight: FontWeight.bold,

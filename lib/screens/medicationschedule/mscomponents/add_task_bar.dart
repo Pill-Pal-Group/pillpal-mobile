@@ -14,7 +14,6 @@ import 'package:pillpalmobile/screens/medicationschedule/mscomponents/inputfeild
 import 'package:pillpalmobile/screens/medicationschedule/mscomponents/msbutton.dart';
 import 'package:pillpalmobile/screens/medicationschedule/mscomponents/notification_services.dart';
 import 'package:pillpalmobile/services/auth/auth_service.dart';
-import 'package:pillpalmobile/services/noti/alarmlistupdate.dart';
 import 'package:pillpalmobile/services/ocr/Utils/image_picker_class.dart';
 import 'package:pillpalmobile/services/ocr/Widgets/modal_dialog.dart';
 import 'package:provider/provider.dart';
@@ -62,6 +61,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   }
 
   Future<void> pushMedicine() async {
+    DateTime today = DateTime.now();
     int day2 = int.parse(_totalNumCtrl.text) ~/
         (int.parse(_sNumCtrl.text) +
             int.parse(_trNumCtrl.text) +
@@ -69,19 +69,18 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
             int.parse(_tNumCtrl.text));
     var outputFormat = DateFormat('yyyy-MM-dd');
     var outputDate1 =
-        outputFormat.format(nowTime.subtract(const Duration(days: 1)));
+        outputFormat.format(today.subtract(const Duration(days: 2)));
     var outputDate2 = outputFormat.format(nowTime);
     var outputDate3 = outputFormat.format(nowTime.add(Duration(days: day2)));
     final response = await http.post(
-      Uri.parse("https://pp-devtest2.azurewebsites.net/api/prescripts"),
+      Uri.parse(APILINK.postPrescripts),
       headers: <String, String>{
         'accept': 'application/json',
         'Authorization': 'Bearer $tokene',
         'Content-Type': 'application/json'
       },
       body: jsonEncode(<String, dynamic>{
-        "prescriptImage":
-            "https://crazydiscostu.wordpress.com/wp-content/uploads/2023/11/history-of-the-rickroll.jpg",
+        "prescriptImage": LinkImages.erroPicHandelLink,
         "receptionDate": outputDate1,
         "doctorName": "No",
         "hospitalName": "No",
@@ -110,6 +109,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
               UserInfomation.accessToken, UserInfomation.refreshToken)
           .whenComplete(() => pushMedicine());
     } else {
+      log("pushMedicine bug ${response.body}");
       log("pushMedicine bug ${response.statusCode}");
     }
   }
@@ -137,12 +137,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
 
   void postMediceneIntake(
       String dateTake, String timeTake, int dose, String id) async {
-    log("postMediceneIntake debug $dateTake");
-    log("postMediceneIntake debug $timeTake");
-    log("postMediceneIntake debug $dose");
-    log("postMediceneIntake debug $id");
     final response = await http.post(
-      Uri.parse("https://pp-devtest2.azurewebsites.net/api/medication-intakes"),
+      Uri.parse(APILINK.postMediceneIntake),
       headers: <String, String>{
         'accept': 'application/json',
         'Authorization': 'Bearer $tokene',
@@ -155,7 +151,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         "prescriptDetailId": id
       }),
     );
-    log("postMediceneIntake debug ${response.body}");
     if (response.statusCode == 200 || response.statusCode == 201) {
       log("postMediceneIntake Sussecc ${response.statusCode}");
     } else if (response.statusCode == 401) {
@@ -163,13 +158,13 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
               UserInfomation.accessToken, UserInfomation.refreshToken)
           .whenComplete(() => postMediceneIntake(dateTake, timeTake, dose, id));
     } else {
+      log("postMediceneIntake bug ${response.body}");
       log("postMediceneIntake bug ${response.statusCode}");
     }
   }
 
   void updateMedicineImage(String prescriptDetailId, String imageLink) async {
-    String url =
-        "https://pp-devtest2.azurewebsites.net/api/prescripts/prescript-details/$prescriptDetailId/image";
+    String url = "${APILINK.putMedicineImage}$prescriptDetailId/image";
     final uri = Uri.parse(url);
     final respone = await http.put(uri,
         headers: <String, String>{
@@ -476,29 +471,27 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       if (_tNumCtrl.text.isEmpty) {
         _tNumCtrl.text = "0";
       }
-      pushMedicine()
-          .whenComplete(() => updateMedicineImage(prid, imageprdLink));
-
-      notifyHelper.displayNotification(
-          title: 'Thêm thành công', body: 'Chúc một ngày tốt lành');
-//       reloadAlarmList().whenComplete(() {
-// Navigator.push(
-//         context,
-//         MaterialPageRoute(
-//           builder: (context) => EntryPoint(
-//             selectpage: bottomNavItems[1],
-//           ),
-//         ),
-//       );
-//       });
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => EntryPoint(
-            selectpage: bottomNavItems[1],
+      pushMedicine().whenComplete(() {
+        updateMedicineImage(prid, imageprdLink);
+        Get.snackbar(
+          "Thêm Thành Công",
+          "Kiểm tra lại đơn thuốc",
+          snackPosition: SnackPosition.TOP,
+          colorText: const Color.fromARGB(255, 13, 255, 9),
+          duration: const Duration(seconds: 5),
+          backgroundColor: const Color.fromARGB(255, 227, 227, 227),
+        );
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => EntryPoint(
+              selectpage: bottomNavItems[0],
+            ),
           ),
-        ),
-      );
+        );
+      });
+      // notifyHelper.displayNotification(
+      //     title: 'Thêm thành công', body: 'Chúc một ngày tốt lành');
     } else if (_titleCtrl.text.isEmpty || _noteCtrl.text.isEmpty) {
       Get.snackbar("Hãy điền thông tin", "Vui lòng nhập đầy đủ thông tin",
           snackPosition: SnackPosition.BOTTOM,

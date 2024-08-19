@@ -2,12 +2,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:pillpalmobile/constants.dart';
-import 'package:pillpalmobile/screens/freetrialscreens/trial_screen.dart';
+//import 'package:pillpalmobile/screens/freetrialscreens/trial_screen.dart';
 import 'package:pillpalmobile/screens/onboding/onboding_screen.dart';
 import 'package:pillpalmobile/screens/packageandpayment/option_payment.dart';
 import 'package:pillpalmobile/screens/prescriptmanagement/precript_screen.dart';
 import 'package:pillpalmobile/screens/tos/termofservice.dart';
 import 'package:pillpalmobile/screens/userinformation/profile_page.dart';
+import 'package:pillpalmobile/services/noti/alarm_provider.dart';
+import 'package:provider/provider.dart';
 import '../../../model/menu.dart';
 import '../../../utils/rive_utils.dart';
 import 'info_card.dart';
@@ -26,7 +28,6 @@ class _SideBarState extends State<SideBar> {
   Future<void> sidebarNavigator() async {
     switch (selectedSideMenu.title) {
       case "Hồ Sơ":
-      
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -67,6 +68,7 @@ class _SideBarState extends State<SideBar> {
       case "Đăng xuất":
         await GoogleSignIn().signOut();
         FirebaseAuth.instance.signOut();
+        context.read<Alarmprovider>().deleteData();
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -81,7 +83,7 @@ class _SideBarState extends State<SideBar> {
 
   @override
   void initState() {
-    // TODO: implement initState
+    context.read<Alarmprovider>().getData();
     super.initState();
   }
   @override

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:pillpalmobile/constants.dart';
 import 'package:rive/rive.dart';
 
 class AnimatedBtn extends StatelessWidget {
@@ -24,7 +25,7 @@ class AnimatedBtn extends StatelessWidget {
           children: [
             //nút bấm
             RiveAnimation.asset(
-              "assets/RiveAssets/button.riv",
+              LinkImages.googleButtonForm,
               controllers: [_btnAnimationController],
             ),
             //chữ trên nút bấm

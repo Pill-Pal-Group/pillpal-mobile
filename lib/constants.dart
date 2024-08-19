@@ -1,7 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:get/get_core/src/get_main.dart';
 
 //màu cho khung app
 const Color backgroundColor2 = Color(0xFF17203A);
@@ -43,6 +45,19 @@ class Themes {
   );
 }
 
+class ThemeServices {
+  final _box = GetStorage();
+  final _key = 'isDarkMode';
+  _saveThemeToBox(bool isDarkMode) => _box.write(_key, isDarkMode);
+
+  bool _loadThemeFromBox() => _box.read(_key) ?? false;
+  ThemeMode get theme => _loadThemeFromBox() ? ThemeMode.dark : ThemeMode.light;
+  void switchTheme() {
+    Get.changeThemeMode(_loadThemeFromBox() ? ThemeMode.light : ThemeMode.dark);
+    _saveThemeToBox(!_loadThemeFromBox());
+  }
+}
+//text theme
 TextStyle get subHeadingstyle {
   return GoogleFonts.lato(
       textStyle: TextStyle(
@@ -66,17 +81,42 @@ TextStyle get subtitlestyle {
 
 //Link
 class LinkImages {
-  //login pich
+  //OnbodingScreen
+  static const String underMovingShape = "assets/Backgrounds/Spline.png";
+  static const String movingShape = "assets/RiveAssets/shapes.riv";
+  static const String pillLogo = "assets/picture/loginpic.png";
+  static const String googleButtonForm = "assets/RiveAssets/button.riv";
+  //VerifyEmailScreen
   static const String emailVerify = "assets/picture/emailverify.png";
+  //EntryPoint
+  static const String openMenuButton = "assets/RiveAssets/menu_button.riv";
+  //ZalopayLogo
+  static const String zalopayLogo = "https://haitrieu.com/wp-content/uploads/2022/10/Logo-ZaloPay-Square.png";
+  
+  static const String erroPicHandelLocal = "assets/picture/wsa.jpg";
 
-  static const String tempAvatar = "assets/picture/wsa.jpg";
+  static const String erroPicHandelLink = "https://www.shutterstock.com/image-vector/chibi-cute-vector-male-doctor-600nw-2401192065.jpg";
 
-  static const String rickroll =
-      "https://crazydiscostu.wordpress.com/wp-content/uploads/2023/11/history-of-the-rickroll.jpg";
+
 }
 
 class APILINK {
-  //static const String medicene = "https://pp-devtest2.azurewebsites.net/api/medicines?IncludeCategories=true&IncludeSpecifications=true&IncludePharmaceuticalCompanies=true&IncludeDosageForms=true&IncludeActiveIngredients=true&IncludeBrands=true";
+  //Home
+  static const String homePagefetchPrescripts = "https://pp-devtest2.azurewebsites.net/api/prescripts?IncludePrescriptDetails=true";
+  //PrescriptDetails
+  static const String deletePrescriptsHeader = "https://pp-devtest2.azurewebsites.net/api/prescripts/";
+  //MedicationSchedule
+  static const String fetchMedicineIntakeHeader = "https://pp-devtest2.azurewebsites.net/api/medication-intakes/prescripts/";
+  //AddTaskScreen
+  static const String postPrescripts = "https://pp-devtest2.azurewebsites.net/api/prescripts/";
+  static const String postMediceneIntake = "https://pp-devtest2.azurewebsites.net/api/medication-intakes";
+  static const String putMedicineImage = "https://pp-devtest2.azurewebsites.net/api/prescripts/prescript-details/";
+  //OptionPaymentScreen
+  static const String fetchPackageList = "https://pp-devtest2.azurewebsites.net/api/package-categories";
+  //MethodPaymentScreen
+  static const String postCustomerPackage = "https://pp-devtest2.azurewebsites.net/api/customer-packages/packages";
+  static const String postPaymentToVNpay = "https://pp-devtest2.azurewebsites.net/api/payments/packages?PackageCategoryId=";
+  static const String getcomfompayment = "https://pp-devtest2.azurewebsites.net/api/payments/packages/payment?customerPackageId=";
 }
 
 class UserInfomation {
@@ -89,7 +129,7 @@ class UserInfomation {
 }
 
 //emun
-enum ExerciseFilter { walking, running, cycling, hiking }
+//enum ExerciseFilter { walking, running, cycling, hiking }
 //sample
 // AwesomeNotifications().createNotification(
 //                             content: NotificationContent(

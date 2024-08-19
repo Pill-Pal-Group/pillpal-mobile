@@ -15,11 +15,13 @@ import 'package:pillpalmobile/screens/medicationschedule/mscomponents/notificati
 import 'package:image_picker/image_picker.dart';
 import 'package:pillpalmobile/services/auth/auth_service.dart';
 import 'package:pillpalmobile/services/auth/package_check.dart';
+import 'package:pillpalmobile/services/noti/alarm_provider.dart';
 import 'package:pillpalmobile/services/ocr/Screen/recognization_page.dart';
 import 'package:pillpalmobile/services/ocr/Utils/image_cropper_page.dart';
 import 'package:pillpalmobile/services/ocr/Utils/image_picker_class.dart';
 import 'package:pillpalmobile/services/ocr/Widgets/modal_dialog.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 
 class MedicationSchedule extends StatefulWidget {
   const MedicationSchedule({super.key});
@@ -31,18 +33,18 @@ class MedicationSchedule extends StatefulWidget {
 class _MedicationScheduleState extends State<MedicationSchedule> {
   var notifyHelper;
   List<dynamic> medicinesInTake = [];
-  List<dynamic> mInTake = [];
+  //List<dynamic> mInTake = [];
+  //List<String> mIntakeName = [];
   String pid = "";
   List<dynamic> prescriptsList = [];
-  var ui;
   DateTime today = DateTime.now();
   ScrollController controller = ScrollController();
   List<Widget> itemsData = [];
   bool closeTopContainer = false;
   double topContainer = 0;
 
-  void fecthUserInfor() async {
-    String url = "https://pp-devtest2.azurewebsites.net/api/customers/info";
+  void fetchPrescripts() async {
+    String url = APILINK.homePagefetchPrescripts;
     final uri = Uri.parse(url);
     final respone = await http.get(
       uri,
@@ -52,45 +54,40 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
     );
     if (respone.statusCode == 200 || respone.statusCode == 201) {
       final json = jsonDecode(respone.body);
-      ui = json;
-      fetchPrescripts(ui['customerCode']);
-    } else if (respone.statusCode == 401) {
-      refreshAccessToken(
-              UserInfomation.accessToken, UserInfomation.refreshToken)
-          .whenComplete(() => fecthUserInfor());
-    } else {
-      log("fecthUserInfor bug ${respone.statusCode}");
-    }
-  }
-
-  void fetchPrescripts(String customerID) async {
-    String url =
-        "https://pp-devtest2.azurewebsites.net/api/prescripts?CustomerCode=$customerID&IncludePrescriptDetails=true";
-    final uri = Uri.parse(url);
-    final respone = await http.get(
-      uri,
-      headers: <String, String>{
-        'Authorization': 'Bearer ${UserInfomation.accessToken}',
-      },
-    );
-    final json = jsonDecode(respone.body);
-    if (respone.statusCode == 200 || respone.statusCode == 201) {
-      prescriptsList = json;
+      log("MedicationSchedule fetchPrescripts Success ${respone.statusCode}");
+      prescriptsList = json['data'];
       thefor();
     } else if (respone.statusCode == 401) {
       refreshAccessToken(
               UserInfomation.accessToken, UserInfomation.refreshToken)
-          .whenComplete(() => fetchPrescripts(customerID));
+          .whenComplete(() => fetchPrescripts());
     } else {
-      log("fetchPrescripts bug ${respone.statusCode}");
+      log("MedicationSchedule fetchPrescripts bug ${respone.statusCode}");
     }
   }
 
-  void fetchMedicineIntake(String idpr, DateTime todayy) async {
+  Future<void> thefor() async {
+    for (var e in prescriptsList) {
+      log("fetchPrescripts success idPr: ${e['id']}");
+      fetchMedicineIntake(e['id'], today).whenComplete(() {
+        log("Data: 1 $medicinesInTake");
+        try {
+          for (var eachMed in medicinesInTake) {
+            getPostsData(eachMed['medicineName'],
+                eachMed['medicineImage'] ?? "", eachMed['medicationTakes']);
+          }
+        } catch (e) {
+          log("Data: 3 $e");
+        }
+      });
+    }
+  }
+
+  Future<void> fetchMedicineIntake(String idpr, DateTime todayy) async {
     var outputFormat = DateFormat('yyyy-MM-dd');
     var outputDate2 = outputFormat.format(todayy);
     String url =
-        "https://pp-devtest2.azurewebsites.net/api/medication-intakes/prescripts/$idpr?dateTake=$outputDate2";
+        "${APILINK.fetchMedicineIntakeHeader}$idpr?dateTake=$outputDate2";
     final uri = Uri.parse(url);
     final respone = await http.get(
       uri,
@@ -101,52 +98,29 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
     );
     final json = jsonDecode(respone.body);
     if (respone.statusCode == 200 || respone.statusCode == 201) {
-      log("fetchMedicineIntake success ${respone.statusCode}");
+      //log("MedicationSchedule fetchMedicineIntake success ${json.toString()}");
       medicinesInTake = json;
-      takeJTD();
     } else if (respone.statusCode == 401) {
       refreshAccessToken(
               UserInfomation.accessToken, UserInfomation.refreshToken)
           .whenComplete(() => fetchMedicineIntake(idpr, todayy));
     } else {
-      log("fetchMedicineIntake bug ${respone.statusCode}");
+      log("MedicationSchedule fetchMedicineIntake bug ${respone.statusCode}");
     }
   }
 
-  Future<void> takeJTD() async {
-    //mInTake = [];
-    //List<dynamic> tmp = [];
-    for (var element in medicinesInTake) {
-      //tmp = element['medicationTakes'];
-      for (var element in element['medicationTakes']) {
-        mInTake.add(element);
-      }
-    }
-    // for (var element in tmp) {
-    //   mInTake.add(element);
-    // }
-    getPostsData();
-    log("Done Load Medicine InTake: ${mInTake.length}");
-  }
-
-  Future<void> thefor() async {
-    for (var e in prescriptsList) {
-      log("fetchPrescripts success idPr: ${e['id']}");
-      fetchMedicineIntake(e['id'], today);
-    }
-  }
-
-  void getPostsData() {
-    List<dynamic> responseList = mInTake;
+  void getPostsData(String name, String pickLink, List<dynamic> tmplist) {
+    //log("Data: 2 $tmplist");
+    List<dynamic> responseList = tmplist;
     List<Widget> listItems = [];
-    responseList.forEach((post) {
+    for (var post in responseList) {
       listItems.add(
         InkWell(
           child: Container(
               height: 100,
               margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
               decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                  borderRadius: const BorderRadius.all(Radius.circular(10.0)),
                   color: Colors.white,
                   boxShadow: [
                     BoxShadow(
@@ -163,20 +137,20 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           Text(
-                            "Uống lúc ${post['timeTake']}",
+                            name,
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
-                              fontSize: 20,
+                              fontSize: 15,
                             ),
                             overflow: TextOverflow.fade,
                             maxLines: 2,
                             softWrap: true,
                           ),
                           const SizedBox(
-                            height: 15,
+                            height: 10,
                           ),
                           Text(
-                            "${post['dose']} Viên",
+                            "${post['dose']} Viên || ${post['timeTake']}",
                             style: const TextStyle(
                                 fontSize: 20,
                                 color: Colors.black,
@@ -186,11 +160,11 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
                       ),
                     ),
                     Image.network(
-                      "oke",
+                      pickLink,
                       fit: BoxFit.fitWidth, //url,
                       errorBuilder: (BuildContext context, Object exception,
                           StackTrace? stackTrace) {
-                        return Image.asset("assets/picture/wsa.jpg");
+                        return Image.asset(LinkImages.erroPicHandelLocal);
                       },
                       height: 80,
                     ),
@@ -198,38 +172,31 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
                 ),
               )),
           onTap: () {
-            log('${post['dateTake']}/////${post['timeTake']}');
-            String timeTk = post['timeTake'];
-            var tmplist = timeTk.split(":");
-            int hour = int.parse(tmplist[0]);
-            int minute = int.parse(tmplist[1]);
-            String dateStringWithTimeZone = '${post['dateTake']}';
-            DateTime dateTimeWithTimeZone =
-                DateTime.parse(dateStringWithTimeZone);
-            DateTime dateTimeWithTimeZone2 =
-                dateTimeWithTimeZone.add(Duration(hours: hour));
-            DateTime dateTimeWithTimeZone3 =
-                dateTimeWithTimeZone2.add(Duration(minutes: minute));
-            log(dateTimeWithTimeZone3.toString());
+            log("");
           },
         ),
       );
-    });
-    setState(() {
-      itemsData = listItems;
-    });
+    }
+    for (var item in listItems) {
+      setState(() {
+        itemsData.add(item);
+      });
+    }
   }
 
   @override
   void initState() {
+    context.read<Alarmprovider>().getData().whenComplete(() {
+      log("Check point medicineSchedule");
+      //context.read<alarmprovider>().ReloadNotification();
+    });
     fetchpackageCheck();
     super.initState();
-    mInTake = [];
+    itemsData = [];
     notifyHelper = NotifyHelper();
     notifyHelper.initializeNotification();
     notifyHelper.requestIOSPermissions();
-    fecthUserInfor();
-    //getPostsData();
+    fetchPrescripts();
     controller.addListener(() {
       double value = controller.offset / 119;
 
@@ -244,7 +211,7 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
   void dispose() {
     controller.dispose();
     super.dispose();
-    mInTake = [];
+    itemsData = [];
   }
 
   @override
@@ -262,7 +229,7 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
           const SizedBox(
             height: 10,
           ),
-          mInTake.isEmpty
+          itemsData.isEmpty
               ? Column(
                   children: [
                     const SizedBox(
@@ -328,10 +295,10 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
         //cai config chọn ngày
         onDateChange: (date) {
           setState(() {
-            mInTake = [];
+            itemsData = [];
+            itemsData.clear();
             today = date;
-            fecthUserInfor();
-            getPostsData();
+            fetchPrescripts();
             log(today.toString());
           });
         },
@@ -406,16 +373,18 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
                           context: context,
                           builder: (BuildContext context) {
                             return AlertDialog(
-                              title: Text('Chức năng nâng cao'),
-                              content: Text('Hãy mua gói trả phí để sử dụng'),
+                              title: const Text('Chức năng nâng cao'),
+                              content:
+                                  const Text('Hãy mua gói trả phí để sử dụng'),
                               backgroundColor: const Color(0xFFEFEFEF),
                               shape: RoundedRectangleBorder(
-                                side: BorderSide(color: Colors.green, width: 2),
+                                side: const BorderSide(
+                                    color: Colors.green, width: 2),
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               actions: <Widget>[
                                 TextButton(
-                                  child: Text('Đóng'),
+                                  child: const Text('Đóng'),
                                   onPressed: () {
                                     Navigator.of(context).pop();
                                   },
@@ -429,7 +398,6 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
           MsButton(
               lable: "Tạo Lịch",
               onTap: () => Get.to(() => const AddTaskScreen())),
-          //Get.to(() => const TermofService2())),
         ],
       ),
     );
@@ -445,7 +413,7 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
         GestureDetector(
           onTap: () {
             log("oke");
-            //ThemeServices().switchTheme();
+            ThemeServices().switchTheme();
             notifyHelper.displayNotification(
                 title: 'You change your theme',
                 body: Get.isDarkMode

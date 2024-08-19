@@ -1,22 +1,19 @@
-import 'dart:async';
-import 'dart:math';
+import 'dart:developer';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:pillpalmobile/constants.dart';
 import 'package:pillpalmobile/screens/home/home_screen.dart';
 import 'package:pillpalmobile/screens/medicationschedule/medicationschedule.dart';
 import 'package:pillpalmobile/screens/searchmedicine/searchscreen.dart';
 import 'package:pillpalmobile/services/auth/package_check.dart';
-import 'package:pillpalmobile/services/noti/alarmlistupdate.dart';
+import 'package:pillpalmobile/services/noti/alarm_provider.dart';
 import 'package:pillpalmobile/utils/rive_utils.dart';
 import 'package:provider/provider.dart';
 import 'package:rive/rive.dart';
 import '../../model/menu.dart';
-
-import '../freetrialscreens/cpntest/Provier.dart';
 import 'components/btm_nav_item.dart';
 import 'components/menu_btn.dart';
 import 'components/side_bar.dart';
-
 class EntryPoint extends StatefulWidget {
   final Menu? selectpage;
   final String? medname;
@@ -37,7 +34,7 @@ class _EntryPointState extends State<EntryPoint>
   Menu selectedSideMenu = sidebarMenus.first;
   //biến check xem có đang mở thanh bên không
   late SMIBool isMenuOpenInput;
-
+  
   void updateSelectedBtmNav(Menu menu) {
     if (selectedBottonNav != menu) {
       setState(() {
@@ -68,13 +65,8 @@ class _EntryPointState extends State<EntryPoint>
 
   @override
   void initState() {
-    // context.read<alarmprovider>().Inituilize(context);
-    // Timer.periodic(Duration(seconds: 1), (timer) {
-    //   // setState(() {});
-    // });
-    // context.read<alarmprovider>().GetData();
-    // reloadAlarmList().whenComplete(() {
-    // });
+    log("oke 0");
+    context.read<Alarmprovider>().inituilize(context);
     fetchpackageCheck();
     selectedBottonNav = widget.selectpage ?? bottomNavItems.first;
     _animationController = AnimationController(
@@ -121,7 +113,7 @@ class _EntryPointState extends State<EntryPoint>
             transform: Matrix4.identity()
               ..setEntry(3, 2, 0.001)
               ..rotateY(
-                  1 * animation.value - 30 * (animation.value) * pi / 180),
+                  1 * animation.value - 30 * (animation.value) * math.pi / 180),
             child: Transform.translate(
               offset: Offset(animation.value * 265, 0),
               child: Transform.scale(
