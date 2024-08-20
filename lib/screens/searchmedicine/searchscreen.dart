@@ -27,7 +27,7 @@ class _SearchScreenState extends State<SearchScreen> {
   List<dynamic> medicines = [];
   List<dynamic> categoryList = [];
   List<dynamic> medicineListFillted = [];
-
+  int totaklmedicine = 0;
   var categoryChoiseList = null;
   int? selectedIndex;
   bool pickyet = false;
@@ -56,6 +56,7 @@ class _SearchScreenState extends State<SearchScreen> {
         final json = jsonDecode(respone.body);
         numberOfPage = json['totalPages'];
         medicines = json['data'];
+        totaklmedicine = json['totalCount'];
       });
       log("fetchMedicine Sussecc ${respone.statusCode}");
     } else if (respone.statusCode == 401) {
@@ -314,6 +315,7 @@ class _SearchScreenState extends State<SearchScreen> {
                           pharmaceuticalCompanies: medicines[index]
                               ['pharmaceuticalCompanies'],
                           medInbrand: medicines[index]['medicineInBrands'],
+                          totalmedicine: totaklmedicine,
                         ),
                       ));
                 },

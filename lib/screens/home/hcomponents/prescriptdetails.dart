@@ -120,20 +120,21 @@ class _PrescriptDetailsState extends State<PrescriptDetails> {
                               "Tên thuốc: ${post['medicineName']}",
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
-                                fontSize: 20,
+                                fontSize: 17,
                               ),
-                              overflow: TextOverflow.fade,
+                              overflow: TextOverflow.visible,
                               maxLines: 2,
                               softWrap: true,
                             ),
                             Text(
                               "Tổng ${post["totalDose"]} Viên",
                               style: const TextStyle(
-                                  fontSize: 15,
+                                  fontSize: 12,
                                   color: Colors.black,
                                   fontWeight: FontWeight.bold),
                             ),
                             Row(
+                              verticalDirection: VerticalDirection.down,
                               children: [
                                 Text(
                                   "Sáng: ${post["morningDose"]}",
@@ -301,6 +302,7 @@ class _PrescriptDetailsState extends State<PrescriptDetails> {
                             MaterialPageRoute(
                               builder: (context) => EntryPoint(
                                 selectpage: bottomNavItems[0],
+                                medname: "",
                               ),
                             ),
                           );

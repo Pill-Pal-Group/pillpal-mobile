@@ -13,6 +13,7 @@ class MedicineDetailScreen extends StatelessWidget {
   final List<dynamic> activeIngredients;
   final List<dynamic> pharmaceuticalCompanies;
   final List<dynamic> medInbrand;
+  final int totalmedicine;
 
   const MedicineDetailScreen(
       {super.key,
@@ -23,7 +24,7 @@ class MedicineDetailScreen extends StatelessWidget {
       //required this.specifDetail,
       required this.activeIngredients,
       required this.pharmaceuticalCompanies,
-      required this.medInbrand});
+      required this.medInbrand,required this.totalmedicine});
   final String oke = "Thuốc đại trà";
   final String notoke = "Thuốc kê đơn";
 
@@ -171,7 +172,7 @@ class MedicineDetailScreen extends StatelessWidget {
                   ListView.builder(
                     physics: const NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
-                    itemCount: activeIngredients.length,
+                    itemCount: pharmaceuticalCompanies.length,
                     itemBuilder: (context, index) => ingredients(
                         pharmaceuticalCompanies[index]['companyName'] ??
                             "Chưa có thông tin"),
@@ -243,6 +244,7 @@ class MedicineDetailScreen extends StatelessWidget {
                             MaterialPageRoute(
                               builder: (context) => SameMediceneScreen(
                                 iName: activeIngredients,
+                                totalmedicineatsm: totalmedicine,
                               ),
                             ),
                           );

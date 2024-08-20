@@ -156,7 +156,8 @@ class Alarmprovider extends ChangeNotifier {
                       String timeTk = medicationIntake['timeTake'];
                       var tmplist = timeTk.split(":");
                       int hour = int.parse(tmplist[0]);
-                      int minute = int.parse(tmplist[1]);
+                      var tmplist2 = tmplist[1].split(" ");
+                      int minute = int.parse(tmplist2[0]);
                       String dateStringWithTimeZone ='${medicationIntake['dateTake']}';
                       DateFormat dateFormat = DateFormat("yyyy-MM-dd");
                       DateTime dateTimeWithTimeZone = dateFormat.parse(dateStringWithTimeZone);

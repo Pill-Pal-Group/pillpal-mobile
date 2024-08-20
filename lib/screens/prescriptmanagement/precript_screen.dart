@@ -194,7 +194,7 @@ class _PrecriptManagementState extends State<PrecriptManagement> {
                             transform: Matrix4.identity()..scale(scale, scale),
                             alignment: Alignment.bottomCenter,
                             child: Align(
-                                heightFactor: 0.7,
+                                heightFactor: 1,
                                 alignment: Alignment.topCenter,
                                 child: itemsData[index]),
                           ),

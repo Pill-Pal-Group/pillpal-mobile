@@ -30,7 +30,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   var notifyHelper;
   late NewEntryBloc _newEntryBloc;
   final TextEditingController _titleCtrl = TextEditingController();
-  final TextEditingController _noteCtrl = TextEditingController();
+  //final TextEditingController _noteCtrl = TextEditingController();
   final TextEditingController _sNumCtrl = TextEditingController();
   final TextEditingController _trNumCtrl = TextEditingController();
   final TextEditingController _cNumCtrl = TextEditingController();
@@ -42,8 +42,10 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   String _starTImetr = DateFormat("hh:mm:a").format(DateTime.now()).toString();
   String _starTImec = DateFormat("hh:mm:a").format(DateTime.now()).toString();
   String _starTImet = DateFormat("hh:mm:a").format(DateTime.now()).toString();
-  List<int> remindList = [10, 15, 20, 30];
-  List<String> repeatList = ["Aftermeal", "Mỗi ngày"];
+
+  List<String> repeatList = ["Trước khi ăn", "Sau khi ăn"];
+  String _dropdownValue = "Trước khi ăn";
+  String addtoapi = "";
   String imageprdLink = "";
   String prid = '';
   //hamf
@@ -52,7 +54,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     super.dispose();
     _newEntryBloc.dispose();
     _titleCtrl.dispose();
-    _noteCtrl.dispose();
     _sNumCtrl.dispose();
     _trNumCtrl.dispose();
     _cNumCtrl.dispose();
@@ -237,12 +238,60 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                   controller: _titleCtrl,
                 ),
                 //note
-                MsInputFeild(
-                  type: TextInputType.text,
-                  tittle: 'Ghi chú',
-                  hint: 'VD: uống trước khi ăn 30 phút',
-                  controller: _noteCtrl,
+                Container(
+                  margin: EdgeInsets.only(top: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Uống trước hay sau khi ăn",
+                        style: TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.bold),
+                      ),
+                      Container(
+                        height: 52,
+                        margin: const EdgeInsets.only(top: 8.0),
+                        padding: const EdgeInsets.only(left: 14.0),
+                        //color: Colors.grey,
+                        decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey, width: 1.0),
+                            borderRadius: BorderRadius.circular(12)),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: DropdownButton(
+                                items: repeatList.map<DropdownMenuItem<String>>(
+                                    (String mascot) {
+                                  return DropdownMenuItem<String>(
+                                      child: Text(mascot), value: mascot);
+                                }).toList(),
+                                value: _dropdownValue,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _dropdownValue = value.toString();
+                                    if (_dropdownValue == "Sau khi ăn") {
+                                      addtoapi = "Aftermeal";
+
+                                    } else if (_dropdownValue == "Trước khi ăn") {
+                                      addtoapi = "Beforemeal";
+                                    } else {
+                                      addtoapi = "Aftermeal";
+                                    }
+                                  });
+                                  log(addtoapi);
+                                },
+                                style: const TextStyle(
+                                  color: Color.fromARGB(255, 0, 0, 0),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
                 ),
+
                 //time
                 MsInputFeild(
                   type: TextInputType.datetime,
@@ -457,7 +506,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   }
 
   _validateDate() {
-    if (_titleCtrl.text.isNotEmpty && _noteCtrl.text.isNotEmpty) {
+    if (_titleCtrl.text.isNotEmpty) {
       //add to data
       if (_sNumCtrl.text.isEmpty) {
         _sNumCtrl.text = "0";
@@ -486,13 +535,14 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
           MaterialPageRoute(
             builder: (context) => EntryPoint(
               selectpage: bottomNavItems[0],
+              medname: "",
             ),
           ),
         );
       });
       // notifyHelper.displayNotification(
       //     title: 'Thêm thành công', body: 'Chúc một ngày tốt lành');
-    } else if (_titleCtrl.text.isEmpty || _noteCtrl.text.isEmpty) {
+    } else if (_titleCtrl.text.isEmpty) {
       Get.snackbar("Hãy điền thông tin", "Vui lòng nhập đầy đủ thông tin",
           snackPosition: SnackPosition.BOTTOM,
           colorText: Colors.redAccent,

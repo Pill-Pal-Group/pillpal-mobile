@@ -172,7 +172,7 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
                 ),
               )),
           onTap: () {
-            log("");
+            log("Delete this Id: ${post['id']}");
           },
         ),
       );

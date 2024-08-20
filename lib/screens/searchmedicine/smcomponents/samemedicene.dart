@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:animate_do/animate_do.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:pillpalmobile/constants.dart';
@@ -11,7 +10,9 @@ import 'package:pillpalmobile/services/auth/auth_service.dart';
 
 class SameMediceneScreen extends StatefulWidget {
   final List<dynamic> iName;
-  const SameMediceneScreen({super.key, required this.iName});
+  final int totalmedicineatsm;
+  const SameMediceneScreen(
+      {super.key, required this.iName, required this.totalmedicineatsm});
 
   @override
   State<SameMediceneScreen> createState() => _SameMediceneScreenState();
@@ -25,19 +26,14 @@ class _SameMediceneScreenState extends State<SameMediceneScreen> {
   int tottalPage = 0;
 
   Future<void> fetchMedicineForFillter(
-      String medicineName, int pageNumBer, String categoryName) async {
+      int pageNumBer, int totalmedicineFF) async {
+    int tmp = totalmedicineFF ~/ 4;
     String url =
-        "https://pp-devtest2.azurewebsites.net/api/medicines?MedicineName=$medicineName&Category=$categoryName&Page=$pageNumBer&PageSize=50&IncludeCategories=true&IncludeSpecifications=true&IncludePharmaceuticalCompanies=true&IncludeDosageForms=true&IncludeActiveIngredients=true&IncludeBrands=true";
+        "https://pp-devtest2.azurewebsites.net/api/medicines?Page=$pageNumBer&PageSize=$tmp&IncludeCategories=true&IncludeSpecifications=true&IncludePharmaceuticalCompanies=true&IncludeDosageForms=true&IncludeActiveIngredients=true&IncludeBrands=true";
     final uri = Uri.parse(url);
-    final respone = await http.get(
-      uri,
-      headers: <String, String>{
-        'Authorization': 'Bearer ${UserInfomation.accessToken}',
-      },
-    );
-
+    final respone = await http.get(uri);
     if (respone.statusCode == 200 || respone.statusCode == 201) {
-      log("fetchMedicine Sussecc ${respone.statusCode}");
+      log("filterByCategoryName Sussecc ${respone.statusCode}");
       setState(() {
         final json = jsonDecode(respone.body);
         tottalPage = json['totalPages'];
@@ -46,35 +42,49 @@ class _SameMediceneScreenState extends State<SameMediceneScreen> {
     } else if (respone.statusCode == 401) {
       refreshAccessToken(
               UserInfomation.accessToken, UserInfomation.refreshToken)
-          .whenComplete(() => fetchMedicineForFillter(medicineName,pageNumBer,categoryName));
-    }else {
-      log("fetchMedicine bug ${respone.statusCode}");
+          .whenComplete(
+              () => fetchMedicineForFillter(pageNumBer, totalmedicineFF));
+    } else {
+      log("filterByCategoryName bug ${respone.statusCode}");
     }
   }
 
-  Future<void> filterByCategoryName() async {
-    fetchMedicineForFillter("", 1, "").whenComplete(() async {
+  void filterByCategoryName() async {
+    bool check = false;
+    fetchMedicineForFillter(1, widget.totalmedicineatsm).whenComplete(() async {
       log("filterByCategoryName input check ${widget.iName}");
       log("filterByCategoryName input check  $tottalPage");
+      log("filterByCategoryName input check ${sameMedicinesList.length}");
       int tmpNum = tottalPage;
-      for (var eIName in widget.iName) {
-        for (var i = 1; i < tmpNum + 1; i++) {
-          fetchMedicineForFillter("", i, "").whenComplete(() async {
-            for (var e in sameMedicinesList) {
-              for (var x in e['activeIngredients']) {
-                if (x['ingredientName'] == eIName['ingredientName']) {
-                  medicineListFillted.add(e);
+      for (var i = 1; i < tmpNum + 1; i++) {
+        fetchMedicineForFillter(i, widget.totalmedicineatsm)
+            .whenComplete(() async {
+          for (var e in sameMedicinesList) {
+            List<dynamic> tmpcount = e['activeIngredients'];
+            if (tmpcount.length == widget.iName.length) {
+              for (var x in tmpcount) {
+                for (var eIName in widget.iName) {
+                  if (x['ingredientName'] == eIName['ingredientName']) {
+                    check = true;
+                    break;
+                  }else{
+                    check = false;
+                    break;
+                  }
                 }
               }
+              if (check) {
+                medicineListFillted.add(e);
+              }
             }
-          });
-        }
+          }
+        });
       }
     });
   }
 
-  String name(){
-  String tmp = "";
+  String name() {
+    String tmp = "";
     for (var element in widget.iName) {
       tmp += element['ingredientName'];
       tmp += ", ";
@@ -107,7 +117,8 @@ class _SameMediceneScreenState extends State<SameMediceneScreen> {
                     flex: 4,
                     child: FadeInUp(
                       duration: const Duration(milliseconds: 1200),
-                      child: Text('Có ${medicineListFillted.length} Thuốc có \nChung hoạt chất ${name()}',
+                      child: Text(
+                          'Có ${medicineListFillted.length} Thuốc có \nChung hoạt chất ${name()}',
                           style: const TextStyle(
                               fontSize: 25,
                               fontWeight: FontWeight.bold,
@@ -157,6 +168,7 @@ class _SameMediceneScreenState extends State<SameMediceneScreen> {
                                             ['pharmaceuticalCompanies'],
                                     medInbrand: medicineListFillted[index]
                                         ['medicineInBrands'],
+                                    totalmedicine: widget.totalmedicineatsm,
                                   ),
                                 ));
                           },

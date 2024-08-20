@@ -85,7 +85,7 @@ class _CompareMedicineState extends State<CompareMedicine> {
                           StackTrace? stackTrace) {
                         return Image.asset("assets/picture/wsa.jpg");
                       },
-                      height: 80,
+                      width: 70,
                     ),
                   ],
                 ),
@@ -167,7 +167,7 @@ class _CompareMedicineState extends State<CompareMedicine> {
                             transform: Matrix4.identity()..scale(scale, scale),
                             alignment: Alignment.bottomCenter,
                             child: Align(
-                                heightFactor: 0.7,
+                                heightFactor: 1,
                                 alignment: Alignment.topCenter,
                                 child: itemsData[index]),
                           ),
