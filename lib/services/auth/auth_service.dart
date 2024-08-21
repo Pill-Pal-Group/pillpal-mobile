@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:ui';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get/get.dart';
@@ -42,8 +43,21 @@ Future<void> signInWithGoogle() async {
         'token': token,
       }),
     );
-    final json = jsonDecode(response.body);
+    if(response.statusCode == 401){
+      await GoogleSignIn().signOut();
+        FirebaseAuth.instance.signOut();
+      Get.snackbar(
+          "Đăng nhập thất bại",
+          "Tài khoản của bạn đã bị khóa",
+          snackPosition: SnackPosition.TOP,
+          colorText: const Color.fromARGB(255, 255, 0, 0),
+          duration: const Duration(seconds: 5),
+          backgroundColor: const Color.fromARGB(255, 227, 227, 227),
+        );
+      Get.to(() => const OnbodingScreen());
+    }
 
+    final json = jsonDecode(response.body);
     UserInfomation.loginuser = tokenResult;
     UserInfomation.accessToken = json['accessToken'];
     log("accessToken ${UserInfomation.accessToken}");
@@ -66,6 +80,8 @@ Future<void> signInWithGoogle() async {
       Get.to(() => const VerifyEmailScreen());
     }
   } catch (e) {
+    await GoogleSignIn().signOut();
+        FirebaseAuth.instance.signOut();
     Get.to(() => const OnbodingScreen());
     log("BugLogin ${e.toString()}");
   }
