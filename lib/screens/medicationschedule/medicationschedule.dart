@@ -187,8 +187,9 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
   @override
   void initState() {
     context.read<Alarmprovider>().getData().whenComplete(() {
-      log("Check point medicineSchedule");
-      //context.read<alarmprovider>().ReloadNotification();
+      context.read<Alarmprovider>().reloadNotification().whenComplete(() {
+        log("ReloadNotification End ${context.read<Alarmprovider>().modelist.length}");
+      });
     });
     fetchpackageCheck();
     super.initState();
@@ -332,22 +333,35 @@ class _MedicationScheduleState extends State<MedicationSchedule> {
                     if (UserInfomation.paided)
                       {
                         imagePickerModal(context, onCameraTap: () {
-                          pickImage(source: ImageSource.camera).then((value) {
-                            if (value != '') {
-                              imageCropperView(value.$1, context).then((value) {
+                          try {
+                            pickImage(source: ImageSource.camera).then((value) {
+                              try {
                                 if (value != '') {
-                                  Navigator.push(
-                                    context,
-                                    CupertinoPageRoute(
-                                      builder: (_) => RecognizePage(
-                                        path: value,
-                                      ),
-                                    ),
-                                  );
+                                  imageCropperView(value.$1, context)
+                                      .then((value) {
+                                    if (value != '') {
+                                      try {
+                                        Navigator.push(
+                                          context,
+                                          CupertinoPageRoute(
+                                            builder: (_) => RecognizePage(
+                                              path: value,
+                                            ),
+                                          ),
+                                        );
+                                      } catch (e) {
+                                        log("bug when imageCropperView");
+                                      }
+                                    }
+                                  });
                                 }
-                              });
-                            }
-                          });
+                              } catch (e) {
+                                log("bug when pickImage");
+                              }
+                            });
+                          } catch (e) {
+                            log("bug when imagePickerModal");
+                          }
                         }, onGalleryTap: () {
                           pickImage(source: ImageSource.gallery).then((value) {
                             if (value != '') {

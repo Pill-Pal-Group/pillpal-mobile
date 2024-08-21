@@ -3,6 +3,7 @@ import 'dart:core';
 import 'dart:developer';
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
@@ -10,6 +11,8 @@ import 'package:intl/intl.dart';
 import 'package:pillpalmobile/constants.dart';
 import 'package:pillpalmobile/model/menu.dart';
 import 'package:pillpalmobile/screens/entryPoint/entry_point.dart';
+import 'package:pillpalmobile/screens/medicationschedule/mscomponents/inputfeild.dart';
+import 'package:pillpalmobile/services/auth/auth_service.dart';
 
 class RecognizePage extends StatefulWidget {
   final String? path;
@@ -22,13 +25,15 @@ class RecognizePage extends StatefulWidget {
 class _RecognizePageState extends State<RecognizePage> {
   //controler
   ScrollController sController = ScrollController();
+  final TextEditingController doctorNameCtrl = TextEditingController();
+  final TextEditingController hopitalNameCtrl = TextEditingController();
   late final InputImage inputImage;
   String imageDLL = "";
   bool _isBusy = false;
-  final List<int> _medicineDoseS = [];
-  final List<int> _medicineDoseT = [];
-  final List<int> _medicineDoseC = [];
-  final List<int> _medicineDoseTT = [];
+  final List<double> _medicineDoseS = [];
+  final List<double> _medicineDoseTr = [];
+  final List<double> _medicineDoseC = [];
+  final List<double> _medicineDoseT = [];
   final List<String> _medicineName = [];
   final List<int> _medicineTotal = [];
   String tokene = UserInfomation.accessToken;
@@ -66,8 +71,9 @@ class _RecognizePageState extends State<RecognizePage> {
 
   void pushMedicineVer2(
       List<Map<String, dynamic>> tesrne, String imagelink) async {
-    var outputDate1 =
-        outputFormat.format(nowTime.subtract(const Duration(days: 10)));
+    DateTime today = DateTime.now();
+    var outputFormat = DateFormat('yyyy-MM-dd');
+    var outputDate1 = outputFormat.format(today);
     final response = await http.post(
       Uri.parse("https://pp-devtest2.azurewebsites.net/api/prescripts"),
       headers: <String, String>{
@@ -78,18 +84,27 @@ class _RecognizePageState extends State<RecognizePage> {
       body: jsonEncode(<String, dynamic>{
         "prescriptImage": imagelink,
         "receptionDate": outputDate1,
-        "doctorName": "Gia kỳ",
-        "hospitalName": "Gia Định",
+        "doctorName": doctorNameCtrl.text,
+        "hospitalName": hopitalNameCtrl.text,
         "prescriptDetails": tesrne
       }),
     );
-    log(response.statusCode.toString());
-    final json = jsonDecode(response.body);
-    genMediceneIntake(json['id']);
-    log(json.toString());
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      log(response.statusCode.toString());
+      final json = jsonDecode(response.body);
+      genMediceneIntake(json['id']);
+      log(json.toString());
+    } else if (response.statusCode == 401) {
+      refreshAccessToken(
+              UserInfomation.accessToken, UserInfomation.refreshToken)
+          .whenComplete(() => pushMedicineVer2(tesrne, imagelink));
+    } else {
+      log("pushMedicine bug ${response.body}");
+      log("pushMedicine bug ${response.statusCode}");
+    }
   }
 
-  void processImage(InputImage image) async {
+  void processTheImage(InputImage image) async {
     final textRecognizer = TextRecognizer(
       script: TextRecognitionScript.latin,
     );
@@ -97,164 +112,206 @@ class _RecognizePageState extends State<RecognizePage> {
     setState(() {
       _isBusy = true;
     });
-
-    //log(image.filePath!);
     final RecognizedText recognizedText =
         await textRecognizer.processImage(image);
-    //log(recognizedText.text);
-    //controller.text = recognizedText.text;
-    //lấy số lượng
-    checkSL(recognizedText.blocks);
-    //lấy tên thuốc
-    checkTen(recognizedText.blocks);
-    //lấy sang
-    checkTimesang(recognizedText.blocks);
-    //Lấy trưa
-    _medicineDoseT.add(0);
-    _medicineDoseT.add(0);
-    _medicineDoseT.add(0);
-    //checkTimetrua(recognizedText.blocks);
-    //lấy chiều
-    checkTimechieu(recognizedText.blocks);
-    _medicineDoseTT.add(0);
-    _medicineDoseTT.add(0);
-    _medicineDoseTT.add(0);
-    //checkTimetoi(recognizedText.blocks);
+    try {
+      //lấy tên thuốc
+      checkTen(recognizedText.blocks);
+      //laySL
+      checkSL(recognizedText.blocks);
+      // //lấy sang
+      checkTimesang(recognizedText.blocks);
+      // //Lấy trưa
+      checkTimetrua(recognizedText.blocks);
+      // //lấy chiều
+      checkTimechieu(recognizedText.blocks);
+      // //lấy Tối
+      checkTimetoi(recognizedText.blocks);
+    } catch (e) {
+      Get.snackbar(
+        "Ảnh bị lỗi",
+        "Vui lòng chụp lại",
+        snackPosition: SnackPosition.TOP,
+        colorText: const Color.fromARGB(255, 192, 5, 5),
+        duration: const Duration(seconds: 5),
+        backgroundColor: const Color.fromARGB(255, 151, 151, 151),
+      );
+      Navigator.of(context).pop();
+    }
 
     //ket qua
-    log("ket qua");
-    log(_medicineDoseS.toString());
-    log(_medicineDoseT.toString());
-    log(_medicineDoseC.toString());
-    log(_medicineDoseTT.toString());
-    log(_medicineName.toString());
-    log(_medicineTotal.toString());
+    log("Name: ${_medicineName.toString()}");
+    log("SL: ${_medicineTotal.toString()}");
+    log("S: ${_medicineDoseS.toString()}");
+    log("Tr: ${_medicineDoseTr.toString()}");
+    log("C: ${_medicineDoseC.toString()}");
+    log("T: ${_medicineDoseT.toString()}");
 
-    ///End busy state
+    //End busy state
     setState(() {
       _isBusy = false;
     });
   }
 
   void checkSL(List<TextBlock> tmp) {
-    for (var element in tmp) {
-      if (element.text.contains("SL:")) {
-        List<String> tmp = element.text.split(" ");
-        //log(tmp[1]);
-        _medicineTotal.add(int.parse(tmp[1]));
+    for (TextBlock block in tmp) {
+      for (TextLine line in block.lines) {
+        if (line.text.contains("SL:")) {
+          //log("checkSL line: ${line.text}");
+          try {
+            int tws = line.text.indexOf("SL:");
+            //log("checkSL tws: ${tws}");
+            if (tws > 0) {
+              String tmp0 = line.text.substring((tws - 1));
+              //log("checkSL tmp0v: $tmp0");
+              List<String> tmp = tmp0.removeAllWhitespace.split(":");
+              //log("checkSL tmp: ${tmp[1]}");
+              int tmpint = int.parse(tmp[1]);
+              //log("checkSL tmpint: $tmpint");
+              _medicineTotal.add(tmpint);
+            } else {
+              List<String> tmp = line.text.split(" ");
+              //log("checkSL tmp: ${tmp[1]}");
+              int tmpint = int.parse(tmp[1]);
+              //log("checkSL tmpint: $tmpint");
+              _medicineTotal.add(tmpint);
+            }
+          } catch (e) {
+            _medicineTotal.add(0);
+          }
+        }
       }
     }
   }
 
-  void checkTen(List<TextBlock> tmp) {
-    for (var element in tmp) {
-      if (element.text.contains("(") || element.text.contains(")")) {
-        //log(element.text.replaceAll("\n", " "));
-        List<String> tmp3 = element.text.replaceAll("\n", " ").split(",");
-        _medicineName.add(tmp3[0]);
+  Future<void> checkTen(List<TextBlock> tmp) async {
+    for (TextBlock line in tmp) {
+      if (line.text.contains("(") &&
+          line.text.contains(")") &&
+          line.text.contains(",")) {
+        List<String> tmp1 = line.text.replaceAll('\n', " ").split(",");
+        String tmp2 = tmp1[0].replaceAll("(", "");
+        String tmp3 = tmp2.replaceAll(")", "");
+        _medicineName.add(tmp3);
       }
     }
   }
 
   void checkTimesang(List<TextBlock> tmp) {
-    for (var element in tmp) {
-      if (element.text.contains("Sáng:")) {
-        String tmp = element.text.replaceAll("\n", " ");
-        //log("xxxxx");
-        String tmp2 = "";
-        try {
-          for (var i = tmp.indexOf("Sáng:");
-              i < tmp.indexOf("Sáng:") + 7;
-              i++) {
-            tmp2 += tmp[i];
+    for (TextBlock block in tmp) {
+      for (TextLine line in block.lines) {
+        if (line.text.contains("Sáng:") ||
+            line.text.contains("Sang:") ||
+            line.text.contains("San:")) {
+          log("checkSL line: ${line.text}");
+          try {
+            int tws = line.text.indexOf("Sáng:");
+            String tmp0 = line.text.substring(tws);
+            //log("checkSL tmp0v: $tmp0");
+            List<String> tmp = tmp0.split(" ");
+            //log("checkSL tmp: ${tmp[1]}");
+            double tmpint = double.parse(tmp[1]);
+            //log("checkSL tmpint: $tmpint");
+            if (_medicineDoseS.length <= _medicineName.length) {
+              _medicineDoseS.add(tmpint);
+            }
+          } catch (e) {
+            _medicineDoseS.add(0);
           }
-          //log(tmp2);
-          addTimeSang(tmp2, "Sáng: ");
-          //log("xxxxx");
-        } catch (e) {
-          _medicineDoseS.add(0);
         }
       }
     }
-    //log("Cai nay buoi sang");
-    //log(_medicineDose.toString());
+    if (_medicineDoseS.length < _medicineName.length) {
+      while (_medicineDoseS.length < _medicineName.length) {
+        _medicineDoseS.add(0);
+      }
+    }
   }
 
   void checkTimetrua(List<TextBlock> tmp) {
-    for (var element in tmp) {
-      if (element.text.contains("Trưa:")) {
-        String tmp = element.text.replaceAll("\n", " ");
-        //log("xxxxx");
-        String tmp2 = "";
-        try {
-          for (var i = tmp.indexOf("Trưa:");
-              i < tmp.indexOf("Trưa:") + 7;
-              i++) {
-            tmp2 += tmp[i];
+    for (TextBlock block in tmp) {
+      for (TextLine line in block.lines) {
+        if (line.text.contains("Trưa:")) {
+          log("checkSL line: ${line.text}");
+          try {
+            int tws = line.text.indexOf("Trưa:");
+            String tmp0 = line.text.substring(tws);
+            //log("checkSL tmp0v: $tmp0");
+            List<String> tmp = tmp0.split(" ");
+            //log("checkSL tmp: ${tmp[1]}");
+            double tmpint = double.parse(tmp[1]);
+            //log("checkSL tmpint: $tmpint");
+            if (_medicineDoseTr.length <= _medicineName.length) {
+              _medicineDoseTr.add(tmpint);
+            }
+          } catch (e) {
+            _medicineDoseTr.add(0);
           }
-          //log(tmp2);
-          addTimeSang(tmp2, "Trưa: ");
-          //log("xxxxx");
-        } catch (e) {
-          _medicineDoseT.add(0);
         }
+      }
+    }
+    if (_medicineDoseTr.length < _medicineName.length) {
+      while (_medicineDoseTr.length < _medicineName.length) {
+        _medicineDoseTr.add(0);
       }
     }
   }
 
   void checkTimechieu(List<TextBlock> tmp) {
-    for (var element in tmp) {
-      if (element.text.contains("Chiều:")) {
-        log(element.toString());
-        String tmp = element.text.replaceAll("\n", " ");
-        String tmp2 = "";
-        try {
-          for (var i = tmp.indexOf("Chiều:");
-              i < tmp.indexOf("Chiều:") + 8;
-              i++) {
-            tmp2 += tmp[i];
+    for (TextBlock block in tmp) {
+      for (TextLine line in block.lines) {
+        if (line.text.contains("Chiều:")) {
+          log("checkSL line: ${line.text}");
+          try {
+            int tws = line.text.indexOf("Chiều:");
+            String tmp0 = line.text.substring(tws);
+            //log("checkSL tmp0v: $tmp0");
+            List<String> tmp = tmp0.split(" ");
+            //log("checkSL tmp: ${tmp[1]}");
+            double tmpint = double.parse(tmp[1]);
+            //log("checkSL tmpint: $tmpint");
+            if (_medicineDoseC.length <= _medicineName.length) {
+              _medicineDoseC.add(tmpint);
+            }
+          } catch (e) {
+            _medicineDoseC.add(0);
           }
-
-          addTimeSang(tmp2, "Chiều: ");
-        } catch (e) {
-          _medicineDoseC.add(0);
         }
+      }
+    }
+    if (_medicineDoseC.length < _medicineName.length) {
+      while (_medicineDoseC.length < _medicineName.length) {
+        _medicineDoseC.add(0);
       }
     }
   }
 
   void checkTimetoi(List<TextBlock> tmp) {
-    for (var element in tmp) {
-      if (element.text.contains("Tối:")) {
-        String tmp = element.text.replaceAll("\n", " ");
-        log("EEEEEE");
-        String tmp2 = "";
-        try {
-          for (var i = tmp.indexOf("Tối:"); i < tmp.indexOf("Tối:") + 8; i++) {
-            tmp2 += tmp[i];
+    for (TextBlock block in tmp) {
+      for (TextLine line in block.lines) {
+        if (line.text.contains("Tối:")) {
+          //log("checkSL line: ${line.text}");
+          try {
+            int tws = line.text.indexOf("Tối:");
+            String tmp0 = line.text.substring(tws);
+            //log("checkSL tmp0v: $tmp0");
+            List<String> tmp = tmp0.split(" ");
+            //log("checkSL tmp: ${tmp[1]}");
+            double tmpint = double.parse(tmp[1]);
+            //log("checkSL tmpint: $tmpint");
+            if (_medicineDoseT.length <= _medicineName.length) {
+              _medicineDoseT.add(tmpint);
+            }
+          } catch (e) {
+            _medicineDoseT.add(0);
           }
-          addTimeSang(tmp2, "Tối: ");
-        } catch (e) {
-          _medicineDoseTT.add(0);
         }
       }
     }
-  }
-
-  void addTimeSang(String tmp, String template) {
-    String stringType = tmp.replaceAll(template, "");
-    int inttmp = int.parse(stringType);
-    if (template == "Sáng: ") {
-      _medicineDoseS.add(inttmp);
-    }
-    if (template == "Trưa: ") {
-      _medicineDoseT.add(inttmp);
-    }
-    if (template == "Chiều: ") {
-      _medicineDoseC.add(inttmp);
-    }
-    if (template == "Tối: ") {
-      _medicineDoseTT.add(inttmp);
+    if (_medicineDoseT.length < _medicineName.length) {
+      while (_medicineDoseT.length < _medicineName.length) {
+        _medicineDoseT.add(0);
+      }
     }
   }
 
@@ -274,15 +331,18 @@ class _RecognizePageState extends State<RecognizePage> {
 
   @override
   void initState() {
+    doctorNameCtrl.text = "Gia kỳ";
+    hopitalNameCtrl.text = "Gia Định";
     super.initState();
+    log("Scaned check path input: ${widget.path}");
     inputImage = InputImage.fromFilePath(widget.path!);
-    processImage(inputImage);
+    processTheImage(inputImage);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: const Text("Kết quả")),
+        appBar: AppBar(title: const Text("Kiểm tra lại thông tin")),
         body: _isBusy == true
             ? const Center(
                 child: CircularProgressIndicator(),
@@ -306,21 +366,22 @@ class _RecognizePageState extends State<RecognizePage> {
                               children: [
                                 Expanded(
                                   child: TextField(
-                                    //obscureText: true,
-                                    decoration: InputDecoration(
-                                      border: const OutlineInputBorder(),
-                                      labelText: _medicineName[index],
+                                      //obscureText: true,
+                                      decoration: InputDecoration(
+                                        border: const OutlineInputBorder(),
+                                        labelText: _medicineName[index],
+                                      ),
+                                      onChanged: (value) {
+                                        _medicineName[index] = value;
+                                      },
                                     ),
-                                    onChanged: (value) {
-                                      _medicineName[index] = value;
-                                    },
-                                  ),
                                 ),
                                 const SizedBox(
                                   width: 10,
                                 ),
                                 Expanded(
                                   child: TextField(
+                                    keyboardType: TextInputType.number,
                                     //obscureText: true,
                                     decoration: InputDecoration(
                                       border: const OutlineInputBorder(),
@@ -335,12 +396,13 @@ class _RecognizePageState extends State<RecognizePage> {
                               ],
                             ),
                             const SizedBox(
-                              width: 10,
+                              height: 10,
                             ),
                             Row(
                               children: [
                                 Expanded(
                                   child: TextField(
+                                    keyboardType: TextInputType.number,
                                     //obscureText: true,
                                     decoration: InputDecoration(
                                       border: const OutlineInputBorder(),
@@ -348,7 +410,8 @@ class _RecognizePageState extends State<RecognizePage> {
                                           _medicineDoseS[index].toString(),
                                     ),
                                     onChanged: (value) {
-                                      _medicineDoseS[index] = int.parse(value);
+                                      _medicineDoseS[index] =
+                                          double.parse(value);
                                     },
                                   ),
                                 ),
@@ -357,14 +420,16 @@ class _RecognizePageState extends State<RecognizePage> {
                                 ),
                                 Expanded(
                                   child: TextField(
+                                    keyboardType: TextInputType.number,
                                     //obscureText: true,
                                     decoration: InputDecoration(
                                       border: const OutlineInputBorder(),
                                       labelText:
-                                          _medicineDoseT[index].toString(),
+                                          _medicineDoseTr[index].toString(),
                                     ),
                                     onChanged: (value) {
-                                      _medicineDoseT[index] = int.parse(value);
+                                      _medicineDoseTr[index] =
+                                          double.parse(value);
                                     },
                                   ),
                                 ),
@@ -373,6 +438,7 @@ class _RecognizePageState extends State<RecognizePage> {
                                 ),
                                 Expanded(
                                   child: TextField(
+                                    keyboardType: TextInputType.number,
                                     //obscureText: true,
                                     decoration: InputDecoration(
                                       border: const OutlineInputBorder(),
@@ -380,7 +446,8 @@ class _RecognizePageState extends State<RecognizePage> {
                                           _medicineDoseC[index].toString(),
                                     ),
                                     onChanged: (value) {
-                                      _medicineDoseC[index] = int.parse(value);
+                                      _medicineDoseC[index] =
+                                          double.parse(value);
                                     },
                                   ),
                                 ),
@@ -389,14 +456,16 @@ class _RecognizePageState extends State<RecognizePage> {
                                 ),
                                 Expanded(
                                   child: TextField(
+                                    keyboardType: TextInputType.number,
                                     //obscureText: true,
                                     decoration: InputDecoration(
                                       border: const OutlineInputBorder(),
                                       labelText:
-                                          _medicineDoseTT[index].toString(),
+                                          _medicineDoseT[index].toString(),
                                     ),
                                     onChanged: (value) {
-                                      _medicineDoseTT[index] = int.parse(value);
+                                      _medicineDoseT[index] =
+                                          double.parse(value);
                                     },
                                   ),
                                 ),
@@ -408,6 +477,27 @@ class _RecognizePageState extends State<RecognizePage> {
                     ),
                   )),
                   const SizedBox(width: 5),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: MsInputFeild(
+                          type: TextInputType.text,
+                          tittle: 'Tên Bác sĩ',
+                          hint: 'nhập tên Bác sĩ',
+                          controller: doctorNameCtrl,
+                        ),
+                      ),
+                      const SizedBox(width: 5),
+                      Expanded(
+                        child: MsInputFeild(
+                          type: TextInputType.text,
+                          tittle: 'Tên bệnh viện',
+                          hint: 'nhập tên bệnh viện',
+                          controller: hopitalNameCtrl,
+                        ),
+                      ),
+                    ],
+                  ),
                   TextButton(
                     style: ButtonStyle(
                       overlayColor: MaterialStateProperty.resolveWith<Color?>(
@@ -422,15 +512,15 @@ class _RecognizePageState extends State<RecognizePage> {
                       var outputDate2 = outputFormat.format(nowTime);
                       for (var i = 0; i < _medicineName.length; i++) {
                         if ((_medicineDoseS[i] +
-                                _medicineDoseT[i] +
+                                _medicineDoseTr[i] +
                                 _medicineDoseC[i] +
-                                _medicineDoseTT[i]) >
+                                _medicineDoseT[i]) >
                             0) {
                           int endday = _medicineTotal[i] ~/
                               (_medicineDoseS[i] +
-                                  _medicineDoseT[i] +
+                                  _medicineDoseTr[i] +
                                   _medicineDoseC[i] +
-                                  _medicineDoseTT[i]);
+                                  _medicineDoseT[i]);
                           var outputDate3 = outputFormat
                               .format(nowTime.add(Duration(days: endday)));
                           testList.add(ThePrescriptDetails(
@@ -439,9 +529,9 @@ class _RecognizePageState extends State<RecognizePage> {
                               dateEnd: outputDate3,
                               totalDose: _medicineTotal[i],
                               morningDose: _medicineDoseS[i],
-                              noonDose: _medicineDoseT[i],
+                              noonDose: _medicineDoseTr[i],
                               afternoonDose: _medicineDoseC[i],
-                              nightDose: _medicineDoseTT[i],
+                              nightDose: _medicineDoseT[i],
                               dosageInstruction: "Aftermeal"));
                         }
                       }
@@ -454,7 +544,7 @@ class _RecognizePageState extends State<RecognizePage> {
                         pushMedicineVer2(tesrne, imageDLL);
                       });
                     },
-                    child: const Text("Bắt đầu thêm đơn thuốc"),
+                    child: const Text("Thêm đơn thuốc"),
                   ),
                 ],
               ));
@@ -466,10 +556,10 @@ class ThePrescriptDetails {
   String dateStart;
   String dateEnd;
   int totalDose;
-  int morningDose;
-  int noonDose;
-  int afternoonDose;
-  int nightDose;
+  double morningDose;
+  double noonDose;
+  double afternoonDose;
+  double nightDose;
   String dosageInstruction;
 
   ThePrescriptDetails(

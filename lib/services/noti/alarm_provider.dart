@@ -110,7 +110,7 @@ class Alarmprovider extends ChangeNotifier {
   //       payload: 'item x');
   // }
 
-  secduleNotification(DateTime datetim, int randomnumber,String medName,int meddos) async {
+  secduleNotification(DateTime datetim, int randomnumber,String medName,double meddos) async {
     int newtime = datetim.millisecondsSinceEpoch - DateTime.now().millisecondsSinceEpoch;
     // log("Alarm check datetim.millisecondsSinceEpoch : ${datetim.millisecondsSinceEpoch}");
     // log("Alarm check DateTime.now().millisecondsSinceEpoch : ${DateTime.now().millisecondsSinceEpoch}");
@@ -139,10 +139,8 @@ class Alarmprovider extends ChangeNotifier {
   }
 
   Future reloadNotification() async {
-    //log("ReloadNotification Start ${modelist.toString()}");
     await flutterLocalNotificationsPlugin!.cancelAll();
     await preferences.setStringList("data2", []).then((value) {
-    //log("ReloadNotification Clear ${modelist.toString()}");
     List<dynamic> tmpPrescript = [];
     getPrescripts().then((value) => {
           tmpPrescript = value,
@@ -166,16 +164,10 @@ class Alarmprovider extends ChangeNotifier {
                       DateTime check = DateTime.now();
                       String tmpStringid = medicationIntake['id'];
                       int tmpid =  tmpStringid.runes.fold(0, (sum, rune) => sum + rune);
-
-                      // log("Alarm check: medicationIntakeID String $tmpStringid");
-                      // log("Alarm check: medicationIntakeID int $tmpid");
-                      // log("Alarm check: notificationtime $dateTimeWithTimeZone3");
-                      // log("Alarm check: date now $check");
-                      // log("Alarm check: dose ${medicationIntake['dose']}");
                       if(!dateTimeWithTimeZone3.isBefore(check)){
                       setAlaram(eachMed['medicineName'],DateFormat().add_jms().format(dateTimeWithTimeZone3),true,"none",tmpid,0);
                       setData();
-                      secduleNotification(dateTimeWithTimeZone3, tmpid,eachMed['medicineName'],medicationIntake['dose']);
+                      secduleNotification(dateTimeWithTimeZone3, tmpid,eachMed['medicineName'],double.parse(medicationIntake['dose'].toString()));
                       }
                     }
                   }

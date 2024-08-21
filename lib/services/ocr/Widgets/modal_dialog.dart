@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 void imagePickerModal(BuildContext context,
     {VoidCallback? onCameraTap, VoidCallback? onGalleryTap}) {
+
   showModalBottomSheet(
       context: context,
       builder: (context) {
@@ -23,6 +24,7 @@ void imagePickerModal(BuildContext context,
                   ),
                 ),
               ),
+              
               const SizedBox(height: 10),
               GestureDetector(
                 onTap: onGalleryTap,

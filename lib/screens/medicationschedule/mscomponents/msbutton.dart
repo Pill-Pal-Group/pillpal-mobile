@@ -27,7 +27,7 @@ class MsButton extends StatelessWidget {
           child: Center(
             child: Text(
               lable,
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.white
               ),
             ),

@@ -48,6 +48,9 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   String takerightdateformat(String inputdate){
+  if(inputdate == ' '){
+    return "Chưa cập nhật";
+  }
   final splitted = inputdate.split('T');
   return splitted[0];
   }
@@ -78,7 +81,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         Navigator.of(context).push(
                           MaterialPageRoute(
                               builder: (context) => EditProfilePage(
-                                    dob: takerightdateformat(nowInformation['dob']),
+                                    dob: takerightdateformat(nowInformation['dob'] ?? " "),
                                     phoneNumber: nowInformation['applicationUser']['phoneNumber'] ?? "",
                                     address: nowInformation['address'] ?? "",
                                     sTime: nowInformation['breakfastTime'] ?? "",
@@ -139,7 +142,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         children: [
                           itemProfile('Email', nowInformation['applicationUser']['email'] ??'Chưa cập nhật', CupertinoIcons.mail),
                           const SizedBox(height: 10),
-                          itemProfile('Ngày Sinh', takerightdateformat(nowInformation['dob']), CupertinoIcons.calendar_circle),
+                          itemProfile('Ngày Sinh', takerightdateformat(nowInformation['dob'] ?? ' '), CupertinoIcons.calendar_circle),
                           const SizedBox(height: 10),
                           itemProfile('Số Điện Thoại', nowInformation['applicationUser']['phoneNumber'] ?? 'Chưa cập nhật', CupertinoIcons.phone),
                           const SizedBox(height: 10),

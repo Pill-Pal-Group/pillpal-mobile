@@ -54,18 +54,18 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  bool check() {
+  bool check(dynamic tmp1) {
+    bool tmp = false;
     DateFormat dateFormat = DateFormat("yyyy-MM-dd");
-    for (var x in thePrescriptsList) {
-      for (var element in x['prescriptDetails']) {
-        if (dateFormat.parse(element['dateEnd']).isAfter(DateTime.now())) {
-          return true;
-        } else {
-          return false;
-        }
+    for (var element in tmp1['prescriptDetails']) {
+      if (dateFormat.parse(element['dateEnd']).isAfter(DateTime.now())) {
+        tmp = true;
+        break;
+      } else {
+        tmp = false;
       }
     }
-    return false;
+    return tmp;
   }
 
   void getPostsData() {
@@ -73,7 +73,7 @@ class _HomePageState extends State<HomePage> {
     List<Widget> listItems = [];
     DateFormat dateFormat = DateFormat("yyyy-MM-dd");
     for (var post in responseList) {
-      if (check()) {
+      if (check(post)) {
         listItems.add(
           InkWell(
               child: Container(
@@ -166,7 +166,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     context.read<Alarmprovider>().getData().whenComplete(() {
       context.read<Alarmprovider>().reloadNotification().whenComplete(() {
-        //log("ReloadNotification End ${context.read<Alarmprovider>().modelist.toString()}");
+        log("ReloadNotification End ${context.read<Alarmprovider>().modelist.length}");
       });
     });
     fetchPrescripts();

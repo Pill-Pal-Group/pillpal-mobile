@@ -64,15 +64,15 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   Future<void> pushMedicine() async {
     DateTime today = DateTime.now();
     int day2 = int.parse(_totalNumCtrl.text) ~/
-        (int.parse(_sNumCtrl.text) +
-            int.parse(_trNumCtrl.text) +
-            int.parse(_cNumCtrl.text) +
-            int.parse(_tNumCtrl.text));
+        (double.parse(_sNumCtrl.text) +
+            double.parse(_trNumCtrl.text) +
+            double.parse(_cNumCtrl.text) +
+            double.parse(_tNumCtrl.text));
     var outputFormat = DateFormat('yyyy-MM-dd');
     var outputDate1 =
-        outputFormat.format(today.subtract(const Duration(days: 2)));
+        outputFormat.format(today);
     var outputDate2 = outputFormat.format(nowTime);
-    var outputDate3 = outputFormat.format(nowTime.add(Duration(days: day2)));
+    var outputDate3 = outputFormat.format(nowTime.add(Duration(days: (day2))));
     final response = await http.post(
       Uri.parse(APILINK.postPrescripts),
       headers: <String, String>{
@@ -91,10 +91,10 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
             "dateStart": outputDate2,
             "dateEnd": outputDate3,
             "totalDose": int.parse(_totalNumCtrl.text),
-            "morningDose": int.parse(_sNumCtrl.text),
-            "noonDose": int.parse(_trNumCtrl.text),
-            "afternoonDose": int.parse(_cNumCtrl.text),
-            "nightDose": int.parse(_tNumCtrl.text),
+            "morningDose": double.parse(_sNumCtrl.text),
+            "noonDose": double.parse(_trNumCtrl.text),
+            "afternoonDose": double.parse(_cNumCtrl.text),
+            "nightDose": double.parse(_tNumCtrl.text),
             "dosageInstruction": "Aftermeal"
           }
         ]
@@ -120,24 +120,22 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     for (var i = 0; i < totalday; i++) {
       var dateTake = outputFormat.format(nowTime.add(Duration(days: i)));
       if (int.parse(_sNumCtrl.text) > 0) {
-        postMediceneIntake(dateTake, _starTimes, int.parse(_sNumCtrl.text), id);
+        postMediceneIntake(dateTake, _starTimes, double.parse(_sNumCtrl.text), id);
       }
       if (int.parse(_trNumCtrl.text) > 0) {
-        postMediceneIntake(
-            dateTake, _starTImetr, int.parse(_trNumCtrl.text), id);
+        postMediceneIntake(dateTake, _starTImetr, double.parse(_trNumCtrl.text), id);
       }
       if (int.parse(_cNumCtrl.text) > 0) {
-        postMediceneIntake(dateTake, _starTImec, int.parse(_cNumCtrl.text), id);
+        postMediceneIntake(dateTake, _starTImec, double.parse(_cNumCtrl.text), id);
       }
       if (int.parse(_tNumCtrl.text) > 0) {
-        postMediceneIntake(
-            dateTake, _starTImetr, int.parse(_tNumCtrl.text), id);
+        postMediceneIntake(dateTake, _starTImet, double.parse(_tNumCtrl.text), id);
       }
     }
   }
 
   void postMediceneIntake(
-      String dateTake, String timeTake, int dose, String id) async {
+      String dateTake, String timeTake, double dose, String id) async {
     final response = await http.post(
       Uri.parse(APILINK.postMediceneIntake),
       headers: <String, String>{
@@ -414,14 +412,14 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                           onPressed: () {
                             _getSTimeFromUser(1);
                           },
-                          icon: Icon(
+                          icon: const Icon(
                             Icons.access_time_rounded,
                             color: Colors.grey,
                           ),
                         ),
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       width: 5,
                     ),
                     Expanded(
@@ -433,14 +431,14 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                           onPressed: () {
                             _getSTimeFromUser(2);
                           },
-                          icon: Icon(
+                          icon: const Icon(
                             Icons.access_time_rounded,
                             color: Colors.grey,
                           ),
                         ),
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       width: 5,
                     ),
                   ],
@@ -456,14 +454,14 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                           onPressed: () {
                             _getSTimeFromUser(3);
                           },
-                          icon: Icon(
+                          icon: const Icon(
                             Icons.access_time_rounded,
                             color: Colors.grey,
                           ),
                         ),
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       width: 5,
                     ),
                     Expanded(
@@ -475,7 +473,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                           onPressed: () {
                             _getSTimeFromUser(4);
                           },
-                          icon: Icon(
+                          icon: const Icon(
                             Icons.access_time_rounded,
                             color: Colors.grey,
                           ),
@@ -520,7 +518,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       if (_tNumCtrl.text.isEmpty) {
         _tNumCtrl.text = "0";
       }
-      pushMedicine().whenComplete(() {
+      try{
+        pushMedicine().whenComplete(() {
         updateMedicineImage(prid, imageprdLink);
         Get.snackbar(
           "Thêm Thành Công",
@@ -540,14 +539,25 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
           ),
         );
       });
-      // notifyHelper.displayNotification(
-      //     title: 'Thêm thành công', body: 'Chúc một ngày tốt lành');
+      }catch(e){
+         Get.snackbar(
+          "Đã có vấn đề xảy ra",
+          "Kiểm tra lại thông tin đơn thuốc",
+          snackPosition: SnackPosition.TOP,
+          colorText: Color.fromARGB(255, 255, 0, 0),
+          duration: const Duration(seconds: 5),
+          backgroundColor: const Color.fromARGB(255, 227, 227, 227),
+        );
+      }
     } else if (_titleCtrl.text.isEmpty) {
-      Get.snackbar("Hãy điền thông tin", "Vui lòng nhập đầy đủ thông tin",
-          snackPosition: SnackPosition.BOTTOM,
-          colorText: Colors.redAccent,
-          backgroundColor: Colors.white,
-          icon: Icon(Icons.warning_sharp));
+       Get.snackbar(
+          "Đã có vấn đề xảy ra",
+          "tên thuốc không được trống",
+          snackPosition: SnackPosition.TOP,
+          colorText: Color.fromARGB(255, 255, 0, 0),
+          duration: const Duration(seconds: 5),
+          backgroundColor: const Color.fromARGB(255, 227, 227, 227),
+        );
     }
   }
 

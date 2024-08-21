@@ -28,7 +28,7 @@ class EditProfilePage extends StatefulWidget {
       required this.sTime,
       required this.cTime,
       required this.tTime,
-      required this.trTime, 
+      required this.trTime,
       required this.offtime});
   @override
   State<EditProfilePage> createState() => _EditProfilePageState();
@@ -44,7 +44,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   final TextEditingController _offSetTimeCtrl = TextEditingController();
   DateTime dobTime = DateTime.now();
 
-  void putCutomerprofilr(DateTime pickdate) async {
+  Future<void> putCutomerprofilr(DateTime pickdate) async {
     var outputFormat = DateFormat('yyyy-MM-dd');
     var outputDate2 = outputFormat.format(pickdate);
     log("putCutomerprofilr Inputdata $outputDate2");
@@ -74,18 +74,20 @@ class _EditProfilePageState extends State<EditProfilePage> {
           .whenComplete(() => putCutomerprofilr(pickdate));
     } else {
       log("putCutomerprofilr bug ${response.statusCode}");
+      log("putCutomerprofilr bug ${response.body}");
     }
   }
 
-  void putdefaultTime() async {
+  Future<void> putdefaultTime() async {
     log("putdefaultTime Inputdata ${_sTimeCtrl.text}");
     log("putdefaultTime Inputdata ${_trTimeCtrl.text}");
     log("putdefaultTime Inputdata ${_cTimeCtrl.text}");
     log("putdefaultTime Inputdata ${_tTimeCtrl.text}");
     log("putdefaultTime Inputdata ${_offSetTimeCtrl.text}");
-    
+
     final response = await http.put(
-      Uri.parse("https://pp-devtest2.azurewebsites.net/api/customers/meal-time"),
+      Uri.parse(
+          "https://pp-devtest2.azurewebsites.net/api/customers/meal-time"),
       headers: <String, String>{
         'accept': 'application/json',
         'Authorization': 'Bearer ${UserInfomation.accessToken}',
@@ -110,6 +112,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           .whenComplete(() => putdefaultTime());
     } else {
       log("putdefaultTime bug ${response.statusCode}");
+      log("putdefaultTime bug ${response.body}");
     }
   }
 
@@ -124,11 +127,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
     _cTimeCtrl.text = widget.cTime;
     _tTimeCtrl.text = widget.tTime;
     _offSetTimeCtrl.text = widget.offtime;
-    dobTime = DateTime.parse(widget.dob);
+    if(widget.dob != "Chưa cập nhật"){
+      dobTime = DateTime.parse(widget.dob);
+    }
   }
+
   @override
   Widget build(BuildContext context) => Builder(
-    
         builder: (context) => Scaffold(
           appBar: buildAppBar(context),
           body: ListView(
@@ -173,7 +178,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
               const SizedBox(height: 5),
               MsInputFeild(
                 type: TextInputType.datetime,
-                tittle: "Giờ uống thuốc Sáng",
+                tittle: "Giờ uống thuốc Sáng (05:00 - 11:00)",
                 hint: widget.sTime,
                 widget: IconButton(
                   onPressed: () {
@@ -189,7 +194,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
               const SizedBox(height: 5),
               MsInputFeild(
                 type: TextInputType.datetime,
-                tittle: "Giờ uống thuốc Trưa",
+                tittle: "Giờ uống thuốc Trưa (11:00 - 17:00)",
                 hint: widget.trTime,
                 widget: IconButton(
                   onPressed: () {
@@ -205,7 +210,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
               const SizedBox(height: 5),
               MsInputFeild(
                 type: TextInputType.datetime,
-                tittle: "Giờ uống thuốc Chiều",
+                tittle: "Giờ uống thuốc Chiều (17:00 - 21:00)",
                 hint: widget.cTime,
                 widget: IconButton(
                   onPressed: () {
@@ -221,7 +226,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
               const SizedBox(height: 5),
               MsInputFeild(
                 type: TextInputType.datetime,
-                tittle: "Giờ uống thuốc Tối",
+                tittle: "Giờ uống thuốc Tối (21:00 - 05:00)",
                 hint: widget.tTime,
                 widget: IconButton(
                   onPressed: () {
@@ -237,7 +242,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
               const SizedBox(height: 5),
               MsInputFeild(
                 type: TextInputType.datetime,
-                tittle: "Giờ nhắc trước",
+                tittle: "Giờ nhắc trước (Không nên quá một tiếng)",
                 hint: widget.offtime,
                 widget: IconButton(
                   onPressed: () {
@@ -261,8 +266,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   }),
                 ),
                 onPressed: () {
-                  putCutomerprofilr(dobTime);
-                  putdefaultTime();
+                  putCutomerprofilr(dobTime).whenComplete(() {
+                    putdefaultTime().whenComplete(() {
+                      Navigator.of(context).pop();
+                    });
+                  });
                 },
                 child: const Text('Cập nhật hồ sơ'),
               )
