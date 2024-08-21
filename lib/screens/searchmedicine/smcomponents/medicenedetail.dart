@@ -55,7 +55,7 @@ class MedicineDetailScreen extends StatelessWidget {
   scroll() {
     String? textne;
     void okenene() {
-      if (rqr) {
+      if (!rqr) {
         textne = oke;
       } else {
         textne = notoke;

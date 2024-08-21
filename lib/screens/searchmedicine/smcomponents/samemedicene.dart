@@ -24,12 +24,33 @@ class _SameMediceneScreenState extends State<SameMediceneScreen> {
   List<dynamic> printList = [];
   List<dynamic> medicineListFillted = [];
   int tottalPage = 0;
+  int totalmedicine = 0;
 
-  Future<void> fetchMedicineForFillter(
-      int pageNumBer, int totalmedicineFF) async {
-    int tmp = totalmedicineFF ~/ 4;
+  Future<void> fetchMedicinetotal() async {
     String url =
-        "https://pp-devtest2.azurewebsites.net/api/medicines?Page=$pageNumBer&PageSize=$tmp&IncludeCategories=true&IncludeSpecifications=true&IncludePharmaceuticalCompanies=true&IncludeDosageForms=true&IncludeActiveIngredients=true&IncludeBrands=true";
+        "https://pp-devtest2.azurewebsites.net/api/medicines?Page=1&PageSize=5&IncludeCategories=false&IncludeSpecifications=false&IncludePharmaceuticalCompanies=false&IncludeDosageForms=false&IncludeActiveIngredients=false&IncludeBrands=false";
+    final uri = Uri.parse(url);
+    final respone = await http.get(uri);
+    if (respone.statusCode == 200 || respone.statusCode == 201) {
+      log("filterByCategoryName Sussecc ${respone.statusCode}");
+      setState(() {
+        final json = jsonDecode(respone.body);
+        totalmedicine = json['totalCount'];
+      });
+    } else if (respone.statusCode == 401) {
+      refreshAccessToken(
+              UserInfomation.accessToken, UserInfomation.refreshToken)
+          .whenComplete(() => fetchMedicinetotal());
+    } else {
+      log("fetchMedicinetotal bug ${respone.statusCode}");
+      log("fetchMedicinetotal bug ${respone.body}");
+    }
+  }
+
+  Future<void> fetchMedicinetotalPage(int total) async {
+    int tmp = total ~/ 2;
+    String url =
+        "https://pp-devtest2.azurewebsites.net/api/medicines?Page=1&PageSize=$tmp&IncludeCategories=false&IncludeSpecifications=false&IncludePharmaceuticalCompanies=false&IncludeDosageForms=false&IncludeActiveIngredients=false&IncludeBrands=false";
     final uri = Uri.parse(url);
     final respone = await http.get(uri);
     if (respone.statusCode == 200 || respone.statusCode == 201) {
@@ -37,6 +58,27 @@ class _SameMediceneScreenState extends State<SameMediceneScreen> {
       setState(() {
         final json = jsonDecode(respone.body);
         tottalPage = json['totalPages'];
+      });
+    } else if (respone.statusCode == 401) {
+      refreshAccessToken(
+              UserInfomation.accessToken, UserInfomation.refreshToken)
+          .whenComplete(() => fetchMedicinetotalPage(total));
+    } else {
+      log("fetchMedicinetotalPage bug ${respone.statusCode}");
+      log("fetchMedicinetotalPage bug ${respone.body}");
+    }
+  }
+
+  Future<void> fetchMedicineForFillter(
+      int pageNumBer, int totalmedicineFF) async {
+    String url =
+        "https://pp-devtest2.azurewebsites.net/api/medicines?Page=$pageNumBer&PageSize=$totalmedicineFF&IncludeCategories=true&IncludeSpecifications=true&IncludePharmaceuticalCompanies=true&IncludeDosageForms=true&IncludeActiveIngredients=true&IncludeBrands=true";
+    final uri = Uri.parse(url);
+    final respone = await http.get(uri);
+    if (respone.statusCode == 200 || respone.statusCode == 201) {
+      log("filterByCategoryName Sussecc ${respone.statusCode}");
+      setState(() {
+        final json = jsonDecode(respone.body);
         sameMedicinesList = json['data'];
       });
     } else if (respone.statusCode == 401) {
@@ -46,41 +88,42 @@ class _SameMediceneScreenState extends State<SameMediceneScreen> {
               () => fetchMedicineForFillter(pageNumBer, totalmedicineFF));
     } else {
       log("filterByCategoryName bug ${respone.statusCode}");
+      log("filterByCategoryName bug ${respone.body}");
     }
   }
 
   void filterByCategoryName() async {
     bool check = false;
-    fetchMedicineForFillter(1, widget.totalmedicineatsm).whenComplete(() async {
-      log("filterByCategoryName input check ${widget.iName}");
-      log("filterByCategoryName input check  $tottalPage");
-      log("filterByCategoryName input check ${sameMedicinesList.length}");
-      int tmpNum = tottalPage;
-      for (var i = 1; i < tmpNum + 1; i++) {
-        fetchMedicineForFillter(i, widget.totalmedicineatsm)
-            .whenComplete(() async {
-          for (var e in sameMedicinesList) {
-            List<dynamic> tmpcount = e['activeIngredients'];
-            if (tmpcount.length == widget.iName.length) {
-              for (var x in tmpcount) {
-                for (var eIName in widget.iName) {
-                  if (x['ingredientName'] == eIName['ingredientName']) {
-                    check = true;
-                    break;
-                  }else{
-                    check = false;
-                    break;
-                  }
+    log("filterByCategoryName input iName ${widget.iName}");
+    log("filterByCategoryName input tottalPage  $tottalPage");
+    log("filterByCategoryName input totalmedicine  $totalmedicine");
+    log("filterByCategoryName input sameMedicinesList.length ${sameMedicinesList.length}");
+    int tmpNum = tottalPage;
+    for (var i = 1; i < tmpNum + 1; i++) {
+      fetchMedicineForFillter(i, totalmedicine).whenComplete(() async {
+        for (var e in sameMedicinesList) {
+          List<dynamic> tmpcount = e['activeIngredients'];
+          if (tmpcount.length == widget.iName.length) {
+            for (var x in tmpcount) {
+              for (var eIName in widget.iName) {
+                if (x['ingredientName'] == eIName['ingredientName']) {
+                  check = true;
+                  break;
+                } else {
+                  check = false;
+                  break;
                 }
               }
-              if (check) {
+            }
+            if (check) {
+              setState(() {
                 medicineListFillted.add(e);
-              }
+              });
             }
           }
-        });
-      }
-    });
+        }
+      });
+    }
   }
 
   String name() {
@@ -95,7 +138,11 @@ class _SameMediceneScreenState extends State<SameMediceneScreen> {
   @override
   void initState() {
     super.initState();
-    filterByCategoryName();
+    fetchMedicinetotal().whenComplete(() {
+      fetchMedicinetotalPage(totalmedicine).whenComplete(() {
+        filterByCategoryName();
+      });
+    });
   }
 
   @override
