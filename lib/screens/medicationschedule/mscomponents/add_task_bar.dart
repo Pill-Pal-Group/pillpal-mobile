@@ -61,16 +61,10 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     _totalNumCtrl.dispose();
   }
 
-  Future<void> pushMedicine() async {
+  Future<void> pushMedicine(int day2) async {
     DateTime today = DateTime.now();
-    int day2 = int.parse(_totalNumCtrl.text) ~/
-        (double.parse(_sNumCtrl.text) +
-            double.parse(_trNumCtrl.text) +
-            double.parse(_cNumCtrl.text) +
-            double.parse(_tNumCtrl.text));
     var outputFormat = DateFormat('yyyy-MM-dd');
-    var outputDate1 =
-        outputFormat.format(today);
+    var outputDate1 = outputFormat.format(today);
     var outputDate2 = outputFormat.format(nowTime);
     var outputDate3 = outputFormat.format(nowTime.add(Duration(days: (day2))));
     final response = await http.post(
@@ -108,7 +102,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     } else if (response.statusCode == 401) {
       refreshAccessToken(
               UserInfomation.accessToken, UserInfomation.refreshToken)
-          .whenComplete(() => pushMedicine());
+          .whenComplete(() => pushMedicine(day2));
     } else {
       log("pushMedicine bug ${response.body}");
       log("pushMedicine bug ${response.statusCode}");
@@ -120,16 +114,20 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     for (var i = 0; i < totalday; i++) {
       var dateTake = outputFormat.format(nowTime.add(Duration(days: i)));
       if (int.parse(_sNumCtrl.text) > 0) {
-        postMediceneIntake(dateTake, _starTimes, double.parse(_sNumCtrl.text), id);
+        postMediceneIntake(
+            dateTake, _starTimes, double.parse(_sNumCtrl.text), id);
       }
       if (int.parse(_trNumCtrl.text) > 0) {
-        postMediceneIntake(dateTake, _starTImetr, double.parse(_trNumCtrl.text), id);
+        postMediceneIntake(
+            dateTake, _starTImetr, double.parse(_trNumCtrl.text), id);
       }
       if (int.parse(_cNumCtrl.text) > 0) {
-        postMediceneIntake(dateTake, _starTImec, double.parse(_cNumCtrl.text), id);
+        postMediceneIntake(
+            dateTake, _starTImec, double.parse(_cNumCtrl.text), id);
       }
       if (int.parse(_tNumCtrl.text) > 0) {
-        postMediceneIntake(dateTake, _starTImet, double.parse(_tNumCtrl.text), id);
+        postMediceneIntake(
+            dateTake, _starTImet, double.parse(_tNumCtrl.text), id);
       }
     }
   }
@@ -269,8 +267,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                                     _dropdownValue = value.toString();
                                     if (_dropdownValue == "Sau khi ăn") {
                                       addtoapi = "Aftermeal";
-
-                                    } else if (_dropdownValue == "Trước khi ăn") {
+                                    } else if (_dropdownValue ==
+                                        "Trước khi ăn") {
                                       addtoapi = "Beforemeal";
                                     } else {
                                       addtoapi = "Aftermeal";
@@ -504,7 +502,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   }
 
   _validateDate() {
-    if (_titleCtrl.text.isNotEmpty) {
+    if (_titleCtrl.text.isNotEmpty && _totalNumCtrl.text.isNotEmpty) {
       //add to data
       if (_sNumCtrl.text.isEmpty) {
         _sNumCtrl.text = "0";
@@ -518,29 +516,56 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       if (_tNumCtrl.text.isEmpty) {
         _tNumCtrl.text = "0";
       }
-      try{
-        pushMedicine().whenComplete(() {
-        updateMedicineImage(prid, imageprdLink);
+      double tmpnum = (double.parse(_sNumCtrl.text) +
+          double.parse(_trNumCtrl.text) +
+          double.parse(_cNumCtrl.text) +
+          double.parse(_tNumCtrl.text));
+      if (tmpnum > 0) {
+        try {
+          int day2 = int.parse(_totalNumCtrl.text) ~/ tmpnum;
+          if (day2 >= 1) {
+            pushMedicine(day2).whenComplete(() {
+              updateMedicineImage(prid, imageprdLink);
+              Get.snackbar(
+                "Thêm Thành Công",
+                "Kiểm tra lại đơn thuốc",
+                snackPosition: SnackPosition.TOP,
+                colorText: const Color.fromARGB(255, 13, 255, 9),
+                duration: const Duration(seconds: 5),
+                backgroundColor: const Color.fromARGB(255, 227, 227, 227),
+              );
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => EntryPoint(
+                    selectpage: bottomNavItems[0],
+                    medname: "",
+                  ),
+                ),
+              );
+            });
+          } else {
+            Get.snackbar(
+              "Đã có vấn đề xảy ra",
+              "Kiểm tra lại thông tin đơn thuốc",
+              snackPosition: SnackPosition.TOP,
+              colorText: Color.fromARGB(255, 255, 0, 0),
+              duration: const Duration(seconds: 5),
+              backgroundColor: const Color.fromARGB(255, 227, 227, 227),
+            );
+          }
+        } catch (e) {
+          Get.snackbar(
+            "Đã có vấn đề xảy ra",
+            "Kiểm tra lại thông tin đơn thuốc",
+            snackPosition: SnackPosition.TOP,
+            colorText: Color.fromARGB(255, 255, 0, 0),
+            duration: const Duration(seconds: 5),
+            backgroundColor: const Color.fromARGB(255, 227, 227, 227),
+          );
+        }
+      } else {
         Get.snackbar(
-          "Thêm Thành Công",
-          "Kiểm tra lại đơn thuốc",
-          snackPosition: SnackPosition.TOP,
-          colorText: const Color.fromARGB(255, 13, 255, 9),
-          duration: const Duration(seconds: 5),
-          backgroundColor: const Color.fromARGB(255, 227, 227, 227),
-        );
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => EntryPoint(
-              selectpage: bottomNavItems[0],
-              medname: "",
-            ),
-          ),
-        );
-      });
-      }catch(e){
-         Get.snackbar(
           "Đã có vấn đề xảy ra",
           "Kiểm tra lại thông tin đơn thuốc",
           snackPosition: SnackPosition.TOP,
@@ -549,15 +574,15 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
           backgroundColor: const Color.fromARGB(255, 227, 227, 227),
         );
       }
-    } else if (_titleCtrl.text.isEmpty) {
-       Get.snackbar(
-          "Đã có vấn đề xảy ra",
-          "tên thuốc không được trống",
-          snackPosition: SnackPosition.TOP,
-          colorText: Color.fromARGB(255, 255, 0, 0),
-          duration: const Duration(seconds: 5),
-          backgroundColor: const Color.fromARGB(255, 227, 227, 227),
-        );
+    } else if (_titleCtrl.text.isEmpty || _totalNumCtrl.text.isEmpty) {
+      Get.snackbar(
+        "Đã có vấn đề xảy ra",
+        "Kiểm tra lại thông tin đơn thuốc",
+        snackPosition: SnackPosition.TOP,
+        colorText: Color.fromARGB(255, 255, 0, 0),
+        duration: const Duration(seconds: 5),
+        backgroundColor: const Color.fromARGB(255, 227, 227, 227),
+      );
     }
   }
 
@@ -579,30 +604,53 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   }
 
   _getSTimeFromUser(int numb) async {
-    var pickedTime = await _showTimepicker();
-    // ignore: use_build_context_synchronously
-    String formatedTime = pickedTime.format(context);
-    if (pickedTime == null) {
-      log("time cancel");
-    } else {
-      switch (numb) {
-        case 1:
-          _starTimes = formatedTime;
-          log("Time pick s: $_starTimes");
-          break;
-        case 2:
-          _starTImetr = formatedTime;
-          log("Time pick tr: $_starTImetr");
-          break;
-        case 3:
-          _starTImec = formatedTime;
-          log("Time pick c: $_starTImec");
+    try {
+      var pickedTime = await _showTimepicker();
+      // ignore: use_build_context_synchronously
+      String formatedTime = pickedTime.format(context);
+      if (pickedTime == null) {
+        log("time cancel");
+      } else {
+        switch (numb) {
+          case 1:
+            setState(() {
+              _starTimes = formatedTime;
+            });
 
-        case 4:
-          _starTImet = formatedTime;
-          log("Time pick t: $_starTImet");
-          break;
+            log("Time pick s: $_starTimes");
+            break;
+          case 2:
+            setState(() {
+              _starTImetr = formatedTime;
+            });
+
+            log("Time pick tr: $_starTImetr");
+            break;
+          case 3:
+            setState(() {
+              _starTImec = formatedTime;
+            });
+
+            log("Time pick c: $_starTImec");
+
+          case 4:
+            setState(() {
+              _starTImet = formatedTime;
+            });
+
+            log("Time pick t: $_starTImet");
+            break;
+        }
       }
+    } catch (e) {
+      Get.snackbar(
+        "Đã có vấn đề xảy ra",
+        "Kiểm tra lại thời gian",
+        snackPosition: SnackPosition.TOP,
+        colorText: const Color.fromARGB(255, 255, 0, 0),
+        duration: const Duration(seconds: 5),
+        backgroundColor: const Color.fromARGB(255, 227, 227, 227),
+      );
     }
   }
 

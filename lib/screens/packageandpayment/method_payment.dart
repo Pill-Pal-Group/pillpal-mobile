@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_zalopay_sdk/flutter_zalopay_sdk.dart';
+import 'package:get/get.dart';
 import 'package:pillpalmobile/constants.dart';
 import 'package:http/http.dart' as http;
 import 'package:pillpalmobile/screens/entryPoint/entry_point.dart';
@@ -27,6 +28,7 @@ class _MethodPaymentScreenState extends State<MethodPaymentScreen> {
   String packageId = "";
   String paymentID = "";
   String payResult = "ko co gi";
+
   void postCustomerPackage(String packageID, String paymentID) async {
     final response = await http.post(
       Uri.parse(APILINK.postCustomerPackage),
@@ -56,15 +58,16 @@ class _MethodPaymentScreenState extends State<MethodPaymentScreen> {
   void postPaymentToVNpay(String pcId) async {
     log(pcId);
     final response = await http.get(
-        Uri.parse(
-            "${APILINK.postPaymentToVNpay}$pcId&PaymentType=ZALOPAY"),
+        Uri.parse("${APILINK.postPaymentToVNpay}$pcId&PaymentType=ZALOPAY"),
         headers: <String, String>{
           'accept': 'application/json',
           'Authorization': 'Bearer $tokene',
           'Content-Type': 'application/json'
         });
 
-    if (response.statusCode == 200 || response.statusCode == 201 || response.statusCode == 204) {
+    if (response.statusCode == 200 ||
+        response.statusCode == 201 ||
+        response.statusCode == 204) {
       log("fetchCategory Sussecc ${response.statusCode}");
       final json = jsonDecode(response.body);
       log("payment test ${json['paymentUrl']}");
@@ -75,6 +78,14 @@ class _MethodPaymentScreenState extends State<MethodPaymentScreen> {
               UserInfomation.accessToken, UserInfomation.refreshToken)
           .whenComplete(() => postPaymentToVNpay(pcId));
     } else {
+      Get.snackbar(
+        "Thanh toán thất bại",
+        "Vui lòng thử lại",
+        snackPosition: SnackPosition.TOP,
+        colorText: const Color.fromARGB(255, 255, 0, 0),
+        duration: const Duration(seconds: 5),
+        backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+      );
       log("fetchCategory bug ${response.statusCode}");
     }
   }
@@ -82,17 +93,24 @@ class _MethodPaymentScreenState extends State<MethodPaymentScreen> {
   void getcomfompayment(String pcId) async {
     log(pcId);
     final respone = await http.get(
-        Uri.parse(
-            "${APILINK.getcomfompayment}$pcId"),
+        Uri.parse("${APILINK.getcomfompayment}$pcId"),
         headers: <String, String>{
           'accept': 'application/json',
           'Authorization': 'Bearer $tokene',
           'Content-Type': 'application/json'
         });
     log(respone.statusCode.toString());
-    if (respone.statusCode == 200 || respone.statusCode == 201 || respone.statusCode == 204) {
-      notifyHelper.displayNotification(
-          title: 'Thanh toán thành công', body: 'Chúc một ngày tốt lành');
+    if (respone.statusCode == 200 ||
+        respone.statusCode == 201 ||
+        respone.statusCode == 204) {
+      Get.snackbar(
+          "Thanh toán thành công",
+          "Chúc một ngày tốt lành",
+          snackPosition: SnackPosition.TOP,
+          colorText: const Color.fromARGB(255, 0, 255, 0),
+          duration: const Duration(seconds: 5),
+          backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+        );
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -115,6 +133,14 @@ class _MethodPaymentScreenState extends State<MethodPaymentScreen> {
           case FlutterZaloPayStatus.cancelled:
             payResult = "User Huỷ Thanh Toán";
             log("payment test ${payResult}");
+            Get.snackbar(
+              "Bạn đã hũy thanh toán",
+              "Vui lòng thử lại",
+              snackPosition: SnackPosition.TOP,
+              colorText: const Color.fromARGB(255, 255, 0, 0),
+              duration: const Duration(seconds: 5),
+              backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+            );
             break;
           case FlutterZaloPayStatus.success:
             payResult = "Thanh toán thành công";
@@ -123,12 +149,26 @@ class _MethodPaymentScreenState extends State<MethodPaymentScreen> {
             break;
           case FlutterZaloPayStatus.failed:
             payResult = "Thanh toán thất bại";
-            //getcomfompayment(cpId);
+            Get.snackbar(
+              "Thanh toán thất bại",
+              "Vui lòng thử lại",
+              snackPosition: SnackPosition.TOP,
+              colorText: const Color.fromARGB(255, 255, 0, 0),
+              duration: const Duration(seconds: 5),
+              backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+            );
             log("payment test ${payResult}");
             break;
           default:
             payResult = "Thanh toán thất bại";
-            //getcomfompayment(cpId);
+            Get.snackbar(
+              "Thanh toán thất bại",
+              "Vui lòng thử lại",
+              snackPosition: SnackPosition.TOP,
+              colorText: const Color.fromARGB(255, 255, 0, 0),
+              duration: const Duration(seconds: 5),
+              backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+            );
             log("payment test 2 ${payResult}");
             break;
         }
@@ -215,7 +255,8 @@ class _MethodPaymentScreenState extends State<MethodPaymentScreen> {
                               fit: BoxFit.fitHeight, //url,
                               errorBuilder: (BuildContext context,
                                   Object exception, StackTrace? stackTrace) {
-                                return Image.asset(LinkImages.erroPicHandelLocal);
+                                return Image.asset(
+                                    LinkImages.erroPicHandelLocal);
                               },
                             ),
                           ],
