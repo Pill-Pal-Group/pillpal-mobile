@@ -23,12 +23,9 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
         actions: [
           IconButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const OnbodingScreen(),
-                  ),
-                );
+                Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
+            builder: (context) => const OnbodingScreen(),
+          ), (route) => false);
               },
               icon: const Icon(CupertinoIcons.clear))
         ],

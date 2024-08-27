@@ -127,7 +127,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     _cTimeCtrl.text = widget.cTime;
     _tTimeCtrl.text = widget.tTime;
     _offSetTimeCtrl.text = widget.offtime;
-    if(widget.dob != "Chưa cập nhật"){
+    if (widget.dob != "Chưa cập nhật") {
       dobTime = DateTime.parse(widget.dob);
     }
   }
@@ -268,6 +268,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 onPressed: () {
                   putCutomerprofilr(dobTime).whenComplete(() {
                     putdefaultTime().whenComplete(() {
+                      Get.snackbar(
+                        "Cập nhật hồ sơ thành công",
+                        "Hãy tải lại trang",
+                        snackPosition: SnackPosition.TOP,
+                        colorText: const Color.fromARGB(255, 94, 186, 36),
+                        duration: const Duration(seconds: 5),
+                        backgroundColor:
+                            const Color.fromARGB(255, 227, 227, 227),
+                      );
                       Navigator.of(context).pop();
                     });
                   });

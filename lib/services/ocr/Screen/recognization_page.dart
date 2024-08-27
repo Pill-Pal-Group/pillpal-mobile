@@ -58,15 +58,22 @@ class _RecognizePageState extends State<RecognizePage> {
     );
     final json = jsonDecode(response.body);
     log(json.toString());
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => EntryPoint(
-          selectpage: bottomNavItems.first,
-        ),
-      ),
+    Get.snackbar(
+      "Thêm Thành Công",
+      "Kiểm tra lại đơn thuốc",
+      snackPosition: SnackPosition.TOP,
+      colorText: const Color.fromARGB(255, 94,186,36),
+      duration: const Duration(seconds: 5),
+      backgroundColor: const Color.fromARGB(255, 227, 227, 227),
     );
-    log("okene");
+    Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (context) => EntryPoint(
+            selectpage: bottomNavItems.first,
+          ),
+        ),
+        (route) => false);
   }
 
   void pushMedicineVer2(
@@ -366,15 +373,15 @@ class _RecognizePageState extends State<RecognizePage> {
                               children: [
                                 Expanded(
                                   child: TextField(
-                                      //obscureText: true,
-                                      decoration: InputDecoration(
-                                        border: const OutlineInputBorder(),
-                                        labelText: _medicineName[index],
-                                      ),
-                                      onChanged: (value) {
-                                        _medicineName[index] = value;
-                                      },
+                                    //obscureText: true,
+                                    decoration: InputDecoration(
+                                      border: const OutlineInputBorder(),
+                                      labelText: _medicineName[index],
                                     ),
+                                    onChanged: (value) {
+                                      _medicineName[index] = value;
+                                    },
+                                  ),
                                 ),
                                 const SizedBox(
                                   width: 10,

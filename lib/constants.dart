@@ -93,7 +93,7 @@ class LinkImages {
   //ZalopayLogo
   static const String zalopayLogo = "https://haitrieu.com/wp-content/uploads/2022/10/Logo-ZaloPay-Square.png";
   
-  static const String erroPicHandelLocal = "assets/picture/wsa.jpg";
+  static const String erroPicHandelLocal = "assets/picture/ehp.png";
 
   static const String erroPicHandelLink = "https://www.shutterstock.com/image-vector/chibi-cute-vector-male-doctor-600nw-2401192065.jpg";
 

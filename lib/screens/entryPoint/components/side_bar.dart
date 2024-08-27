@@ -69,12 +69,9 @@ class _SideBarState extends State<SideBar> {
         await GoogleSignIn().signOut();
         FirebaseAuth.instance.signOut();
         context.read<Alarmprovider>().deleteData();
-        Navigator.push(
-          context,
-          MaterialPageRoute(
+        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
             builder: (context) => const OnbodingScreen(),
-          ),
-        );
+          ), (route) => false);
         break;
       default:
     }

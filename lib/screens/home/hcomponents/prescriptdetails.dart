@@ -19,7 +19,10 @@ class PrescriptDetails extends StatefulWidget {
   final List<dynamic> pdList;
   final double mediaQuery;
   const PrescriptDetails(
-      {super.key, required this.pdList, required this.prescriptID, required this.mediaQuery});
+      {super.key,
+      required this.pdList,
+      required this.prescriptID,
+      required this.mediaQuery});
 
   @override
   State<PrescriptDetails> createState() => _PrescriptDetailsState();
@@ -40,15 +43,28 @@ class _PrescriptDetailsState extends State<PrescriptDetails> {
 
   Future<void> deletePrescripts(String prID) async {
     //log("Home DeletePrescripts $prID");
-    String url = APILINK.deletePrescriptsHeader+prID;
+    String url = APILINK.deletePrescriptsHeader + prID;
     final uri = Uri.parse(url);
-    final respone = await http.delete(uri,headers: <String, String>{
-          'accept': '*/*',
-          'Authorization': 'Bearer ${UserInfomation.accessToken}',
-          'Content-Type': 'application/json'
-        },);
-    if (respone.statusCode == 200 || respone.statusCode == 201 ||respone.statusCode == 204 ) {
+    final respone = await http.delete(
+      uri,
+      headers: <String, String>{
+        'accept': '*/*',
+        'Authorization': 'Bearer ${UserInfomation.accessToken}',
+        'Content-Type': 'application/json'
+      },
+    );
+    if (respone.statusCode == 200 ||
+        respone.statusCode == 201 ||
+        respone.statusCode == 204) {
       log("Home DeletePrescripts Success ${respone.statusCode}");
+      Get.snackbar(
+        "Đã xóa đơn thuốc",
+        "Kiểm tra lại đơn thuốc",
+        snackPosition: SnackPosition.TOP,
+        colorText: const Color.fromARGB(255, 94, 186, 36),
+        duration: const Duration(seconds: 5),
+        backgroundColor: const Color.fromARGB(255, 227, 227, 227),
+      );
     } else if (respone.statusCode == 404) {
       refreshAccessToken(
               UserInfomation.accessToken, UserInfomation.refreshToken)
@@ -58,8 +74,7 @@ class _PrescriptDetailsState extends State<PrescriptDetails> {
     }
   }
 
-  void updateMedicineImage(String prescriptDetailId,String imageLink) async {
-    //log("Home updateMedicineImage Success $prescriptDetailId");
+  void updateMedicineImage(String prescriptDetailId, String imageLink) async {
     String url =
         "https://pp-devtest2.azurewebsites.net/api/prescripts/prescript-details/$prescriptDetailId/image";
     final uri = Uri.parse(url);
@@ -69,21 +84,30 @@ class _PrescriptDetailsState extends State<PrescriptDetails> {
           'Authorization': 'Bearer ${UserInfomation.accessToken}',
           'Content-Type': 'application/json'
         },
-        body: jsonEncode(<String, dynamic>{
-          'medicineImage': imageLink
-        }));
-    if (respone.statusCode == 200 || respone.statusCode == 201 || respone.statusCode == 204) {
+        body: jsonEncode(<String, dynamic>{'medicineImage': imageLink}));
+    if (respone.statusCode == 200 ||
+        respone.statusCode == 201 ||
+        respone.statusCode == 204) {
       log("Home updateMedicineImage success ${respone.statusCode}");
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const EntryPoint(),
-        ),
+      Get.snackbar(
+        "Cập nhật thành công",
+        "Kiểm tra lại đơn thuốc",
+        snackPosition: SnackPosition.TOP,
+        colorText: const Color.fromARGB(255, 94, 186, 36),
+        duration: const Duration(seconds: 5),
+        backgroundColor: const Color.fromARGB(255, 227, 227, 227),
       );
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const EntryPoint(),
+          ),
+          (route) => false);
     } else if (respone.statusCode == 401) {
       refreshAccessToken(
               UserInfomation.accessToken, UserInfomation.refreshToken)
-          .whenComplete(() => updateMedicineImage(prescriptDetailId,imageLink));
+          .whenComplete(
+              () => updateMedicineImage(prescriptDetailId, imageLink));
     } else {
       log("Home updateMedicineImage bug ${respone.statusCode}");
     }
@@ -206,15 +230,24 @@ class _PrescriptDetailsState extends State<PrescriptDetails> {
                       TextButton(
                         child: Text('Tìm thuốc ${post['medicineName']}'),
                         onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => EntryPoint(
-                                selectpage: bottomNavItems.last,
-                                medname: post['medicineName'],
+                          Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => EntryPoint(
+                                  selectpage: bottomNavItems.last,
+                                  medname: post['medicineName'],
+                                ),
                               ),
-                            ),
-                          );
+                              (route) => false);
+                          // Navigator.push(
+                          //   context,
+                          //   MaterialPageRoute(
+                          //     builder: (context) => EntryPoint(
+                          //       selectpage: bottomNavItems.last,
+                          //       medname: post['medicineName'],
+                          //     ),
+                          //   ),
+                          // );
                         },
                       ),
                       TextButton(
@@ -224,7 +257,9 @@ class _PrescriptDetailsState extends State<PrescriptDetails> {
                             pickImage(source: ImageSource.camera).then((value) {
                               if (value.$1 != '') {
                                 log("pick anh don thuoc ${value.$2}");
-                                uploads(value.$2,value.$1).whenComplete(() => updateMedicineImage(post['id'],imageprdLink));
+                                uploads(value.$2, value.$1).whenComplete(() =>
+                                    updateMedicineImage(
+                                        post['id'], imageprdLink));
                               }
                             });
                           }, onGalleryTap: () {
@@ -232,7 +267,9 @@ class _PrescriptDetailsState extends State<PrescriptDetails> {
                                 .then((value) {
                               if (value.$1 != '') {
                                 log("pick anh don thuoc ${value.$2}");
-                                uploads(value.$2,value.$1).whenComplete(() => updateMedicineImage(post['id'],imageprdLink));
+                                uploads(value.$2, value.$1).whenComplete(() =>
+                                    updateMedicineImage(
+                                        post['id'], imageprdLink));
                               }
                             });
                           });
@@ -250,7 +287,7 @@ class _PrescriptDetailsState extends State<PrescriptDetails> {
     });
   }
 
-  Future<void> uploads(String? imageName,String pathinput) async {
+  Future<void> uploads(String? imageName, String pathinput) async {
     final tmppath = 'Medicines/$imageName';
     final file = File(pathinput);
     final ref = FirebaseStorage.instance.ref().child(tmppath);
@@ -295,18 +332,18 @@ class _PrescriptDetailsState extends State<PrescriptDetails> {
                         TextButton(
                           child: const Text('Xóa'),
                           onPressed: () {
-                            deletePrescripts(widget.prescriptID).whenComplete(
-                                () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => EntryPoint(
-                                selectpage: bottomNavItems[0],
-                                medname: "",
-                              ),
-                            ),
-                          );
-                        });
+                            deletePrescripts(widget.prescriptID)
+                                .whenComplete(() {
+                              Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => EntryPoint(
+                                      selectpage: bottomNavItems[0],
+                                      medname: "",
+                                    ),
+                                  ),
+                                  (route) => false);
+                            });
                           },
                         ),
                         TextButton(

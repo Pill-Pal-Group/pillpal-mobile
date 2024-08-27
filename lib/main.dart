@@ -11,7 +11,6 @@ import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
-
 import 'services/noti/alarm_provider.dart';
 
 FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =

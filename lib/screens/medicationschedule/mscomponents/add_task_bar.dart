@@ -77,8 +77,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       body: jsonEncode(<String, dynamic>{
         "prescriptImage": LinkImages.erroPicHandelLink,
         "receptionDate": outputDate1,
-        "doctorName": "No",
-        "hospitalName": "No",
+        "doctorName": "Không có",
+        "hospitalName": "Không có",
         "prescriptDetails": [
           {
             "medicineName": _titleCtrl.text.toString(),
@@ -113,19 +113,19 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     var outputFormat = DateFormat('yyyy-MM-dd');
     for (var i = 0; i < totalday; i++) {
       var dateTake = outputFormat.format(nowTime.add(Duration(days: i)));
-      if (int.parse(_sNumCtrl.text) > 0) {
+      if (double.parse(_sNumCtrl.text) > 0) {
         postMediceneIntake(
             dateTake, _starTimes, double.parse(_sNumCtrl.text), id);
       }
-      if (int.parse(_trNumCtrl.text) > 0) {
+      if (double.parse(_trNumCtrl.text) > 0) {
         postMediceneIntake(
             dateTake, _starTImetr, double.parse(_trNumCtrl.text), id);
       }
-      if (int.parse(_cNumCtrl.text) > 0) {
+      if (double.parse(_cNumCtrl.text) > 0) {
         postMediceneIntake(
             dateTake, _starTImec, double.parse(_cNumCtrl.text), id);
       }
-      if (int.parse(_tNumCtrl.text) > 0) {
+      if (double.parse(_tNumCtrl.text) > 0) {
         postMediceneIntake(
             dateTake, _starTImet, double.parse(_tNumCtrl.text), id);
       }
@@ -530,19 +530,19 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 "Thêm Thành Công",
                 "Kiểm tra lại đơn thuốc",
                 snackPosition: SnackPosition.TOP,
-                colorText: const Color.fromARGB(255, 13, 255, 9),
+                colorText: const Color.fromARGB(255, 94,186,36),
                 duration: const Duration(seconds: 5),
                 backgroundColor: const Color.fromARGB(255, 227, 227, 227),
               );
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => EntryPoint(
+              Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => EntryPoint(
                     selectpage: bottomNavItems[0],
                     medname: "",
                   ),
-                ),
-              );
+                  ),
+                  (route) => false);
             });
           } else {
             Get.snackbar(

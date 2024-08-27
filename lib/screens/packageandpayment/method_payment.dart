@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_zalopay_sdk/flutter_zalopay_sdk.dart';
@@ -28,24 +27,6 @@ class _MethodPaymentScreenState extends State<MethodPaymentScreen> {
   String packageId = "";
   String paymentID = "";
   String payResult = "ko co gi";
-
-  void postCustomerPackage(String packageID, String paymentID) async {
-    final response = await http.post(
-      Uri.parse(APILINK.postCustomerPackage),
-      headers: <String, String>{
-        'accept': 'application/json',
-        'Authorization': 'Bearer $tokene',
-        'Content-Type': 'application/json'
-      },
-      body: jsonEncode(<String, dynamic>{
-        "packageCategoryId": packageID,
-        "paymentId": paymentID
-      }),
-    );
-    log(response.statusCode.toString());
-    final json = jsonDecode(response.body);
-    log(json.toString());
-  }
 
   void paymentConform(bool check, String packageID, String paymentID) {
     if (check) {
@@ -104,19 +85,19 @@ class _MethodPaymentScreenState extends State<MethodPaymentScreen> {
         respone.statusCode == 201 ||
         respone.statusCode == 204) {
       Get.snackbar(
-          "Thanh toán thành công",
-          "Chúc một ngày tốt lành",
-          snackPosition: SnackPosition.TOP,
-          colorText: const Color.fromARGB(255, 0, 255, 0),
-          duration: const Duration(seconds: 5),
-          backgroundColor: const Color.fromARGB(255, 255, 255, 255),
-        );
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const EntryPoint(),
-        ),
+        "Thanh toán thành công",
+        "Chúc một ngày tốt lành",
+        snackPosition: SnackPosition.TOP,
+        colorText: Color.fromARGB(255, 94,186,36),
+        duration: const Duration(seconds: 5),
+        backgroundColor: const Color.fromARGB(255, 255, 255, 255),
       );
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const EntryPoint(),
+          ),
+          (route) => false);
     } else if (respone.statusCode == 401) {
       refreshAccessToken(
               UserInfomation.accessToken, UserInfomation.refreshToken)
