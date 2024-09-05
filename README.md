@@ -2,6 +2,10 @@
 
 <a name="top"></a>
 
+<div align="center">
+  <img width="20%" src="./res/pillpal-logo.png" alt="logo"/>
+</div>
+
 <div align="center">If you see this Have a good day my friend - ChienNH</div>
 
 <div align="left">
